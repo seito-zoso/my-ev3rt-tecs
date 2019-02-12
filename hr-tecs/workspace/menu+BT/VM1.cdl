@@ -19,6 +19,7 @@ region rDomainEV3 {
 	// 呼び口の結合
 		cBody = Mruby.eMrubyBody;
 		//* 属性の設定
+
 		taskAttribute 	= C_EXP("TA_ACT");
 		priority 		= C_EXP("EV3_MRUBY_VM_PRIORITY");
 		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");

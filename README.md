@@ -12,10 +12,13 @@
 以下に使い方をまとめます。
 
 ## ０．EV3RT+TECSのダウンロードや環境構築
-「mruby on EV3RT+TECS」はここからダウンロードできます[[ダウンロード](https://www.toppers.jp/tecs.html)]。
-また初期環境構築等の方法についてはダウンロードしたファイルの doc/mruby_on_ev3rt+tecs_build.pdf を参考にしてください。
 
-次にこのレポジトリ
+このレポジトリをGitクローンしてください。
+
+    % git clone https://github.com/seito-zoso/my-ev3rt-tecs.git
+
+初期環境構築等の方法については doc/mruby_on_ev3rt+tecs_build.pdf を参考にしてください。
+（本家「mruby on EV3RT+TECS」はここからダウンロードできます[[ダウンロード](https://www.toppers.jp/tecs.html)]）
 
 ## １．LCD上でアプリケーションを選択実行する
 
