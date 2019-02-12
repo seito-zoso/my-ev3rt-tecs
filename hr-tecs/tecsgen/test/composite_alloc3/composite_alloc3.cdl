@@ -1,0 +1,252 @@
+/*
+ * セルフアロケータのテスト
+ */
+
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+signature sAlloc {
+	ER  alloc( [in]int32_t sz, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sSig {
+	ER  func( [send(sAlloc)]int32_t *a );
+	ER  func2( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t sz );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+	attr {
+		int32_t  num;
+	};
+};
+
+celltype tCt1 {
+	entry sSig eEnt;
+	attr {
+		int32_t  num;
+	};
+};
+
+[active,singleton]
+celltype tCt2 {
+	call sSig cCall[];
+};
+
+// composite 内のセルフアロケータ
+composite tCompAlloc {
+
+	entry sAlloc eAlloc;
+	[allocator(
+		func.a=eAlloc,
+		func2.buf=eAlloc)]
+	entry sSig  eEntExt;
+	attr {
+		int32_t  num;
+	};
+
+	[allocator(
+		eEnt.func.a=Alloc.eA,
+		eEnt.func2.buf=Alloc.eA)]
+	cell tCt1 Cell1 {
+		num = composite.num;
+	};
+
+	cell tAlloc Alloc{
+		num = composite.num;
+	};
+
+	cell tAlloc Alloc2{
+		num = composite.num;
+	};
+
+	composite.eEntExt => Cell1.eEnt;
+	composite.eAlloc  => Alloc.eA;
+	// composite.eAlloc  => Alloc2.eA;
+};
+
+
+// --------  2組目 -------
+
+cell tCt2 Cell2{
+	cCall[] = CompAlloc.eEntExt;
+	cCall[] = CompAlloc2.eEntExt;
+};
+
+cell tCompAlloc CompAlloc{
+	num = 1;
+};
+
+cell tCompAlloc CompAlloc2{
+	num = 2;
+};
+
+// セルフアロケータの再帰的 composite 化
+//**********
+composite tCompAllocSuper {
+	[allocator(func.a=eAlloc,
+			   func2.buf=eAlloc)]
+	entry	sSig	eEntExt2;
+	entry	sAlloc	eAlloc;
+	attr {
+		int32_t  num;
+	};	
+	
+	cell tCompAlloc CellIn{
+		num = composite.num;
+	};
+	cell tAlloc Alloc{
+		num = composite.num;
+	};
+	composite.eEntExt2 => CellIn.eEntExt;
+	composite.eAlloc   => CellIn.eAlloc;
+	// composite.eAlloc   => Alloc.eA;
+};
+
+cell tCompAllocSuper CompAllocSuper{
+	num = 10;
+};
+
+[active,singleton]
+celltype tCt3 {
+	call sSig cCall;
+};
+
+cell tCt3 Cell3{
+	cCall = CompAllocSuper.eEntExt2;
+};
+
+// **********/
+
+/*****
+
+【内部アロケータ】
+
+アロケータを composite の内側に置き、それにsend/receive 引数のアロケータを結合させた受け口を外部公開する場合
+
+仕様：
+・アロケータの受け口は外部公開しなくてはならない
+・composite の受け口の定義で、アロケータの指定を行う
+
+理由：
+・インタフェース部を見ただけで、内部結合されていることがわかる
+・再帰的な composite も同じ方法で実現できる
+
+実装：
+tCompAlloc が定義されたとき
+・tCompAlloc の new_port において
+  ・もし、(3) において内部アロケータ(2) が指定されているならば
+    ・(3）のチェックにおいて
+        (2)の左辺の引数が (3) のシグニチャに存在し、
+        (2)の右辺eAlloc の signature が func.a の send の alloc と一致することをチェック
+        @internal_allocator_list を作成
+・tCompAlloc の new_join において
+  ・もし、（3）の func.a にリレーアロケータ/内部アロケータ指定なければ、外部アロケータへの new_join も行う
+・tCompAlloc の end_of_parse において
+  (2) のアロケータ指定と (5) の内部アロケータ結合に矛盾がないことの確認
+  ・(3) について
+    (2) の右辺 eAlloc を (1) ⇒ (9) とたどり内部の結合先 Alloc.eAlloc を得る
+    (3) ⇒ (8) ⇒ (6) とたどり結合先 Cell1 を探す
+    ・もし Cell1 の alloc_list の内容に eEnt_func_a があれば、
+        Alloc.eAlloc に一致することを確認する
+    ・なければエラー
+
+tCompAlloc のセルが生成されたとき
+・Cell#expand にて
+  ・alloc_list に（get_allocator_list に基づいて） (2) の結合を加える
+
+@internal_allocator_list の変更
+   @internal_allocator_list は内部セルへの結合になっていたが、外部セルに改める
+   内部セルへ直接結合するような alloc_list が作成されていたが、composite のセルのアロケータの受け口へのものに変更
+   ・CompositeCelltype#new_join から CompositeCelltype#new_port へ移す
+   ・Cell#expand
+
+修正の記録
+・bnf.y.rb :  composite_celltype_statement_specifier において alloc_list => alloc_list2
+・Port#set_allocator_instance
+     内部アロケータの指定をエラー(S1081)としない
+
+*****/
+
+/****
+
+composite tCompAlloc {
+
+	[allocator(
+		func.a=eAlloc,                  … (2)
+		func2.buf=eAlloc)]
+	entry sSig    eEntExt;              … (3)
+
+	entry sAlloc  eAlloc;            　 … (1)           // 前方参照可能
+
+	attr {
+		int32_t  num;                   … (4)
+	};
+
+    [allocator(                         … (5)
+		eEnt.func.a=Alloc.eAlloc,
+		eEnt.func2.buf=Alloc.eAlloc)]
+	cell tCt1 Cell1 {                   … (6)
+		num = composite.num;
+	};
+
+	cell tAlloc Alloc{
+		num = composite.num;            … (7)
+	};
+
+	composite.eEntExt => Cell1.eEnt;    … (8)
+	composite.eAlloc  => Alloc.eAlloc;  … (9)
+};
+
+composite tCompAllocSuper {
+	entry sAlloc  eAlloc;
+	[allocator(
+		func.a    = eAlloc,
+		func2.buf = eAlloc)]
+	entry sSig    eEntExt2;
+	attr {
+		int32_t  num;
+	};	
+	cell tCompAllocNew CellIn{
+		num = composite.num;
+	};
+	composite.eEntExt2 => CellIn.eEntExt;
+	composite.eAlloc   => CellIn..eAlloc;
+};
+
+// *****/
+
+/****
+
+【リレーアロケータ】
+
+tCompRelayAlloc の end_of_parse にて
+・IF (2)が　Relay アロケータ指定を持つ？
+・THEN
+  ・(1)  の右辺の cCall.func.a があることを調べる (signature の一致も調べる)
+      左辺もあることを調べる
+  ・(2) eEntExt.func.a 
+     => (6) Relay.eEnt.func.a     これに対応する relay allocator を得る         (a)
+     => (5) Relay.cCall.func.a    この呼び口の結合先が外部であることを確認する  (b)
+     ⇒ (4) cCallExt.func.a
+
+  (b) において、再び relay allocator である場合がある（多段リレー結合）
+      その場合 (b) ⇒ (a) の流れを繰り返す
+
+tCompRelayAlloc のセルが生成されたとき
+・create_relay_allocaotr において alloc_list を完成させる
+
+composite tCompRelayAlloc {
+	[allocator(	func.a    <= cCallExt.func.a,  … (1)
+				func2.buf <= cCallExt.func2.buf)]
+		entry	sSig	eEntExt;               … (2)
+	call		sSig	cCallExt;              … (3)
+
+	cell tRelayCell Relay {                    … (4)
+		cCall => composite.cCallExt;           … (5)
+	};
+	composite.eEntExt => Relay.eEnt;           … (6)
+};
+
+// ****/

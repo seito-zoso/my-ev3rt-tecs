@@ -1,0 +1,115 @@
+/* composite のリレーアロケータのテストコード */
+
+import_C( "cygwin_tecs.h" );
+
+signature sAlloc {
+	ER  alloc( [in]int32_t sz, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sSig {
+	ER  func( [send(sAlloc)]int32_t *a );
+	ER  func2( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t sz );
+};
+
+celltype tAlloc {
+	entry sAlloc eAlloc;
+};
+
+celltype tRelay {
+	[allocator( func.a<=cCall.func.a,
+	   func2.buf<=cCall.func2.buf )]
+		entry sSig eEnt;
+	call sSig cCall;
+};
+
+celltype tCt2 {
+	entry sSig eEnt2;
+};
+
+//******
+// composite 内のリレーアロケータ
+composite tCompRelayAlloc {
+	[allocator( func.a    <= cCallExt.func.a,
+				func2.buf <= cCallExt.func2.buf )]
+	entry sSig eEntExt;
+	call sSig cCallExt;
+
+	cell tRelay Cell1 {
+		cCall => composite.cCallExt;
+	};
+
+	composite.eEntExt => Cell1.eEnt;
+};
+
+cell tAlloc Alloc {};
+
+[allocator( eEnt2.func.a=Alloc.eAlloc,
+			eEnt2.func2.buf=Alloc.eAlloc)]
+cell tCt2 Cell2{
+};
+
+cell tCompRelayAlloc CellCompRelayAlloc {
+	cCallExt = Cell2.eEnt2;
+};
+
+/*
+cell tRelay CellRelay {
+	cCall = Cell2.eEnt2;
+};
+*/
+
+//////////////////////
+// 多段リレー
+composite tCompMultiRelayAlloc {
+	[allocator( func.a    <= cCallExt.func.a,
+				func2.buf <= cCallExt.func2.buf )]
+	entry sSig eEntExt;
+	call sSig cCallExt;
+
+	cell tRelay Cell1 {
+		cCall => composite.cCallExt;
+	};
+	cell tRelay Cell2 {
+		cCall = Cell1.eEnt;
+	};
+
+	composite.eEntExt => Cell2.eEnt;
+};
+
+cell tCompMultiRelayAlloc CellCompMultiRelayAlloc {
+	cCallExt = Cell2.eEnt2;
+};
+
+
+[active]
+celltype tClient {
+	call sSig cCall[];
+};
+
+cell tClient Client {
+    cCall[] = CellCompRelayAlloc.eEntExt;
+    cCall[] = CellCompMultiRelayAlloc.eEntExt;
+	//    cCall[] = CellRelay.eEnt;
+};
+
+// ********/
+
+// composite 内のリレーアロケータ(内部多段接続）
+/*****
+composite tCompRelayAlloc2 {
+	[allocator( func.a    <= cCall.func.a,
+				func2.buf <= cCall.func2.buf )]
+	entry sSig eEntExt;
+	call sSig cCallExt;
+
+	cell tRelay Cell1 {
+		cCall => composite.cCallExt;
+	};
+	cell tRelay Cell2 {
+		cCall = Cell1.eEnt;
+	};
+
+	composite.eEntExt => Cell2.eEnt;
+};
+// *****/

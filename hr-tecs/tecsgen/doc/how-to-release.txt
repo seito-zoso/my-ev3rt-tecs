@@ -1,0 +1,140 @@
+TECS ジェネレータリリース手順書
+						2009.12.27  大山  △2
+						2009.10.13  大山  △1
+						2009.5.22   大山
+
+TECS ジェネレータをリリースするまでの手順を記す。
+品質を保つために、リリース前のテストと、登録漏れのないことの確認テストを実施する。
+
+1) ビルドテスト
+
+ % make clean
+ % make
+ % make test_exec
+ % make test_err
+    目視検査：エラー数が一致するかを見る
+
+未完：test_exec: 出力されたメッセージが適切かの自動チェック
+未完：test_err: エラー数が正しいか、エラーメッセージが変わっていないかの自動チェック
+未完：自動化されていないため、いつも行っているわけではないが、極力行っているテスト
+ ・opaqueRPC のテスト（ make test_exec で実施されない）
+     server で exe を起動後、client の exe を起動
+ ・FatFS のビルドおよび実行テスト
+     file.exe と file_trace.exe の両方をビルドして実行
+
+2) MANIFEST のチェック
+
+・バージョン番号を更新する
+   tecsgen/MANIFEST の VERSION の項を更新
+
+・以下の MANIFEST ファイルの過不足がないかチェック
+
+マニフェストファイル
+ ; tecsgen/MANIFEST 
+ ; tecsgen/test/MANIFEST 
+ ; tecsgen/tecs/MANIFEST 
+
+・MANIFEST ファイルに登録されていないファイルの一覧は、以下のコマンドで出力される
+
+ % ./util/release.sh -u
+
+　（余分に登録されている（存在しない）ファイルは、-c 実行時にチェックされる）
+・この際に version.rb が tecsgen/MANIFEST ファイルから作成される
+・tecsgen/tecsgen.exy が tecsgen.exy.ini と VERSION 情報を元に作成される
+・MANIFEST ファイルに記述する内容は、ファイルのリスト（ディレクトリは含めない）
+・MANIFEST ファイルには、リリース時に配布するもののみに限定する
+  配布しないものは、含めない．このファイルや tecsgen/util フォルダ下のものは含めない
+
+2.1) exerb 版のビルド
+
+ActiveScriptRuby を使ってビルドする。2) を必ず実施しておく。
+tecsgen.exy の更新は、./release.sh -u で実施されるため。
+
+・doc/README-exerb.txt に記載の手順に従ってビルド
+
+3) リリース用の tar ボールの作成
+
+以下のコマンドで作成される
+
+ % ./util/release.sh -c
+
+・MANIFEST ファイルに基いて作成される
+
+3.1) exerb 版のチェック
+
+exerb 版は、ここでチェックする。
+
+  % cd test
+  % make test_exerb
+  % make clean      # 上記のテスト結果を確認後実行する
+
+4) svn のチェック
+
+svn に登録するファイルの過不足がないかチェック
+以下のコマンドでチェックできる
+
+ % svn st
+
+・svn には、このファイルや tecsgen/util フォルダ下のものなど、配布しないがバージョン管理するものは登録する
+
+5) svn へのアップ
+
+svn へ登録する前に、必ず 3) を実施する必要がある（version.rbのため）
+
+・trunk のみにアップする場合
+
+ % ./util/upload.sh -t 
+
+・tag も作る場合
+
+ % ./util/upload.sh -c
+
+・tag は MANIFEST ファイルのバージョンによりバージョン付けされる
+・tag が存在する場合に
+
+6) リリース物のチェック
+
+・ここでは、漏れがないかのチェックが主体である
+
+・tar ボールのチェック
+
+  % cygwin を起動する（環境変数の問題が生じないように）
+  % cd temp
+  % tar xvzf ../tecsgen-1.0.0.tgz
+  % cd tecsgen
+  % source set_env
+  % make
+  % make test_exec
+
+・svn のチェック
+
+svn へのアップは trunk のみの場合と、trunk と tag の両方をアップする場合がある
+tag にもアップした場合には tag をチェックすればよい
+（trunk から copy して作成しているので、trunk と必ず一致する）
+
+  % cygwin を起動する（環境変数の問題が生じないように）
+  % cd temp
+
+  % svn co http://dev.toppers.jp/svn/tecs/tecsgen/trunk/
+  % cd trunk
+  # tag からとる場合
+  # svn co http://dev.toppers.jp/svn/tecs/tecsgen/tags/tecsgen-1.0.0
+  # cd tecsgen-1.0.0
+
+  % source set_env
+  % make
+  % make test_exec
+
+7)アナウンスする
+
+
+履歴）
+△1  2009.10.13
+ 1) ビルドテスト  に以下を追加
+
+ ・skyeye 版の transparent RPC のビルドおよび実行テスト △1
+
+△2 2009.12.27
+ 1) ビルドテスト  で以下は実施しない
+
+ ・skyeye 版の transparent RPC のビルドおよび実行テスト △1

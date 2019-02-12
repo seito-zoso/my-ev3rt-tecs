@@ -1,0 +1,35 @@
+;=================================================== 
+; Filename    : zmodemsend.ttl 
+; Description : Send mruby bytecodes with ZMODEM 
+; Author      : 
+; Created     : 
+; modified    : 
+;=================================================== 
+
+;;
+AUTOCLOSE=1
+
+;; COMポート／ボー・レート設定 
+COM_PORT = '_COM_PORT_' 
+BAUDRATE = '_BAUDRATE_' 
+;=================================================== 
+;; 1.コマンド組立て 
+COMMAND = '/C=' 
+strconcat COMMAND COM_PORT 
+strconcat COMMAND ' /BAUD=' 
+strconcat COMMAND BAUDRATE
+ 
+;; 2.接続 
+;testlink
+;if result=0 connect 'host'
+connect COMMAND
+
+zmodemsend '_APP_MRB_' 1
+
+;wait 'ZMODEM'
+;if AUTOCLOSE then
+	closett
+;endif
+
+;; 3.マクロ終了 
+end

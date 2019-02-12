@@ -1,0 +1,76 @@
+// const int32_t size = 2;
+const int32_t aVal = 2;
+
+
+celltype tAttribute {
+  attr {
+
+    int32_t  size;
+    uint32_t  ua;
+
+    [size_is(sizeX)]
+      int32_t  *sized_array;
+  };
+
+};
+
+cell tAttribute attr1 {
+  size = -1;  /* negative size */
+  ua   = -1;
+};
+
+cell tAttribute attr2 {
+  size = 10;
+};
+
+cell tAttribute attr3 {
+   size = 10;
+   size_array = { 0, 1, 2 };
+};
+
+celltype tAttribute2 {
+  attr {
+    int32_t  aVal = aVal;
+    int32_t size = size + 1;
+    [size_is(size)]
+      int32_t *size_array;
+    [size_is(size)]
+      int32_t not_array;
+  };
+};
+
+cell tAttribute2 attr4 {
+  size = 2;
+  size_array = { 0, 1, 2 };              /* 配列長さが size より大きい (Join) */
+};
+
+cell tAttribute2 attr5 {
+  size = 2;
+  size = 3;
+  size_array = { 0, 1, 2 };              /* 配列長さが size より大きい (Join) */
+};
+
+celltype tAttribute3 {
+  attr {
+    int32_t size = 2;
+    [size_is(size)]
+      int32_t *size_array = { 1, 2, 3 };    /* 配列長さが size より大きい (Attribute) */
+
+    [size_is(size)]
+      int32_t not_array;                    /* 非ポインタ変数に size_is が指定された */
+  };
+};
+
+const int32_t const_int32 = 1;
+struct tagA { int32_t a; int32_t b; };
+celltype tAttribute4 {
+  attr {
+    int32_t *aa = &a;                     /* 不適切な初期値 */
+    struct tagA *attrst = { 1, 2 };       /* 不適切な初期値 */
+  };
+  var {
+    int32_t *vv = &a;                     /* 不適切な初期値 */
+    struct tagA *varst = { 1, 2 };        /* 不適切な初期値 */
+  };
+};
+

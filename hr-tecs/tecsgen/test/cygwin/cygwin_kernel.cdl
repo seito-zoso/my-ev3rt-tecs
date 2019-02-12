@@ -1,0 +1,306 @@
+import_C( "cygwin_tecs.h" );
+
+/*
+ *  タスク本体を呼び出すためのシグニチャ
+ */
+signature sTaskBody {
+	void	main(void);
+};
+
+/*
+ *  タスク例外処理ルーチン本体を呼び出すシグニチャ
+ */
+signature sTaskExceptionBody {
+	void	main([in] TEXPTN pattern);
+};
+
+/*
+ *  タスクを操作するためのシグニチャ（タスクコンテキスト用）
+ */
+signature sTask {
+	ER		activate(void);
+//	ER_UINT	cancelActivate(void);
+//	ER		terminate(void);
+//	ER		changePriority([in] PRI priority);
+//	ER		getPriority([out] PRI *p_priority);
+//	ER		refer([out] T_RTSK *pk_taskStatus);
+
+//	ER		wakeup(void);
+//	ER_UINT cancelWakeup(void);
+//	ER		releaseWait(void);
+	ER		suspend(void);
+	ER		resume(void);
+//	ER		raiseException([in] TEXPTN pattern);
+};
+
+const int TASK_STATE_0 = 0;
+const int TASK_STATE_1 = 1;
+[active]
+celltype tTask {
+	[inline]   entry	sTask	eTask;	/* タスク操作（タスクコンテキスト用）*/
+
+          	   call	sTaskBody	cBody;  /* タスク本体 */
+    [optional] call	sTaskExceptionBody	cExceptionBody;
+									/* タスク例外処理ルーチン本体 */
+	attr{
+		// ID				id = C_EXP("TSKID_$id$");
+		/*
+		 *  TA_NULL     0x00U   デフォルト値
+		 * 	TA_ACT		0x01U	タスクの生成時にタスクを起動する
+		 */
+		ATR		taskAttribute = C_EXP("TA_NULL");
+		/*
+		 * タスク例外処理ルーチンに指定できる属性はないため
+		 * TA_NULLを指定する
+		 */
+		ATR		exceptionAttribute = C_EXP("TA_NULL");
+		PRI		priority;
+		SIZE	stackSize;
+		char_t *name = C_EXP( "\"$id$\"" );
+	};
+	var {
+		pthread_t       my_thread;
+		pthread_cond_t  my_cond;
+		pthread_mutex_t my_mutex;
+		int_t	        state = TASK_STATE_0;
+	};
+	FACTORY {
+		write( "tTask_factory.h",
+                   "\n#ifdef __GNUC__\n"
+                   "#ifdef Inline\n"
+                   "#define	Inline	  static inline\n"
+                   "#endif /* Inline */\n"
+                   "#endif /* __GNUC__ */\n" );
+	};
+};
+[context("task")]
+signature sKernel{
+
+//	ER		sleep(void);
+//	ER		sleepTimeout([in] TMO timeout);
+	ER		delay([in] RELTIM delay_time);
+
+	ER		exitTask(void);
+//	ER		getTaskId([out]ID *p_task_id);
+
+//	ER		rotateReadyQueue([in] PRI task_priority);
+	
+	ER		getTime([out]SYSTIM *p_system_time);
+	ER		getMicroTime([out]SYSUTM *p_system_micro_time);
+	
+//	ER		lockCpu(void);
+//	ER		unlockCpu(void);
+//	ER		disableDispatch(void);
+//	ER		enableDispatch(void);
+//	ER      disableTaskException(void);
+//	ER      enableTaskException(void);
+//	ER      changeInterruptPriorityMask([in] PRI interrupt_priority);
+//	ER      getInterruptPriorityMask([out] PRI *p_interrupt_priority);
+
+	ER		exitKernel(void);
+//	bool_t	senseContext(void);
+//	bool_t	senseLock(void);
+//	bool_t	senseDispatch(void);
+//	bool_t	senseDispatchPendingState(void);
+//	bool_t	senseKernel(void);
+};
+[context("non-task")]
+signature siKernel {
+
+//	ER      getTaskId([out]ID *p_task_id);
+//	ER		rotateReadyQueue([in] PRI task_priority);
+	ER		getMicroTime([out]SYSUTM *p_system_micro_time);
+	
+//	ER      lockCpu(void);
+//	ER      unlockCpu(void);
+
+//	ER		exitKernel(void);
+//	bool_t	senseContext(void);
+//	bool_t	senseLock(void);
+//	bool_t	senseDispatch(void);
+//	bool_t	senseDispatchPendingState(void);
+//	bool_t	senseKernel(void);
+
+	/* CPU例外ハンドラ中で使用する */
+//	bool_t	senseDispatchPendingStateCPU([in] const void * p_exception_infomation);
+//	bool_t	senseTaskExceptionPendingStateCPU([in] const void * p_exception_infomation);
+};
+
+[singleton]
+celltype tKernel{
+	[inline] entry sKernel  eKernel;
+	[inline] entry siKernel eiKernel;
+};
+/*
+ * セマフォのシグニチャ（タスクコンテキスト用）
+ */
+signature sSemaphore{
+	ER 		signal(void);
+	ER 		wait(void);
+	ER 		waitPolling(void);
+	ER 		waitTimeout([in] TMO timeout);
+	ER 		initialize(void);
+	ER 		refer([out] T_RSEM *pk_semaphore_status);
+};
+
+/*
+ *  セマフォのシグニチャ（非タスクコンテキスト用）
+ */
+[context("non-task")]
+signature siSemaphore {
+	ER 		signal(void);
+};
+/*
+ * セマフォのセルタイプ定義
+ */
+celltype tSemaphore{
+	[inline]entry  sSemaphore   eSemaphore; /* セマフォ操作（タスクコンテキスト用）*/
+	[inline]entry  siSemaphore  eiSemaphore;/* セマフォ操作（非タスクコンテキスト用）*/
+	
+	attr {
+		ID      id = 0/* = C_EXP( "SEMID_$id$" )*/;
+		[omit]  ATR attribute;
+		[omit]  uint32_t count;
+		[omit]  uint32_t maxCount =1;
+
+	};
+	var {
+		pthread_mutex_t  mutex = C_EXP( "PTHREAD_MUTEX_INITIALIZER" );
+	};
+
+//	factory {
+//		write( "tecsgen.cfg", "CRE_SEM(%s, { %s, %s, %s });", id, attribute, count, max);
+//	};
+//	FACTORY{
+//		write( "$ct$_factory.h","#include \"kernel_cfg.h\"" );
+//	};
+};
+
+/*
+ *  イベントフラグのシグニチャ（タスクコンテキスト用）
+ */
+signature sEventflag{
+	ER set([in] FLGPTN set_pattern);
+	ER clear([in] FLGPTN clear_pattern);
+	ER wait([in] FLGPTN wait_pattern, [in] MODE wait_flag_mode, [out] FLGPTN *p_flag_pattern);
+	ER waitPolling([in] FLGPTN wait_pattern, [in] MODE wait_flag_mode, [out] FLGPTN *p_flag_pattern);
+	ER waitTimeout([in] FLGPTN wait_pattern, [in] MODE wait_flag_mode, [out] FLGPTN *p_flag_pattern, [in] TMO timeout);
+
+	ER initialize(void);
+	ER refer([out]T_RFLG *pk_eventflag_status);
+};
+/*
+ *  イベントフラグのシグニチャ（非タスクコンテキスト用）
+ */
+[context("non-task")]
+signature siEventflag {
+	ER set([in] FLGPTN set_pattern);
+};
+/*
+ *  イベントフラグ
+ */
+celltype tEventflag{
+	/*[inline]*/ entry  sEventflag   eEventflag; /* イベントフラグ操作（タスクコンテキスト用）*/
+	/*[inline]*/ entry  siEventflag  eiEventflag;/* イベントフラグ操作（非タスクコンテキスト用）*/
+	
+	attr {
+		ID      id = 0 /*C_EXP( "FLGID_$id$" )*/;
+		/*
+		 * TA_NULL デフォルト値（FIFO待ち）
+         * TA_TPRI 待ち行列をタスクの優先度順にする
+         * TA_WMUL 複数のタスクが待つのを許す
+         * TA_CLR  タスクの待ち解除時にイベントフラグをクリアする
+		 */
+		[omit]  ATR attribute = C_EXP("TA_NULL");
+		/*
+		 * イベントフラグのビットパターンの初期値
+		 */
+		[omit]  FLGPTN flagPattern;
+	};
+	var {
+		pthread_mutex_t   mutex      = C_EXP( "PTHREAD_MUTEX_INITIALIZER" );
+//		pthread_mutex_t   cond_mutex = C_EXP( "PTHREAD_MUTEX_INITIALIZER" );
+		pthread_cond_t    cond       = C_EXP( "PTHREAD_COND_INITIALIZER" );
+		pthread_once_t    once       = { C_EXP("PTHREAD_MUTEX_INITIALIZER"), 0 };
+//		pthread_once_t    once       = C_EXP( "PTHREAD_ONCE_INIT" );
+		FLGPTN            pattern    = flagPattern;
+	};
+
+//	factory {
+//		write( "tecsgen.cfg", "CRE_FLG(%s, { %s, %s});", id, attribute, flag_pattern);
+//	};
+//	FACTORY{
+//		write( "$ct$_factory.h", "#include \"kernel_cfg.h\"" );
+//	};
+};
+
+
+/*
+ *  データキューを操作するためのシグニチャ（タスクコンテキスト用）
+ */
+signature sDataqueue {
+	/*データキューの送信*/
+	ER 		send([in] intptr_t data);
+	ER 		sendPolling([in] intptr_t data);
+	ER 		sendTimeout([in] intptr_t data, [in]TMO timeout);
+	ER 		sendForce([in] intptr_t data);
+	/*データキューの受信*/
+	ER 		receive([out] intptr_t *p_data);
+	ER 		receivePolling([out] intptr_t *p_data);
+	ER 		receiveTimeout([out] intptr_t *p_data, [in]TMO timeout);
+	
+	ER 		initialize(void);
+	ER 		refer([out] T_RDTQ *pk_dataqueue_status);
+};
+/*
+ *  データキューを操作するためのシグニチャ（非タスクコンテキスト用）
+ */
+[context("non-task")]
+signature siDataqueue {
+	ER 		sendPolling([in] intptr_t data); 
+	ER 		sendForce([in] intptr_t data);
+};
+/*
+ *  データキュー
+ */
+celltype tDataqueuePeer {
+	[inline] entry  sDataqueue   eDataqueue; /* データキュー操作（タスクコンテキスト用）*/
+	[inline] entry  siDataqueue  eiDataqueue;/* データキュー操作（非タスクコンテキスト用）*/
+	call  sSemaphore  cInitializing;
+	
+	attr {
+//		ID      id = C_EXP( "DTQID_$id$" );
+		/*
+		 * TA_NULL デフォルト値（FIFO順）
+		 * TA_TPRI 送信待ち行列をタスクの優先度順にする
+		 */
+		ATR     attribute = C_EXP( "TA_NULL" );
+		uint_t  count = 1;
+		void    *pdqmb = C_EXP( "NULL" );
+	};
+	var {
+		int_t   fd[2];   // pipe のディスクリプタ番号
+		bool_t  b_init;
+	};
+
+};
+
+composite tDataqueue {
+	entry  sDataqueue   eDataqueue; /* データキュー操作（タスクコンテキスト用）*/
+	entry  siDataqueue  eiDataqueue;/* データキュー操作（非タスクコンテキスト用）*/
+	attr {
+		uint_t	count;
+	};
+
+	cell tSemaphore Semaphore {
+		count = 1;
+		maxCount = 1;
+		attribute = C_EXP("TA_NULL");
+	};
+	cell tDataqueuePeer Peer {
+		cInitializing = Semaphore.eSemaphore;
+		count = composite.count;
+	};
+	composite.eDataqueue  => Peer.eDataqueue;
+	composite.eiDataqueue => Peer.eiDataqueue;
+};

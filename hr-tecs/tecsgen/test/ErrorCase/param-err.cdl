@@ -1,0 +1,8 @@
+signature sSig {
+	void func(void);
+	void func2( [in]int a, [in]void b );
+	void func3( [in,size_is(sz,sz)]int *a, [in]int sz );
+	void func4( [in,size_is(sz)]int a, [in]int sz );
+	void func5( [in,size_is(sz)]const void *a, [in]int sz );
+	void func6( [in,size_is(sz),nullable]const void *a, [in]int sz );
+};

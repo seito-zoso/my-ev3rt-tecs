@@ -1,0 +1,4 @@
+signature sAir 
+{
+	int32 serial_rea_dat( [in] unsigned int64 len , [out , count_is(len)] char *buf);
+};

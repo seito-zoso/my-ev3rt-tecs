@@ -1,0 +1,248 @@
+/* composite 内のアロケータのテストコード */
+/* composite のアロケータには、この他にリレーアロケータ(composite_alloc2)、セルフアロケータ(composite_alloc3)がある */
+
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+/*
+  1) Composite call, entry の signature に send/receive がある場合、アロケータ呼び口（外部公開用）を内部生成
+  2) CompositeCelltypeJoin を生成する際に port で send/receive を持つ場合内部セルに呼び口の export 結合を内部生成
+
+  080307文法の場合の手順（途中）
+  この文法では allocator 指定子が冗長（上記処理に対し矛盾をチェックするだけ）
+  composite の中で allocator セルを作れる必要があるの？
+  (むしろ作れないほうがよいのではないか)
+  1) composite_statement_specifier_list を設ける bnf.y.rb
+     => を処置する必要あり
+  2) Composite call, entry の signature に send/receive がある場合、アロケータ呼び口（外部公開用）を内部生成
+  3) allocator が => の場合 CompositecelltypeJoin を生成
+  
+ */
+
+signature sAlloc {
+	ER  alloc( [in]int32_t size, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sAllocTMO {
+	ER  alloc( [in]int32_t size, [out]void *p, [in]TMO tmo );
+	ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+	attr {
+		int32_t  size = 8192;
+	};
+	var {
+		[size_is(size)]
+			int8_t  *buffer;
+	};
+};
+
+signature sSendRecv {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+celltype tTestComponent {
+	entry  sSendRecv eS;
+	call   sSendRecv cS;
+};
+
+celltype tTestServ {
+	entry  sSendRecv eS;
+};
+
+celltype tTestClient {
+	call   sSendRecv cS;
+	entry  sTaskBody eBody;
+};
+
+composite tComp {
+	entry sSendRecv eSe;
+	call  sSendRecv cS;
+
+	cell tTestComponent InComp{
+		cS => composite.cS;
+	};
+	composite.eSe => InComp.eS;
+};
+
+/*
+ *
+ * +-------+   +------+    +----------+    +-------------+
+ * |  Task | --|> Top |----|>  Middle |----|>   Bottom   |
+ * +-------+   +------+  | +----------+  | +-------------+
+ *                       |               |
+ *                       +-------+-------+
+ *                               |
+ *                          +-----------+
+ *                          |    V      |
+ *                          |   Alloc   |
+ *                          +-----------+
+ */
+
+cell tAlloc alloc {
+};
+
+[allocator(
+	eS.snd.buf=alloc.eA,
+	eS.rcv.buf=alloc.eA
+	)]
+cell tTestServ Bottom{
+};
+
+[allocator(
+	eS.snd.buf=alloc.eA,
+	eS.rcv.buf=alloc.eA
+	)]
+cell tTestComponent Middle{
+	cS = Bottom.eS;
+};
+
+cell tTestClient Top {
+	cS = Middle.eS;
+};
+
+[allocator(
+	eSe.snd.buf=alloc.eA,
+	eSe.rcv.buf=alloc.eA
+	)]
+cell tComp Middle2{
+	cS = Bottom.eS;
+};
+
+cell tTestClient Top2 {
+	cS = Middle2.eSe;
+};
+
+cell tTask Task1 {
+	cBody = Top.eBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};
+
+cell tTask Task2 {
+	cBody = Top2.eBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};
+
+/*
+ * tCompRec: tComp を再帰的に composite にしたもの
+ */
+composite tCompRec {
+	entry sSendRecv eSx;
+	call  sSendRecv cS;
+	
+	cell tComp Comp {
+		cS => composite.cS;
+	};
+	composite.eSx => Comp.eSe;
+};
+
+[allocator(
+	eSx.snd.buf=alloc.eA,
+	eSx.rcv.buf=alloc.eA
+	)]
+cell tCompRec CompRec {
+	cS = Bottom.eS;
+};
+
+
+/*
+ * 内部でアロケータに結合している（リレーしていない）
+ * 外部には結合は出ていない
+ *
+ *   +----------------------------------------------+
+ *   |  tTriple                                     |
+ *   | +------+    +----------+    +-------------+  |
+ *  -+-|> Top |----|>  Middle |----|>   Bottom   |  |
+ *   | +------+  | +----------+  | +-------------+  |
+ *   |           |               |                  |
+ *   |           +-------+-------+                  |
+ *   |                   |                          |
+ *   |              +-----------+                   |
+ *   |              |    V      |                   |
+ *   |              |   Alloc   |                   |
+ *   |              +-----------+                   |
+ *   +----------------------------------------------+
+ */
+composite tTriple {
+	entry sTaskBody eTaskBody;
+
+	cell tAlloc Alloc {};
+
+	[allocator(
+			   eS.snd.buf=Alloc.eA,
+			   eS.rcv.buf=Alloc.eA
+			   )]
+	cell tTestServ Bottom{
+	};
+
+	[allocator(
+			   eS.snd.buf=Alloc.eA,
+			   eS.rcv.buf=Alloc.eA
+			   )]
+	cell tTestComponent Middle{
+		cS = Bottom.eS;
+	};
+	cell tTestClient    TopB{
+		cS = Middle.eS;
+	};
+	composite.eTaskBody => TopB.eBody;
+};
+
+cell tTriple Triple {
+};
+
+cell tTask Task3 {
+	cBody = Triple.eTaskBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};
+
+
+/*
+ * tTriple2: tTrple の Middle を composite にしたもの
+ */
+composite tTriple2 {
+	entry sTaskBody eTaskBody;
+
+	cell tAlloc Alloc {};
+
+	[allocator(
+			   eS.snd.buf=Alloc.eA,
+			   eS.rcv.buf=Alloc.eA
+			   )]
+	cell tTestServ Bottom{
+	};
+
+	[allocator(
+			   eSx.snd.buf=Alloc.eA,
+			   eSx.rcv.buf=Alloc.eA
+			   )]
+	cell tCompRec Middle{
+		cS = Bottom.eS;
+	};
+	cell tTestClient    Top{
+		cS = Middle.eSx;
+	};
+	composite.eTaskBody => Top.eBody;
+};
+
+cell tTriple2 Triple2 {
+};
+
+cell tTask Task4 {
+	cBody = Triple2.eTaskBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};
+

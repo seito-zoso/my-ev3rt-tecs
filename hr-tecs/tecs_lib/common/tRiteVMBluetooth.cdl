@@ -1,0 +1,65 @@
+/*
+ *  tRiteVMBluetooth.cdl
+ *
+ *
+ */
+
+import(<mruby.cdl>);
+import(<sMruby.cdl>);
+import(<tTLSFMalloc.cdl>);
+
+namespace nMruby {
+
+/*** mruby VM with Bluetooth Loader ***/
+  celltype tRiteVMBluetooth {
+    require tKernel.eKernel;
+    call sTask cTask;
+    entry sTaskBody eMrubyBody;
+    entry sRiteVM eRiteVM;
+    call sReset cReset;
+    [optional]
+      call sCyclic cCyclic;
+    [optional]
+      call sEventflag cEventflag[];
+    [optional]
+      call sSemaphore cSemaphore;
+    attr {
+      [omit]char_t *mrubyLib;
+      //[omit]char_t *mrubyApp;
+      uint8_t *irepLib     = C_EXP("&$cell_global$_irep");
+      uint32_t irepAppSize = 131072;
+      FLGPTN setptn;
+      /**TODO:
+       * true --> Bluetooth Loader あり
+       * false --> Bluetooth Loader なし
+       */
+      //bool_t useBluetoothLoader = false;
+    };
+    var {
+        mrb_state *mrb;
+        mrbc_context *context;
+        [size_is(irepAppSize)] uint8_t *irepApp; // __attribute__((nocommon));
+    };
+
+    /* MrubyBridgePlugin の生成する VM_TECSInitializeer.eInitialize へ結合する */
+    [optional]  call sInitializeBridge cInit;
+    /*
+     * アロケータ
+     *  他と共有しないのであれば、このアロケータは排他制御される必要はない
+     */
+    call sMalloc cMalloc;
+
+    FACTORY{
+      write("Makefile.tecsgen", "clean_mrb_c :");
+      write("Makefile.tecsgen", "	rm -f $(MRB_C)");
+    };
+    factory{
+      write("Makefile.tecsgen", "POST_TECSGEN_TARGET := $(POST_TECSGEN_TARGET) $cell_global$_mrb.c");
+      write("Makefile.tecsgen", "$cell_global$_mrb.c : %s tecs.timestamp Makefile", mrubyLib);
+      write("Makefile.tecsgen", "	$(MRBC) -B$cell_global$_irep -o$cell_global$_mrb.c %s", mrubyLib);
+      write("Makefile.tecsgen", "TECS_COBJS := $(TECS_COBJS) $cell_global$_mrb.o");
+      write("Makefile.tecsgen", "MRB_C := $(MRB_C) $cell_global$_mrb.c");
+      write("$ct_global$_factory.h","extern const char_t *$cell_global$_irep;");
+    };
+  };
+};

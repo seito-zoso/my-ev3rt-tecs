@@ -1,0 +1,15 @@
+import_C( "cygwin_tecs.h" );
+
+signature sSig {
+	void func( void );
+	// void func( [in]int32_t a );
+};
+
+
+celltype tCelltype {
+	entry sSig eEnt;
+};
+
+cell tCelltype Cell {
+};
+

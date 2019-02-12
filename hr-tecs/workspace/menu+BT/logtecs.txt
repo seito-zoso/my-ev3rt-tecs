@@ -1,0 +1,221 @@
+/usr/bin/ruby ../../tecsgen/tecsgen/tecsgen.rb -L ../../tecsgen/tecsgen -k euc --cpp="arm-none-eabi-gcc -E" -R -D TECSGEN -D TECS_CPP \
+				-I../../tecsgen/tecsgen/tecslib/plugin -I. -I./gen -I../../tecs_kernel -I../../include -I../../arch -I../.. -I../../target/ev3_gcc/api/src -I../../../mruby/include -I../../tecs_lib/mindstorms_ev3 -I../../tecs_lib/common -I../../tecsgen/tecsgen/tecs -I../../tecsgen/tecsgen/tecs/mruby -I../../tecsgen/tecsgen/tecs/TLSFMalloc -I../../tecsgen/tecsgen/tecs/posix -I../../target/ev3_gcc/drivers -I../../modules/btstack/platforms/ev3rt -I../../target/ev3_gcc/drivers/soc//AM1808_StarterWare_1_00_03_03/include/hw -I../../modules/usblib/usblib/include -I../../target/ev3_gcc -I../../target/ev3_gcc/api/include -I../../target/ev3_gcc/dmloader/app/include -I../../target/ev3_gcc/dmloader/include -I../../target/ev3_gcc/drivers/bluetooth/btstack/include -I../../target/ev3_gcc/drivers/bluetooth/include -I../../target/ev3_gcc/drivers/brick/include -I../../target/ev3_gcc/drivers/common/include -I../../target/ev3_gcc/drivers/common/virtual-linux-kernel/arch/arm/include -I../../target/ev3_gcc/drivers/common/virtual-linux-kernel/include -I../../target/ev3_gcc/drivers/console/include -I../../target/ev3_gcc/drivers/fatfs/include -I../../target/ev3_gcc/drivers/gpio/include -I../../target/ev3_gcc/drivers/lcd/include -I../../target/ev3_gcc/drivers/lcd/linux/include -I../../target/ev3_gcc/drivers/linux/arch/arm/include -I../../target/ev3_gcc/drivers/linux/arch/arm/mach-davinci/include -I../../target/ev3_gcc/drivers/linux/include -I../../target/ev3_gcc/drivers/mbed/include -I../../target/ev3_gcc/drivers/motor/include -I../../target/ev3_gcc/drivers/newlib/include -I../../target/ev3_gcc/drivers/sensor/analog/include -I../../target/ev3_gcc/drivers/sensor/i2c/include -I../../target/ev3_gcc/drivers/sensor/uart/d_uart/Linuxmod_AM1808/pru-firmware-05-31-2011-1423-v3.0/pru/hal/common/include -I../../target/ev3_gcc/drivers/sensor/uart/d_uart/Linuxmod_AM1808/pru-firmware-05-31-2011-1423-v3.0/pru/hal/uart/include -I../../target/ev3_gcc/drivers/sensor/uart/include -I../../target/ev3_gcc/drivers/soc/AM1808_StarterWare_1_00_03_03/include -I../../target/ev3_gcc/drivers/soc/include -I../../target/ev3_gcc/drivers/sound/include -I../../target/ev3_gcc/drivers/usbmsc/include -I../../target/ev3_gcc/kernel_mod/include -I../../target/ev3_gcc/pil/include -I../../target/ev3_gcc/platform/include -I../../target/ev3_gcc/TLSF-2.4.6/include -I../../arch/arm_gcc/am1808 -I../../arch/arm_gcc/common -I../../arch/gcc -I../../target/ev3_gcc/api -I../../target/ev3_gcc/drivers/fatfs/ff10b/src -I./../common -I. -I./zmodem/include tEV3Sample.cdl
+warning: gen/tmp_tecs_kernel.h: line 229 W9999 double & long incompatible ('long double' is not supported.). Treated as double.
+warning: gen/tmp_t_stddef.h: line 225 W9999 double & long incompatible ('long double' is not supported.). Treated as double.
+warning: gen/tmp_ff.h: line 246 W9999 double & long incompatible ('long double' is not supported.). Treated as double.
+  MrubyBridgePlugin: [pointer]  ID* => class TECS::IntPointer
+  MrubyBridgePlugin: [pointer]  SYSTIM* => class TECS::ULongPointer
+  MrubyBridgePlugin: [signature] ::sKernel => [celltype] nMruby::tsKernel => [class] TECS::TsKernel
+  MrubyBridgePlugin: [signature] ::sMotor => [celltype] nMruby::tsMotor => [class] TECS::TsMotor
+  MrubyBridgePlugin: [pointer]  int32_t* => class TECS::Int32Pointer
+  MrubyBridgePlugin: [pointer]  const char* => class TECS::CharPointer
+  MrubyBridgePlugin: [signature] ::sLCD => [celltype] nMruby::tsLCD => [class] TECS::TsLCD
+  MrubyBridgePlugin: [signature] ::sLED => [celltype] nMruby::tsLED => [class] TECS::TsLED
+  MrubyBridgePlugin: [signature] ::sButton => [celltype] nMruby::tsButton => [class] TECS::TsButton
+  MrubyBridgePlugin: [signature] ::sBattery => [celltype] nMruby::tsBattery => [class] TECS::TsBattery
+  MrubyBridgePlugin: [signature] ::sSpeaker => [celltype] nMruby::tsSpeaker => [class] TECS::TsSpeaker
+  MrubyBridgePlugin: [signature] ::sUltrasonicSensor => [celltype] nMruby::tsUltrasonicSensor => [class] TECS::TsUltrasonicSensor
+  MrubyBridgePlugin: [signature] ::sGyroSensor => [celltype] nMruby::tsGyroSensor => [class] TECS::TsGyroSensor
+  MrubyBridgePlugin: [pointer]  uint16_t* => class TECS::UInt16Pointer
+  MrubyBridgePlugin: [signature] ::sColorSensor => [celltype] nMruby::tsColorSensor => [class] TECS::TsColorSensor
+  MrubyBridgePlugin: [signature] ::sTouchSensor => [celltype] nMruby::tsTouchSensor => [class] TECS::TsTouchSensor
+  MrubyBridgePlugin: [pointer]  int8_t* => class TECS::Int8Pointer
+  MrubyBridgePlugin: [signature] ::sBalancer => [celltype] nMruby::tsBalancer => [class] TECS::TsBalancer
+  MrubyBridgePlugin: [signature] ::sSharedMemory => [celltype] nMruby::tsSharedMemory => [class] TECS::TsSharedMemory
+  MrubyBridgePlugin: [signature] ::sRunApp => [celltype] nMruby::tsRunApp => [class] TECS::TsRunApp
+HRP2Plugin: initialize: region=::, domainName=HRP2, option=OutOfDomain
+  MrubyBridgePlugin: join your VM's cInitialize to VM_TECSInitializer.eInitialize
+HRP2Plugin: initialize: region=rDomainEV3, domainName=HRP2, option=trusted
+HRP2Plugin: add_through_plugin: rDomainEV3=>::, Mruby.cInit=>VM_TECSInitializer.eInitialize, OUT_THROUGH
+=====Join Check Start=====
+caller: Mruby, callee: VM_TECSInitializer
+=====Join Check param=====
+trusted
+OutOfDomain
+***** nil
+===== begin tTask plugin =====
+===== begin check registered celltype =====
+"tTask"
+"tInitializeRoutine"
+"tTerminateRoutine"
+"tISR"
+"tConfigInterrupt"
+"tCyclicHandler"
+"tAlarmHandler"
+"tSemaphore"
+"tEventflag"
+"tDataqueue"
+"tPriorityDataqueue"
+"tFixedSizeMemoryPool"
+"tKernel"
+"tMessageBuffer"
+===== end check registered celltype =====
+===== begin check my domain EV3Task =====
+:id
+:taskAttribute
+:exceptionAttribute
+:priority
+:stackSize
+:systemStackSize
+:userStackSize
+:accessPattern
+TSKID_$id$
+~~~~~ rDomainEV3 is registered!
+assign task plugin
+===== end check my domain EV3Task =====
+===== begin check regions EV3Task =====
+["OMIT", "OMIT", "OMIT", "OMIT"]
+Array
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+acv = ["TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL"]
+===== end check regions EV3Task =====
+===== begin check my domain MrubyTask1 =====
+:id
+:taskAttribute
+:exceptionAttribute
+:priority
+:stackSize
+:systemStackSize
+:userStackSize
+:accessPattern
+TSKID_$id$
+~~~~~ rDomainEV3 is included in["rDomainEV3"]
+assign task plugin
+===== end check my domain MrubyTask1 =====
+===== begin check regions MrubyTask1 =====
+["OMIT", "OMIT", "OMIT", "OMIT"]
+Array
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+acv = ["TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL"]
+===== end check regions MrubyTask1 =====
+===== end tTask plugin =====
+check for ATT_MOD : nMruby_tsKernel
+HRP2 domain in tsKernel: rDomainEV3
+check for ATT_MOD : nMruby_tsMotor
+HRP2 domain in tsMotor: rDomainEV3
+check for ATT_MOD : nMruby_tsLCD
+HRP2 domain in tsLCD: rDomainEV3
+check for ATT_MOD : nMruby_tsLED
+HRP2 domain in tsLED: rDomainEV3
+check for ATT_MOD : nMruby_tsButton
+HRP2 domain in tsButton: rDomainEV3
+check for ATT_MOD : nMruby_tsBattery
+HRP2 domain in tsBattery: rDomainEV3
+check for ATT_MOD : nMruby_tsSpeaker
+HRP2 domain in tsSpeaker: rDomainEV3
+check for ATT_MOD : nMruby_tsUltrasonicSensor
+HRP2 domain in tsUltrasonicSensor: rDomainEV3
+check for ATT_MOD : nMruby_tsGyroSensor
+HRP2 domain in tsGyroSensor: rDomainEV3
+check for ATT_MOD : nMruby_tsColorSensor
+HRP2 domain in tsColorSensor: rDomainEV3
+check for ATT_MOD : nMruby_tsTouchSensor
+HRP2 domain in tsTouchSensor: rDomainEV3
+check for ATT_MOD : nMruby_tsBalancer
+HRP2 domain in tsBalancer: rDomainEV3
+check for ATT_MOD : nMruby_tsSharedMemory
+HRP2 domain in tsSharedMemory: rDomainEV3
+check for ATT_MOD : nMruby_tsRunApp
+HRP2 domain in tsRunApp: rDomainEV3
+check for ATT_MOD : tKernel
+check for ATT_MOD : tMotor
+HRP2 domain in tMotor: rDomainEV3
+check for ATT_MOD : tLCD
+HRP2 domain in tLCD: rDomainEV3
+check for ATT_MOD : tLED
+HRP2 domain in tLED: rDomainEV3
+check for ATT_MOD : tButton
+HRP2 domain in tButton: rDomainEV3
+check for ATT_MOD : tBattery
+HRP2 domain in tBattery: rDomainEV3
+check for ATT_MOD : tSpeaker
+HRP2 domain in tSpeaker: rDomainEV3
+check for ATT_MOD : tUltrasonicSensor
+HRP2 domain in tUltrasonicSensor: rDomainEV3
+check for ATT_MOD : tGyroSensor
+HRP2 domain in tGyroSensor: rDomainEV3
+check for ATT_MOD : tColorSensor
+HRP2 domain in tColorSensor: rDomainEV3
+check for ATT_MOD : tTouchSensor
+HRP2 domain in tTouchSensor: rDomainEV3
+check for ATT_MOD : tBalancer
+HRP2 domain in tBalancer: rDomainEV3
+check for ATT_MOD : tSharedMemory
+HRP2 domain in tSharedMemory: rDomainEV3
+check for ATT_MOD : tRunApp
+HRP2 domain in tRunApp: rDomainEV3
+check for ATT_MOD : tEV3Platform
+HRP2 domain in tEV3Platform: rDomainEV3
+check for ATT_MOD : tTask
+check for ATT_MOD : nMruby_tMrubyVM
+HRP2 domain in tMrubyVM: rDomainEV3
+check for ATT_MOD : nMruby_tMrubyTaskBody
+HRP2 domain in tMrubyTaskBody: rDomainEV3
+check for ATT_MOD : tTLSFMalloc
+HRP2 domain in tTLSFMalloc: rDomainEV3
+check for ATT_MOD : nMruby_tsKernel_Initializer
+HRP2 domain in tsKernel_Initializer: ::
+check for ATT_MOD : nMruby_tsMotor_Initializer
+HRP2 domain in tsMotor_Initializer: ::
+check for ATT_MOD : nMruby_tsLCD_Initializer
+HRP2 domain in tsLCD_Initializer: ::
+check for ATT_MOD : nMruby_tsLED_Initializer
+HRP2 domain in tsLED_Initializer: ::
+check for ATT_MOD : nMruby_tsButton_Initializer
+HRP2 domain in tsButton_Initializer: ::
+check for ATT_MOD : nMruby_tsBattery_Initializer
+HRP2 domain in tsBattery_Initializer: ::
+check for ATT_MOD : nMruby_tsSpeaker_Initializer
+HRP2 domain in tsSpeaker_Initializer: ::
+check for ATT_MOD : nMruby_tsUltrasonicSensor_Initializer
+HRP2 domain in tsUltrasonicSensor_Initializer: ::
+check for ATT_MOD : nMruby_tsGyroSensor_Initializer
+HRP2 domain in tsGyroSensor_Initializer: ::
+check for ATT_MOD : nMruby_tsColorSensor_Initializer
+HRP2 domain in tsColorSensor_Initializer: ::
+check for ATT_MOD : nMruby_tsTouchSensor_Initializer
+HRP2 domain in tsTouchSensor_Initializer: ::
+check for ATT_MOD : nMruby_tsBalancer_Initializer
+HRP2 domain in tsBalancer_Initializer: ::
+check for ATT_MOD : nMruby_tsSharedMemory_Initializer
+HRP2 domain in tsSharedMemory_Initializer: ::
+check for ATT_MOD : nMruby_tsRunApp_Initializer
+HRP2 domain in tsRunApp_Initializer: ::
+check for ATT_MOD : nMruby_tIntPointer
+HRP2 domain in tIntPointer: ::
+check for ATT_MOD : nMruby_tULongPointer
+HRP2 domain in tULongPointer: ::
+check for ATT_MOD : nMruby_tInt32Pointer
+HRP2 domain in tInt32Pointer: ::
+check for ATT_MOD : nMruby_tCharPointer
+HRP2 domain in tCharPointer: ::
+check for ATT_MOD : nMruby_tUInt16Pointer
+HRP2 domain in tUInt16Pointer: ::
+check for ATT_MOD : nMruby_tInt8Pointer
+HRP2 domain in tInt8Pointer: ::
+check for ATT_MOD : nMruby_tTECSInitializer
+HRP2 domain in tTECSInitializer: ::
+===== begin tKernel plugin =====
+***** already checked
+===== begin check my domain HRP2Kernel =====
+:accessPattern
+~~~~~ rDomainEV3 is included in["rDomainEV3"]
+===== end check my domain HRP2Kernel =====
+===== begin check regions HRP2Kernel =====
+["OMIT", "OMIT", "OMIT", "OMIT"]
+Array
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+"TACP_KERNEL"
+acv = ["TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL", "TACP_KERNEL"]
+===== end check regions HRP2Kernel =====
+===== end tKernel plugin =====
+3 warnings
+touch tecs.timestamp

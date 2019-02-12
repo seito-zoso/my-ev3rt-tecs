@@ -1,0 +1,29 @@
+// THIS FILE IS WRITTEN IN SJIS CODE SET
+
+import_C( "tecs.h" );
+
+// 'ソ' の第二バイトは 0x5c (バックスラッシュ '\')で、'"' の直前にあると、
+// 文字列リテラルが閉じていないかのように誤認される可能性がある
+
+const char_t * const PtrConst = "ミソ";
+
+signature sSig {
+	ER  func( [in]int32_t par );
+};
+
+celltype tCelltype {
+	attr {
+		char_t *StrPtr = "ヘソ";
+		int32_t a = 'ソ';
+		int32_t b = 'あ';
+		int32_t c = '\n';
+	};
+	entry sSig eEnt;
+
+	factory {
+		write( "tecsgen.cfg", "ミソ%s", StrPtr );
+	};
+};
+
+cell tCelltype Cell {
+};

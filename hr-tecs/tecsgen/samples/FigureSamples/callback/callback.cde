@@ -1,0 +1,130 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T07:57:58+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/callback"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin"
+    ],
+    "direct_import" : [
+        "callback.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "Target",
+            "location" : [ 90.0, 9.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCallback",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 12.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell",
+            "location" : [ 31.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 3.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eCallback",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 11.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Target",
+            "call_region" : "::",
+            "call_port"   : "cCallback",
+            "entry_cell"  : "Cell",
+            "entry_region": "::",
+            "entry_port"  : "eCallback",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 80.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 21.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 66.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 21.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 56.0
+                }
+            ]
+        },
+        {       /** join_list[ 1 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "Target",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 66.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 80.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 90.0
+                }
+            ]
+        }
+    ]
+}

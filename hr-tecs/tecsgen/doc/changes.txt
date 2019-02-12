@@ -1,0 +1,2139 @@
+★：過去互換性がなくなったもの
+
+17/5/8  V1.5.A.5
+[不具合] #1063 tecsgen/tecs/mruby/tecs_mruby.h に typedef int mrb_context; を追加
+[不具合] #1064 mruby-on-ev3rt+tecs_package-beta2.0.0 ビルド時の警告 
+
+17/5/1  V1.5.A.4
+[仕変]   #1062  tMruby3.cdl を tMruby.cdl に変更 (#1060 関連)
+
+17/4/16 V1.5.A.3
+[追加]   #1051 TLSFMalloc を追加 (本体は含めていない)
+[再修正] #1055 MrubyBridgeCelltypePlugin の generate 文が cdl は出るが、初期化コードに含まれない
+[不具合] #1059  MrubyBridgeSignaturePlugin 同じセルタイプ(クラス) の初期化が不必要に重複している
+[追加]   #1060 tMruby3.cdl : 新しい tMruby の実装 (TLSF 使用) を追加．将来 tMruby.cdl に置き換える予定
+
+17/4/8 V1.5.A.2
+[仕変]   #1051 HPR2Plugin.rb: バナー MyDomainPlugin ⇒ HRP2Plugin
+[仕変]   #1052 MrubyBridgeSignaturePlugin.rb バナーを１度だけ出すように変更
+[不具合] #1053 MrubyBridgeSignaturePlugin: コンパイル時 warning: unused variable 'p_cellcb' が出る
+[不具合] #1054 mruby/TECSStruct.h: 非使用変数の警告が出る
+[不具合] #1055 MrubyBridgeCelltypePlugin の generate 文が cdl は出るが、初期化コードに含まれない
+
+17/4/2 V1.5.A.1
+[不具合] #1009 tecsgen 1.4.1のtest/regionのテストでgen/tmp_cygwin_tecs.hに構文エラー発生
+[不具合] #1010 tecsgen 1.4.1のtest/allocatorCBのテストでgen/tmp_cygwin_tecs.hにエラー: 不明な型名 ‘char_tが発生
+[追加]   #1037 マルチプラグイン対応
+[追加]   #1038 MrubyBridgePlugin のマルチプラグイン化
+[追加]   #1039 ジェネレート (generate) 文の対象拡大
+[追加]   #1040 シグニチャにジェネレート (generate) 指定子を可能にする
+[追加]   #1041 import_C でヘッダを取り込む際に restrict キーワードを空に define また __GNUC__ で囲む
+[不具合] #1042 struct type_name  ... タグ (type_name) が typedef 型の場合構文エラーとなる（名前空間を分けたい)
+[不具合] #1043 ヘッダ内 (import_C) の sizeof をエラーとしない（情報infoとして出力)
+[追加]   #1044 cdl_info, cdl_info2 を新設
+[不具合] #1045 配列初期化子に、配列添数以上の初期化要素があっても、意味解析でエラーにならなかった
+[不具合] #1046 初期化出力 (#_AVI_#) の型が、typedef の元の型になっていて、コンパイル時エラー
+[不具合] #1047 マルチドメインにある場合の情報出力時 ruby 例外
+[不具合] #1058 nMruby_tMrubyProc.c : MIT ライセンスのものが混じっている (いったん削除した. 後日書き下ろすつもり)
+
+17/2/5 V1.4.1
+[不具合]  #1002 tecsmerge の非受け口関数 (POSTAMBLE部) の行頭に '{' があるとエラーになる 	
+[不具合]  #1003  $cbp$ が CB がないが、INIB がある場合に、存在しない CB へのポインタを出力する
+                (コンパイル時にエラーとなる. CB も INIB も存在しなければ、NULL )
+                #1004 idx_is_id が true の場合(domain の場合は未指定でも true) の CBP のプロトタイプ宣言
+[不具合]  #1005  MrubyBridgePlugin-test のビルドに失敗
+                 #997 の修正により ブリッジセルタイプの idx_is_id が効くようになったことで、不具合が顕在化
+                 #1003 の変更に加えて、CBP へのプロトタイプ宣言を追加
+[不具合]  #1006  FuncHeade の owner が設定されていなかった (ユーザー不具合なし)
+[不具合]  #1007  singature が存在しない場合 find_ref_desc_port で Ruby 例外
+[不具合]  #1008  Descriptor の引数のコード生成で namespace に対応していなかった
+
+16/11/12 V1.4.0
+  公開版。バージョン番号を 4つの数字から3つの数字に減らす。今後末尾は、パッチ番号とする。
+
+16/10/22 V1.4.A.2
+[不具合] #1000 動的結合に関する不具合、仕様変更 計3件の一括登録 (V1.4.A.2) 
+     [不具合]  dynamic呼び口配列で添数あり, optional、セルで一つも呼び口を初期化していない、-r/オプションなしの場合、呼び口配列の記憶域を参照しない
+     [不具合]  tCelltype_cCall_set_descriptor 関数のコードで、シングルトン、配列、-r の場合、CB を参照すべきところ INIB を参照
+     [仕変]    cCallArray_set_descriptor: 呼び口配列の場合の引数の順序を入れ替えた (i, desc に変更)
+[不具合] #1001 tCelltype_cCall_is_joined シングルトンでも p_that が出る (不要ではあるが、不具合はない)
+
+16/10/16 V1.4.A.1
+[不具合] #994  singleton で dynamic 呼び口がある場合 -R の INITIALIZE_CB で p_that を参照している
+[不具合] #995  dynamicで optionalな呼び口をテストするマクロでCBを参照すべきところINIBが出る
+[不具合] #999  動的結合に関する不具合3件の一括登録 (V1.4.A.1)
+     [不具合]  dynamic呼び口配列で添数あり、-R の場合、INITIALIZE_CB で N_CP_cCall に p_that 引数が出る
+              (マニュアル、仕様書にNCP_cCall の記述がない問題も訂正。ここでは NCP_cCall は用いない)
+     [不具合]  dynamic呼び口配列で添数あり, -R、optional、セルで一つも呼び口を初期化していない場合、呼び口の記憶域が生成されない
+              (dynamic でない場合は、記憶域を生成しなくてもよく、生成していなかった)
+     [不具合]  dynamic, singleton, -r の場合、 CB を参照すべきところ INIB が出る
+[不具合] #997  セルタイプに idx_is_id を指定しても効かない (domain の場合, tecsgen のオプション指定では効く)
+[不具合] #998  -r で、シングルトンでなく idx_is_id の場合、コード生成時 Ruby 例外
+
+16/8/20 V1.3.1.9
+[追加] #906 動的結合
+        未対応事項： 一部のコメント、プラグインのディスクリプタ型
+
+16/8/13 V1.3.1.9-tmp2
+[作業中] #906 動的結合
+              コメント未対応
+
+16/7/31 V1.3.1.9-tmp
+[作業中] #906 動的結合
+              -R 未対応
+
+16/6/19 V1.3.1.8
+[不具合] #987  composite 内セルの callback 結合ができない
+[不具合] #988  composite 内で添数なしの配列に結合すると、受け口ディスクリプタが生成されない 
+[不具合] #989  composite の中で同じセルタイプを参照すると、正しいコードが生成されない
+[不具合] #990  composite の中で同じ composite に属するセルが複数あると、結合先を誤る
+[不具合] #991  複合セルタイプ文指定子リストで、複数の指定子が受け付けられない
+[追加]   #992  omit と dynamic, ref_desc が同時指定された場合エラーとする
+              dynamic と ref_desc の同時指定をエラーとする
+              (動的結合は、現時点では未完了)
+
+16/5/7 V1.3.1.7
+[追加]   #986  tecscde の統合
+
+16/5/5 V1.3.1.6
+[内変]   #984 HRP2Plugin をアップデート (ev3/hr-tecs/tecs_plugin のものに交換)
+[不具合] #983 tISR がリンク時にエラーになる (domain 利用)
+[不具合] #985 domain が2度目の region の出現で指定されても、エラーにならない
+
+16/3/27 V1.3.1.5
+[仕変]   #981 restrict 対応
+[不具合] #982 NBOTDR (OpaqueRPCPlugin で利用) の float32_t, double64_t が期待した動作になっていない
+
+16/3/21 V1.3.1.4
+[追加]   #981 restrict 対応
+[不具合]  #980 C言語の文字列の記述方法で，"" 囲みを続けて書く記法に対応していない
+
+16/2/28 V1.3.1.3
+[追加]    #978 tecsgenでインクルードするファイルの内容によりエラーとなる．
+
+16/2/28 V1.3.1.2
+[仕変]    #976  mruby V1.2.0 への対応　ARGS_REQ　=> MRB_ARGS_REQ 等
+[仕変]    #952  NotifierPlugin の更新 (ASP 3.0.1 に対応. tecsgen V1.3.1.1 の途中から)
+[内変]    #601  rcov による tecsgen のカバレッジの実行
+[仕変]    #979  exerb 版サポート取りやめ
+
+16/1/13 V1.3.1.1
+[追加]    #970  makefile.tecsgen に変数 TECS_HEADERS を出力
+               以下の総和が TECS_HEADERS
+               SIGNATURE_HEADERS, CELLTYPE_TECSGEN_HEADERS, CELLTYPE_FACTORY_HEADERS
+[不具合]  #972  Makefile.tecsgen内でのパス指定
+[不具合]  #973  exerb 版のビルドで失敗
+
+16/1/5 V1.3.1.0 (V1.3.0.6)
+[追加]    #965 	タイムスタンプファイルの生成
+[仕変]    #962 	tecsのディレクトリ構成
+[不具合]  #967   xxx_joined()がredefined warningになる
+[不具合]  #964   p_cellcbを参照しないという警告の抑止方法 (最適化により関数呼び出しではアクセスされない)
+[追加]    #968   コールバックの逆結合
+                 callback シグニチャ指定子追加、左記指定の場合、逆結合を可能とする
+16/1/3 V1.3.0.5
+[追加]    #933  inline_templ.h にも #ifdef ガードコードを入れてほしい
+[仕変]    #957  構造体型で、size_is 指定されている場合、2重ポインタを可とする
+★[不具合] #958  namespace の下に cell を置くことができた（仕様では region の下のみ)
+[不具合]   #959  in 引数の場合、無条件でポインタレベル0を可としていた
+
+15/12/17 V1.3.0.4
+[追加]   #952 NotifierPlugin の追加
+
+15/12/13 V1.3.0.3
+★[仕変] #949 cpp を "gcc -E -D TECS" → "gcc -E -D TECSGEN -D TECS" に変更
+[仕変]   #950 空の (関数のない) signature を可能とする
+[追加]   #951 nMruby::tTECSInitializer のセルを複数の mruby VM で共有可能とする
+
+15/12/06 V1.3.0.2
+[仕変(再)]#938  過去互換性のため INITIALZE_TECSGEN() を INITIALIZE_TECS() に define する
+             (V1.3.0.0 で互換性がなくなったものを、過去互換性を保つようにした)
+[追加]  #948  呼び口の omit 指定子
+
+15/11/29 V1.3.0.1
+[不具合]  #944 C1003 $1 & $2 incompatible (\'long double\' is not supported.). Treated as $3.
+              long double の使用をエラーから警告に変更
+[仕変]   #946  INITIALIZE_TECS を -R 指定がない場合でも出力する（必ず INITIALIZE_TECS を呼び出すルールとする)
+[仕変]   #947  int8, int16, ... int128 古い仕様に基づく型を削除
+              W5001 ～ W5009 はでなくなった
+
+15/10/31 V1.3.0.0
+★[仕変]  #938 INITIALZE_TECSGEN() ->  INITIALIZE_TECS() に変更
+★[仕変]  #939 cpp を "gcc -E -D TECS" → "gcc -E -D TECSGEN" に変更
+[仕変]    #940   Makefile.templ 中の変数の変更
+               TECSGEN_EXE → TECSGEN
+               timestamp.tecsgen → tecs.timestamp
+[内変]    #941   CB がなくても各セルタイプの initialize が呼び出される
+[不具合]  #943 import_C: tag のない構造体の初期化で ruby 例外
+
+15/10/30 V1.2.1.6
+[不具合] #937 #835 の修正が不完全 CB, INIB が存在するケースでコンパイルエラー
+
+15/10/25 V1.2.1.5
+[追加]   #934  C2TECSBrdigePlugin に prefix, postfix, header_name オプションを追加
+[不具合] #835  inline で相互依存する場合 #805 の修正が不完全
+              プロトタイプ宣言をセルタイプヘッダの include の前に持ってきた
+[不具合] #935  test/cygwin/tTask.c: prepare_signal()　の実装 set に static が必要
+[内変]   #936  generate.rb: begin_extern_C, end_extern_C
+
+15/8/30 V1.2.1.4
+[仕変]   #932   RUBYLIB の不要化 (tecsgen.rb の相対パスから割り出す)
+               '.' を、RUBYLIB のサーチパスから外す (exerb 版を除く)
+
+15/8/22 V1.2.1.3
+[不具合] #929   cell の locale を変更 (プロトタイプ宣言の locale になっていた)
+[不具合] #930   size_is, count_is が指定されていないポインタに '{' '}' で囲まれた初期値が指定されてもエラーにならない
+[内変]   #931   ev3+tecs/hr-tecs/tecsgen の内容を tecsgen 本家に移す
+               V1.2.1.0 ～ V1.2.1.2 は ev3+tecs/hr-tecs/tecsgen 下で開発されていた
+
+15/6/21 V1.2.1.2
+[仕変]   #928    MrubyBridgePlugin 対応する mruby バージョンを V1.0.0 => V1.1.0 に変更
+                mruby_float_value の引数変更
+                MrubyBrigePlugin のバージョン表示
+
+15/6/8 V1.2.1.1
+[追加]   #927     HRP2 プラグインの追加
+
+15/6/1 V1.2.1.0
+[内変]  #925     mruby: TECSPointer.h  uchar_t, schar_t ==> uint8_t, char_t
+[追加]  #926     tecs/mruby/tMruby.cdl, nMruby_tMruby.c を追加
+
+14/12/31 V1.2.0.18
+[不具合] #517  tCelltype_tecsgen.c のコンパイル時 p_cb が未使用変数との警告が出る
+[不具合] #922  attr { char *buf[2] = { { 0, 1}, {0, 1, 2} }; }; がエラーにならない (_tecsgen.c コンパイルエラー)
+                 T9999(仮) は S1159, S1169 と重複して発生
+                 ただし  var { char *vbuf[2] = buf; }; が S1159 にはなるが、T9999 は発生しない
+[内変]   #923 CompositeCelltypeJoin#get_signature の追加 (tecscde 用)
+[内変]   #924 カレントディレクトリのパスに "./" を付加するのをやめる(class import)
+* [不具合] #xxxx CompositeCelltype の @port_list, @attr_list が内部から外部へ複数結合している場合、重複して登録されている
+               単純な修正では、うまくいかないケースあり (rpc)
+               そもそもの問題は、tecscde で見つかったはずだが、なんだったか？
+
+14/10/15 V1.2.0.17
+[追加]   #921 __location_information__ 対応 (location.rb 追加)
+
+14/10/13 V1.2.0.16
+[不具合] #918 -I --improt-path => -I --import-path
+[内変]   #919 TECSGEN を module から class に変更 (tecscde 対応)
+              クラス外の処理を TECSGEN クラスのメソッド化
+              複数のジェネレータ処理を、再起動せず行うには、クラス変数をリセットする必要がある
+[不具合] #920 test/optimize/src/tSkeltonUselessNotOptimizeCaller.c チェックイン漏れ
+
+14/6/29 V1.2.0.15
+[追加]   #915 Ruby 例外発生時のメッセージ強化
+            core/*.rb の rescue 部に print_exception を追加
+[不具合] #916 ドメインプラグインで to_through, in_through 用に add_through_plugin で足したプラグインが適用されない
+[不具合] #917 異なるドメインを指定すると Ruby 例外
+
+14/6/21 V1.2.0.14
+[追加]   #913 --c-suffix, --h-suffix オプションの追加 (生成ファイルの .c, .h を変更する)
+[追加]   #914 Celltype.get_cell_list2, Celltype.get_cell_list を追加
+[追加]   #910 const が C++ では static となるので、extern を付加して欲しい
+[不具合] #911 スケルトン関数のプロトタイプ宣言が出るときと出ないときがある tManageBuffer_eReadBuffer_DEQ_skel
+           tUNIONOperator.cc のビルド時に 上記の skel のプロトタイプ宣言がない
+[不具合] #912 受け口配列の要素数が 一つ足りない #_EEP_# (最大の添え字を出力している) 
+
+14/6/1 V1.2.0.13
+[内変]   #908 Namespace#set_cell_id を set_cell_id_and_domain に、Celltype#set_cell_id を set_cell_id と set_domain に分割
+[不具合] #909 cygwin_kernel.cdl, tTask にて pthread_suspend, pthread_resume が Linux にないため、条件変数に変更
+
+14/5/17 V1.2.0.12
+[追加] #907 ドメインごとの CB/INIB の出力ファイル変更
+        Makefile.tecsgen のオブジェクトリスト (COBJS) 変数を、ドメインごとに出力する
+        単一ドメイン（非ルート）にしか出力されない場合は、単一ドメインにすべて出力する
+
+14/5/12 V1.2.0.11
+[作業中] #907 ドメインごとの CB/INIB の出力ファイル変更
+     ドメインごとに tCelltype_rDomainRegion_tecsgen.c に出力する
+     複数のドメインに属する場合は、強制的に idx_is_id とする
+     一つのノードには、一つのドメインタイプを用いることができる（用いないこともできる）
+
+     Region#set_region_family_line の設計変更
+     DomainPlugin の option 引数が Token かつ "" で囲まれた文字列だったのを String に変更
+     Domain クラスを DomainType クラスに変更
+     ルートリージョンも DomainType を設定 (オプション OutOfDomain)
+     関数テーブル tCelltype_eEnt_MT は従来 static だったが、名前末尾に '_' 付加し非 sttic に変更(ドメインに備え)
+
+
+14/5/5 V1.2.0.10
+[仕変]   #904 idx_is_id の場合、CB, INIB のポインタ配列化
+[不具合] #905 呼び口配列の VDES の配列 に const 指定子がない (-R 時初期化もされない)
+[作業中] #906 動的結合
+             BNF, コード生成(型定義)、テストコード (test/dynamic/dynamic.cdl) を作成
+             最適化の禁止、コード生成(dynamic 設定、ref_desc 参照)、テストコード (src)、適合性の検査が未完了
+
+14/4/30 V1.2.0.9
+[不具合] #903 意味解析段階で Join, Expression が生成されるケースで、エラー行が正しく出力されない
+
+14/4/28 V1.2.0.8
+[不具合] #902 添数なし受け口配列の要素数が INIB に出力されない
+              14/4/28 発見バグの修正
+
+14/4/28 V1.2.0.7
+[追加]   #901 逆結合
+              受け口配列への対応
+              受け口配列のコード生成バグを見つけたが未修正 (test/protoの生成)
+
+14/4/21 V1.2.0.6
+[追加]   #901 逆結合
+              呼び口配列への対応
+
+14/4/20 V1.2.0.5
+[追加]   #900 cell の prototype 指定子対応
+
+14/4/13 V1.2.0.4
+[内変]   #898 generate.rb から elements の直接参照を Join#get_rsh_subscript に置き換え
+              component.rb, bnf.y.rb に残っている
+[追加]   #899 DomainPlugin 対応
+        require の joinable, 固定結合が未完 (distance を追加すべきでは.Cf: check_singleton_cell )
+
+14/3/16 V1.2.0.3
+[不具合] #895 OpaqueRPCPlugin, OpaqueMarshalerPlugin のサーバー側 main が正常でもチャンネルリセットしてしまう
+                 仕変：サーバー側ではエラーハンドラーでエラー値を変更可能とした
+[追加]   #896 cygwin_kernel の tTask に sTask を追加 (activate を可能にした)
+
+14/3/16 V1.2.0.2
+[追加]   #892 TracePlugin, OpaqueRPCPlugin, MrubyBridgePlugin の nullable 対応
+[不具合] #893 tecsmerge: POSTAMBLE 部がないと ruby 例外
+[不具合] #894 sTDR: putBool, getBool を追加 (RPC が bool_t に対応していなかった)
+[追加]   #755 nullable    (構文としての nullable は既に対応済み)
+
+14/2/1 V1.2.0.1
+[不具合] #889 tecsmerge で関数頭部の置換が行われなかった
+[追加]   #890 エラー番号 9999 となっていたものを番号付(日英)
+[不具合] #891 -k utf8 が指定された場合、CDL ファイルの言語が $LANG に従っていた
+
+14/1/20 V1.2.0.0
+[内変] #888 ファイルの文字コードを UTF8 に変更．ベースバージョンは V1.1.0.31
+            ・すべてのファイルの文字コードを UTF8 に変更
+            ・Ruby ソースの文字コード指定を euc-jp -> utf-8 に変更
+            ・tecsgen.rb, tecs_lang.rb に記載されているファイルの文字コードを EUC -> UTF8 に変更
+            ・test/merge の Makefile の文字コード指定を euc -> utf8 に変更
+
+14/1/2 V1.1.0.31
+[不具合] #886  TECSGEN::Makefile#get_vars(tecslib/core/tecsgen.rb): Symbol の sort が Ruby 1.8 で使えない
+               V1.1.0.29 からの不具合
+[不具合] #887  test/import_C/import_C.cdl, test/opaqueRPC が Linux では通らない (cygwin では通る)
+              前者は stdint.h の include が必要、後者はリンカオプション -lpthread が無い
+
+13/12/31 V1.1.0.30
+[不具合、追加] #883 XML の composite 対応など
+           gen_xml.rb … composite を celltype の composite 指定子付と見なして出力
+           tecs.xsd … composite キーワードを追加 
+           test/opaqueRPC の xml が tecs.xsd のバリデーションに通るように tecs.xsd を変更 (import に対応)
+[追加] #884    attr の choice 対応 
+           使用例 test/attribute/attribute.cdl
+
+13/12/23 V1.1.0.29
+[不具合、追加] #880 Makefile.templ, TECDSGEN::Makefile 関連の修正
+   ・TECSGEN::Makefile::add_post_tecsgen_target の名前が add_pre_tecsgen_target に誤っていた
+   ・TECSGEN::Makefile::add_var の comment のデフォルト nil では、コード生成時 ruby 例外
+   ・子 region の Makefile.templ でも %.o : %.c の一般ルールを生成する
+   ・TECSGEN::Makefile::add_line を追加
+[不具合] #881  idx_is_id かつ namespace 下にある場合、VALID_IDX マクロで namespace 名が出力されていなかった
+[追加]   #882  test 下に CPP2TECSBridgePlugin (C++⇒TECSブリッジ) を追加
+
+13/11/30 V1.1.0.28
+[追加]   #878   inline ヘッダのテンプレートで、呼び口のコメントが出ない
+[追加]   #879   optional な呼び口をチェックするマクロ名の出力
+[不具合] #874   C ヘッダ内の const struct tag b; がエラーになる
+[不具合] #873   volatile struct でエラー: C1003 CStructType 及び CIntType は両立しません
+
+13/10/19 V1.1.0.27
+[不具合] #875 max, nullable が string に波及していた
+              (nullable 自体は、現時点でサポートできていない)
+[不具合] #876 最新の cygwin 環境では CPP エラーが出る
+              IO.popen の文字コード指定がなかったのが問題。gcc -E の出力コメントに日本語が入るようになったことで、顕在化。
+[不具合] #877 呼び口配列で、skelton 関数不要最適化される場合に、右辺が composite のセルタイプだと、コード生成で Ruby 例外
+
+13/6/16 V1.1.0.26
+[不具合] #865 @owner が正しく設定されていない (composite の生成された Join)
+[不具合] #866 @NamespacePath が正しく設定されていない (Signature, Celltype, CompositeCelltype, Cell, composite の生成された Cell)
+              NSBDNode クラスを BDNode の子クラスとして新設
+[不具合] #867 composite 内の through が期待したように生成されない。とりあえずエラーとする
+[不具合] #868 RAM ONLY の場合、添数なし呼び口があると、has_INIB? が誤って true を返す（INIB 定義が不完全となりコンパイルエラー）
+[内変]   #869 through の count 番号の整理
+[内変]   #870 MrubyBridgePlugin  char * の対応クラス変更準備 (TECS::CharPointer クラスではなく String クラスとする準備のみ)
+
+13/6/16 V1.1.0.25
+このバージョンは飛ばされた。
+
+13/5/5 V1.1.0.24
+[不具合] #862 import_C で取り込むヘッダで '++', '--', '->', sizeof, else, long long, 無名構造体/union, 整数定数の U, L が扱えない
+[追加]   #863 import_C で取り込むヘッダで gcc 拡張に対応
+
+13/5/1 V1.1.0.23
+[不具合] #858  tCelltype_IDX の定義が namespace に対応していなかった
+[追加]   #859  共通のプラグインオプションとして silent を設ける
+            print_msg で出力すると、silent オプションにより出力の有無を制御できる
+[不具合] #860  MrubyBridgePlugin: TECSPointer.h の CHECK_POINTER で、長さ -1 (string の引数なし) は必ずエラーになる
+[追加]   #861  MrubyBridgePlugin: string の長さ指定がない場合、out, inout ではエラーとする
+
+13/4/30 V1.1.0.22
+[追加]   #844 環境変数 $TECSPATH および、その直下のサブディレクトリを -I, vpath に含める
+          V1.1.0.17 で exerb 版未対応となっていたものを対応
+[不具合] #856 GET_CELLCB, VALID_IDX が namespace に対応しなかった (idx_is_id の場合に問題が発露する)
+[不具合] #857 tCelltype_tecsgen.h のガードコードの define に namespace 名が含まれていない
+             (同名セルタイプが異なる namespace にあって、最適化、inline により読み込まれる場合にうまく読まれない)
+[追加]   #853  MrubyBridgePlugin: VM に必要なブリッジクラスのみを登録
+
+13/4/21 V1.1.0.21
+[不具合] #854 配列要素の初期値エラーの場合、エラーメッセージに variable[#i] と出る． variable[0] 等が正解
+[不具合] #855 attr { size_is(len)char **buf; int len; }; で buf の初期値の配列が const 指定されていない
+[作業中] #853  MrubyBridgePlugin: VM に必要なブリッジクラスのみを登録
+
+13/4/16 V1.1.0.20
+[不具合] #849  ThroughPlugin の戻り値型が void かどうかの判定を誤る
+[不具合] #850  _templ_inline.h の生成で gen_postamble が呼ばれていなかった
+[不具合] #851  -D が複数指定されている場合、最後のもののみ有効
+[不具合] #388 tecsgen -D '__attribute__(a)=' がプリプロセッサ段階でエラーになる
+       -D ABC を C プリプロセッサに渡すとき -D 'ABC' にする (exerb 版は除外)
+       従来 -D "'__attribute__(a)='" のように指定していたとすると、うまく動作しないので注意
+[追加]   #852  プラグインで生成されたセルタイプのセルが定義されたときに呼び出される new_cell を追加
+[作業中] #853  MrubyBridgePlugin: VM に必要なブリッジクラスのみを登録
+
+13/3/31 V1.1.0.19
+[作業中] #847  置換規則に $ct_global$, $cell_global$ を追加
+                   C_EXP が未対応、FACTORY, factory に対応
+
+13/3/26 V1.1.0.18
+★[仕変] #845 関数の戻り値がポインタ型なら deviate とする
+[不具合] #846 tecs/mruby ディレクトリの登録漏れ(#842)
+[作業中] #697 gen_xml.rb の全面的な見直し。XMLSchema tecslib/tecs.xsd で validation が通る。まだ、要素不備が多い。
+              import, singleton, active に対応. tecs.xsd を $TECSPATH に移す．tecsgen/chk_xml.rb を追加
+[不具合] #842 MrubyBridgePlugin の変更．unsigned のポインタクラス．ポインタクラスを使われているものだけ生成．
+              init_TECSPointer が不要なときにも呼び出される不具合
+
+13/3/10 V1.1.0.17
+[追加]   #837 Makefile.templ に PRE_TECSGEN_TARGET, POST_TECSGEN_TARGET を追加
+[追加]   #838 tecslib/core/tecsgen.rb に module TECSGEN::Makefile を追加 (Makefile の変数操作)
+[内変]   #839 Expression.get_initializer_str を {Expression,C_EXP,Array}.to_CDL_str に変更
+[仕変]   #840 Makefile.templ の出力改良
+    -I に絶対パスが指定されている場合、Makefile.templ に不要な $(BASE_DIR) が出力される
+    TECSPATH にマッチするものを $(TECSPATH) に置換 (-I, vpath, tecsgen引数)
+[不具合] #841 プラグイン引数 "include='activate,cancelActivate', "  後ろの ',' が無いと字句解析を誤る
+[仕変]   #842 MrubyBridgePlugin の変更．unsigned のポインタクラス．ポインタクラスを使われているものだけ生成．
+[追加]   #843 MrubyBridgePlugin のプラグイン引数の exclude, include, ignoreUnsigned を新設
+       exclude="func1,func2" or include="func1,func2" と含めない or 含めるを指定する (両方同時指定不可)
+       ignoreUnsigned=true で unsigned ポインタを signed として扱う (クラスのメモリ節約)
+[作業中] #844 環境変数 $TECSPATH および、その直下のサブディレクトリを -I, vpath に含める
+          cygwin 上 exerb 版では、TECSPATH が exerb 的に正しくないため、うまく動作していない
+
+13/2/12 V1.1.0.16
+[作業中] #697 gen_xml.rb の全面的な見直し。XMLSchema tecslib/tecs.xsd で validation が通る。まだ、要素不備が多い。
+
+13/1/27 V1.1.0.15
+[内変]   #832 直接呼び出せないプラグインのファイル Gen*.rb を lib の下に移す
+[不具合] #833 プラグイン生成された cdl から import( <...cdl> ); され定義された celltype のセルタイプコードを生成しようとする
+[不具合] #834 TECS_LANG でクラスメソッドからインスタンスメソッドが呼ばれている (ruby バージョンによってエラーが起こる)
+
+13/1/20 V1.1.0.14
+[追加]   #828 Ruby 2.0 対応
+        % make all_lang で文字コード指定を変更しながら、ビルドする
+[追加]   #829 messages-load.rb の内容を class TECS_LANG に入れるとともに、ファイル名を tecs_lang.rb に変更
+[追加]   #830 -v --verbose に関する変更
+         -t --generator-debug 指定時 -v --verbose も ON する
+         -v --verbose 指定時  Ruby のバージョン情報を出力する
+[不具合] #831 gen_factory を plugin.rb から celltypePlugin.rb に移動
+
+12/12/31 V1.1.0.13
+[不具合] #821 OpaqueRPCPlugin, SharedOpaqueRPCPlugin で noServerChannelOpenerCode=true オプションが無視されていた
+[不具合] #822 FuncType#need_PPAllocator? が b_opaque=true の場合、正しい値を返さない
+[追加]   #823 OapqueMarshalerPlugin の追加
+[仕変]   #824 Unmarshaler の受け口名 doService ⇒ eService, main の戻り値 void ⇒ ER
+[仕変]   #825 tRPCDedicatedTaskMainWithOpener および tOpaqueRPCUnmarshaler のエラー時の振る舞い変更
+[不具合] #826 #817 の対応が不完全。ThrougPlugin など core から plugin へ移動 (先頭大文字化)
+[不具合] #827 NBOTDR で int_t, uint_t, short_t, ushort_t, long_t, ulong_t の送受信サイズが既定のサイズでない
+
+12/12/29 V1.1.0.12
+[仕変]   #812 FuncType#get_type_str_post で引数が含まれていなかったのを、含めるようにした
+[追加]   #813 ThroughPlugin は本当に through するセルを生成するプラグインとして利用可能とする
+          (SignaturePlugin, CelltypePlugin も使用可となったが、使い道なし)
+[追加]   #814 TracePlugin のオプションとして kernelCelltype, syslogCelltype を追加
+[不具合] #815 Join#clone_array_member で以前のエラーにより ruby 例外
+[不具合] #816 generate_inline_template_code: print_note コメントが /* */ で囲まれていない
+[不具合] #817 ThroughPlugin で戻り値が typedef された void 型の場合、型を誤る(is_void? の新設)
+[不具合] #818 ParamList で paramdecl の owner の設定ができていなかった
+[不具合] #819 typedef された struct に tag が無い場合、'{', '}' で初期化時に ruby 例外
+[不具合] #820 プラグインの signature で namespace 考慮ができていなかった
+
+12/11/6 V1.1.0.11
+[追加]   #811 MrubyBridgePlugin の組込み
+
+12/10/23 V1.1.0.10
+★[仕変] #418 composite の attr の size_is 指定されたポインタは、どう扱うべきか?
+      composite の attr に size_is の指定を可とする (ミスマッチはエラーとなる)
+      従来は、内部セルに size_is 指定された属性であってもcomposite の 
+	  attr で size_is 指定することなく使えた。
+	  S1070 は、もはや発生しない
+[仕変]   #780 tecsmerge で関数ヘッダの置換も行ってほしい
+            -o, --old_mode では、従来通り関数東部を置換しない
+[追加]   #808 ATK1EventPlugin の追加
+[不具合] #810 Cell#set_specified_id が id = 0 でもエラーとならない
+
+12/9/23  V1.1.0.9
+[不具合] #805 inline で相互に依存する場合、C コンパイルエラー
+[不具合] #806 _inline.h の依存関係が不完全。$(_TECS_OBJ_DIR) が不足
+[不具合] #807 optional な呼び口に send, receive があり、アロケータ呼び口が未結合の場合、未初期化エラーになる
+
+12/9/2  V1.1.0.8
+[不具合] #671 ヘッダ内の while(1); がエラーとなる
+[不具合] #516 名前なし require の関数が他の呼び口の関数名と重複し、かつ後者が最適化されないと、コンパイル時エラー
+[不具合] #515 最適化なし -U で require 呼び口の所でコンパイル時エラー
+                関数名に "_T__" を後置することで解決
+
+12/7/6 V1.1.0.7
+[内変]   #803 セルタイププラグインを2段階継承するとエラーになる
+
+12/7/6 V1.1.0.6
+[内変]   #800 FuncHead にメソッドを追加 (Decl->FuncType をたどる必要をなくす)
+[追加]   #801 ATK1 関連のプラグインの追加、更新 
+[不具合] #802 teraterm から cygwin 接続で exerb 版のエラーメッセージが期待したようにはならない
+
+12/6/16 V1.1.0.5
+[不具合] #797 Makefile.templ の vpath, .o:.c のビルド規則の子リージョン対応ができていない
+[不具合] #796 エラー "S1154 $1: must be singleton celltype for fixed join" 表示途中で ruby 例外
+[内変]   #798 Cell#set_specified_id メソッド追加 (プラグインからセルの生成順序を制御したい場合用)
+[不具合] #799 test/cygwin/tEventflag.c の errno の使い方を見直し
+
+12/6/3 V1.1.0.4
+[不具合] #794 oneway の ER の戻り値が不定になる可能性がある (GenTransparentRPC.rb)
+
+12/6/3 V1.1.0.3
+[仕変]   #787 RPCPlugin の noSemaphore を noClientSemaphore に変更 (OpaqueRPCPlugin に合わせる)
+[仕変]   #788 RPCPlugin,SharedRPCPlugin の channelCellName を channelCell に変更 (OpaqueRPCPlugin に合わせる)
+[仕変]   #789 tTDR_inline.h, tNBOTDR_inline.h で sendSOP でエラー時 E_RPC を返していたのをやめる(E_RPC は マーシャラのみ返す)
+[不具合] #790 OpaqueRPC の retval がアンマーシャラで未初期化になる可能性がある
+[追加]   #791 char_t, intN_t, uintN_t (N:8,16,32,64) について STRLEN, STRNLEN を設ける(rpc_strin.h)
+[追加]   #792 char_t, intN_t, uintN_t (N:8,16,32,64) のポインタ以外で string 指定はエラーとする(GenCopyParam.rb)
+[不具合] #793 string(16) の場合、最後の null (あれば) がコピーされない (GenParamCopy.rb)
+
+12/5/27 V1.1.0.2
+[不具合] #783  引数の string 指定子が無視される (#711 修正時のミス)
+[不具合] #784  opaqueRPC テストコードのバグ (func12 の buf の終端、func14 のループ回数)
+[不具合] #785  opaqueRPC テストコードでエラーハンドラーが作用しないことがある
+[不具合] #786  in_through, out_through が適用されない (#653 仕様変更時の不具合)
+
+12/5/25 V1.1.0.1
+[仕変]   #781 exerb 版では LANG 環境変数を参照しない
+
+12/5/25 V1.1.0.0
+        V1.C.0.36 を V1.1.0.0 とする
+
+12/5/6 V1.C.0.36
+[追加]   #779 RepeatCellPlugin で右辺が単一の識別子に対応
+
+12/5/6 V1.C.0.35
+[不具合] #775 C 言語ヘッダのパラメータ（仮引数）なしがエラーとなる
+[追加]   #776 OpaqueRPC プラグインの引数に clientErrorHandler, serverErrorHandler を追加
+              テストコードも追加  test/opaqueRPC プラグイン
+[不具合] #777 プラグイン内のエラーでメッセージ表示しようとして ruby 例外発生
+[不具合] #778 エラー番号のないエラーを表示しようとすると ruby 例外
+
+12/5/3 V1.C.0.34
+[不具合] #744 ルート region に何もないとき、ルート region の Makefile.templ が不完全
+[不具合] #762 region 間の to_through で複数の結合がある場合、合流判定を誤る
+               (同名であれば、リージョンが異なっても合流すると判定)
+[不具合] #763 マルチリージョンの生成で、最適化変数の一つがクリアされず、誤ったコードが生成された
+[不具合] #764 アンマーシャラ関数の生成で p_cellcb が渡されておらず、最適化されない場合、コンパイルエラーとなる
+[追加]   #765 through プラグイン引数の名前置換機能を追加 (region 間の through で複数の結合を区別する手段)
+[追加]   #761 region 間の to_through で複数の結合がある場合、チャンネルセルが同じコンフィグレーションで生成されてしまう
+[不具合] #766 プラグイン引数が ' を含むと、ruby 例外が発生
+[追加]   #767 test/opaqueRPC テストコードを複数の through に対応したアプリに変更
+[追加]   #768 プラグイン引数の文字列を囲む文字として \" の他に ', %, ! を使用可能とする
+[仕変]   #769 tTINETChannel.cdl の port_no => portNo に変更 (tSocketChannel.cdl に合わせる)
+[不具合] #770 tTDR_inline.h, tNBOTDR_inline.h の putChar, getChar の引数の型誤り (正：char_t)
+[不具合] #771 tecsgen の引数が ../tecs.cdl のようにパスを含む場合、Makefile の target および xml 出力にパスが付く
+
+12/4/20 V1.C.0.33
+[不具合] #711  void ポインタに size_is 指定すると, tecsgen.c に void の配列が生成される
+[不具合] #759  composite 内のセルの呼び口の記述誤りで ruby 例外
+[不具合] #519  RPCPlugin, SharedRPCPlugin で multiTask に対応しない
+[仕変]   #760  OpaqueRPCPlugin のサーバー側の composite 内に入れるものを最小化
+
+12/4/20 V1.C.0.32
+[不具合] #756   NamespacePath?.analyze は Symbol でなく、String を保管する 
+[不具合] #757   GenOpaqueMarshaler.rb, GenTransparentMarshaler.rb で find の引数が NamespacePath になっていない
+[追加]   #758   plugin_arg で、連接する文字列リテラルを結合して、単一の文字列リテラルとして扱う
+
+12/4/15 V1.C.0.31
+[不具合] #750 OpaqueRPC プラグインでマーシャラ、アンマーシャラが alloc に失敗して打ち切った場合、戻り値(ercd_) が不定になる
+[仕変]   #751 E_RPC の使い方を見直し
+[追加]   #752 size_is の第二引き数に max 指定可能とする
+[作業中] #755 nullable 
+
+12/4/8 V1.C.0.30
+[不具合] #552  typedef された型の size_is, count_is, string 修飾子が正しく処理されない可能性あり
+[不具合] #558  typedef された型の const
+[不具合] #749  非ポインタ型に size_is などが指定されてもエラーにならない
+[作業中] #752  size_is の第二引き数に max 指定可能とする
+
+12/4/6 V1.C.0.29
+★[仕変] #745  OpaqueRPC のデフォルト TDR を tTDR から tNBOTDR に変更
+[仕変] #746  tTDR の magic の送受信を 16 bit → 8 bit×2 に変更
+[仕変] #747  .cdl, .c を読み込む場合に文字コードを binary として読み込む
+[完了] #741    RPC のエラーリセット時の dealloc
+[完了] #739    RPC の sRPCErrorHandler （エラー回復モデル）の対応
+       #741, #739 は実装および正常系動作は確認完了。例外系は #748 に登録
+
+12/3/18 V1.C.0.28
+[作業中] #741 	RPC のエラーリセット時の dealloc
+[追加]   #743   シグニチャヘッダに関数の ID を出力 (RPC で使用)
+
+12/3/17 V1.C.0.27
+[作業中] #741 	RPC のエラーリセット時の dealloc
+                 実装は終わった。テスト未完了（正常ケースは問題なし）
+
+12/3/10 V1.C.0.26
+[不具合] #742   global_tecsgen.h でヘッダの include 順が import_C の出現順と異なる
+[作業中] #741 	RPC のエラーリセット時の dealloc
+
+12/3/4 V1.C.0.25
+[不具合] #716  同じセルタイプのセルを直列結合すると C コンパイル時に警告が出る
+[不具合] #733  呼び口配列を同じセルタイプ(別セル)の受け口に接続すると ruby 例外
+[不具合] #735  tecs.h の CHAR_T_DEFINED で uchar_t, schar_t も定義済みに扱われる
+[不具合] #736  受け口配列数のマクロ定義 NEP_entryarray が出力されない
+[不具合] #737  -r を指定するとセルがなかったとの警告がでる
+[追加]   #738  bnf.tab.rb, C_parser.tab.rb も svn に含める
+[作業中] #739  RPC の sRPCErrorHandler （エラー回復モデル）の対応
+★[仕変] #740  opaqueRPC の size_is のカウンタ型を int16_t ⇒ int32_t に変更
+
+12/2/25 V1.C.0.24
+[追加] #687 固定長サイズに対応させたい
+            エラーチェック強化（チケット参照）
+
+12/2/19 V1.C.0.23
+[仕変]   #731 LANG=C.UTF-8 で test のビルドがエラーになる
+
+12/2/19 V1.C.0.22
+[追加] #700 sTDRにunsigned がない 
+[不具合] #718 composite 内のセルの受け口の signature が見つからないとき、ruby 例外
+[不具合] #719 gcc-4 で test コードをコンパイルすると built-in ライブラリ不整合の警告が多数出る
+[不具合] #720 .h(import_C) の unsigned long 型が unsigned int に扱われていた
+[不具合] #721 .cdl の char 型に signed, unsigned 指定できなかった
+[不具合] #722 FuncType, ArrayType の要素の型のチェックがなされない
+[不具合] #723 関数パラメータの void 型がエラーにならない
+[仕変]   #724 char 型を obsolete 扱いしない(W5004 を出力しない)
+[不具合] #725  TracePlugin の typedef された型が元の型名で出力される
+[不具合] #726 import( <rpc/rpc.cdl> ) の '/' がエラーになる
+★[追加] #727 tecs.h を設け char_t, short_t, int128_t を置くことにする
+             tecs.h への -I 指定が必要になる (少なくとも rpc を使用する場合)
+[仕変] #728 old_mode (-o) の廃止 (tecs_intN などは、まだ廃止できていない)
+[追加] #713 Makefile.templ の vpath %.h に -I のパスを追加して欲しい
+[追加] #714 Makefile.templ の CFLAGS に -D Inline を追加して欲しい
+★[削除] #730 intptr, bool が組込み型になっていたが削除
+
+12/1/29 V1.C.0.21
+[追加] #701 VALID_IDX の終りに印を付ける
+[追加] #717 N_CP_callport( p_that ) の短縮形が欲しい
+[追加] #692 配列要素数を template コードにも出して欲しい 
+[追加] #693 受け口配列の数をしることができない 
+
+12/1/22 V1.C.0.20
+[不具合] #  S2001 のエラーメッセージを変更
+[作業中] #416 composite 内のリレーアロケータ (Trac 参照)
+
+12/1/14 V1.C.0.19
+[不具合] #702 require されるセルの受け口の signature が存在しない場合 Ruby 例外
+[不具合] #703 var で typedef された型を初期化するコード生成で Ruby 例外
+[不具合] #704 var で '{', '}' で囲まれた初期値を持つ attr を参照/演算すると Ruby 例外
+[不具合] #705 '>=' が字句登録されていなかった
+[不具合] #706 構造体の初期化の型チェックが、式に対してなされない
+[不具合] #707 attr, var で size_is 指定がなく、右辺に '{', '}' で囲まれた初期値は、C コンパイル時にエラー
+[不具合] #708 var で size_is 引数に attr を参照していて、初期化子がある場合、コード生成段階で attr が見つからないエラー
+[追加] #709 Makefile.templ で _TECS_OBJ_DIR の指定で .o を生成するディレクトリを制御可能とした
+             
+11/12/9 V1.C.0.18
+[追加]＃697 XML 出力
+
+11/12/4 V1.C.0.17
+[不具合] #696  RepeatCellPlugin, RepeatJoinPlugin の改良
+
+11/12/3 V1.C.0.16
+[不具合] #695 LANG=fr_FR.ISO8859-1 を指定すると ruby 例外
+[不具合] #560 複数行の STRING_LITERAL で 前後の "" が消えない
+
+11/11/27 V1.C.0.15
+[追加] #690 セルプラグインの対応
+          RepeatCellPlugin, RepeatJoinPlugin の実装
+[内変] # 不要な @b_generate が残っていたので削除 (Cell, Region)
+
+11/11/22 V1.C.0.14
+[追加] #690 エラーメッセージ日本語化とコメントの英語化
+[仕変] #691 エラーメッセージの reverse require ⇒ fixed join に変更（含日本語）
+
+11/11/6 V1.C.0.13
+[追加] #688 C_EXP のエスケープシーケンス処理を追加
+[不具合] #683 (再) Join の @rhs の clone を作成する
+     Array の clone_for_composite がもれていた
+
+11/11/2 V1.C.0.12
+[追加] #685 cell の id 指定
+
+11/10/31 V1.C.0.11
+★[仕変] #681, #679 内部アロケータの仕様変更
+★[内変] #682 get_allocator_list の戻り値を変更
+[内変] #683 Join の @rhs の clone を作成する
+         実害はなかったが、clone されておらず tree の結果が妙なものだった
+
+11/10/21 V1.C.0.10
+[不具合] #605 Linux上でtecsgenのテスト(test/through)がエラーになる。
+
+11/10/10 V1.C.0.9
+★[追加] #487 リージョンのバリエーション
+             region 指定子として node, linkunit, domain, class の追加
+★[追加] #672 一度の tecsgen 実行ですべての node, linkunit 指定された region のコードを生成
+             node, linkunit の指定は独立したリンクユニットとしてコード生成する
+             ルートリージョンのビルドのみ tecsgen 実行する Makefile.templ 生成
+★[内変] #673 check_region2 は従来生成されるセルのみチェックしていたが、すべてのセルについて結合可能性をチェックする
+             (生成されない region のセルで結合不可能なセルが従来はエラーにならなかった)
+[不具合] #674 optimize が生成 region 以外のセルも含めて行われていた (最適化が効きにくくなっていた)
+[不具合] #675 tecsgen の第一引数が、存在しない cdl の場合、例外で停止
+★[仕変] #676  Makefile.depend のオブジェクトの指定パスを gen から $(GEN_DIR) に変更
+
+11/9/24 V1.C.0.8
+[内変] #670 Region を Namespace の子クラス化
+            region.get_namespace では、region の属する namespace になる
+
+11/9/16 V1.C.0.7
+[追加] #669 const の global_tecsgen.h に対する出力時の名前を global_name とする
+         (const をどのように扱うかは未定)
+[追加] #668 allocator 関係の namespace 指定を可能とする
+
+11/9/11 V1.C.0.6
+[追加] #667 C_paryser.y.rb の union 対応
+
+11/9/9 V1.C.0.5
+[不具合] #666 composite内セルの逆requireの不具合
+
+11/9/9 V1.C.0.4
+[不具合] # to_through で region だけ指定するケースを記述できない
+
+11/9/4 V1.C.0.4
+[作業中] # namespace 対応 
+★[仕変] # region が namespace をかねる
+
+11/8/23 V1.C.0.3
+[追加] #665 逆 require を composite セルタイプの指定を可能とする
+
+11/8/23 V1.C.0.2
+[追加] #665 逆 require
+
+11/8/20 V1.C.0.1
+[不具合] #46 namespace|namespace の push, pop (bnf.y.rb, C.y.rb の parse)
+[不具合] #662 types.rb, ctypes.rb のエラーの行番号が正しくない
+[不具合] #663  Signature#need_PPAllocator? の結果のキャッシュをやめる
+[内変更] #  NamespacePath クラスを追加 (namespace_identifier に対応)
+
+11/8/15 V1.B.0.13
+[不具合] #647 同じセルタイプのセルを直列接続すると ..._des が type conflict になる
+
+11/8/12 V1.B.0.12
+[不具合] #659 celltype_plugin.new_cell を set_f_def から set_definition_join に移す
+[不具合] #660 Plugin が Node を継承していない
+[不具合] #661 プラグインのエラー行番号が正しく出力されない
+[内変] #538 Cell#set_f_defを分割する (前方参照対応にて解決済み)
+[内変] #533 Join#set_definitionを分割する (前方参照対応にて解決済み)
+
+11/7/24 V1.B.0.11
+[仕変] #651 エラーメッセージ出力方法を変更 (ローカライズの準備)
+[不具合] #652 check_join を composite の内部セル(cloned) には行わないこととする
+              (前方参照変更前は、行われていなかった。内部セルに対し、未結合のエラーが出る)
+[仕変] #653 to_through 階層では out_through, in_through を適用しない
+[仕変] #654 cell が duplicate の場合、後から出現したものは意味解析しない
+             前方参照対応により、重複出現したものはチェックされなくなる (duplicate-err のエラー数が1減った)
+
+11/7/17 V1.B.0.10
+[仕変] #651  エラー番号を付与 (componentobj.rb のみ既に付与済み)
+
+11/7/17 V1.B.0.9
+[不具合] #648 (reopen) through 生成されたセルに region 間の through を適用しない
+         composite 内のセルに対しては生成されていた
+[内変] #639 (reopen) Generator.error ⇒ Node::cdl_error に変更
+         clone されたセルや Join の行番号の変更
+
+11/7/9 V1.B.0.8 (バージョン上げず)
+[内変] #649 printを dbgPrint に変更
+
+11/7/9 V1.B.0.8 (バージョン上げず)
+[不具合] #632 (Reopen) Gen*Marshaler.rb の find の引数が Symbol ではなかった
+
+11/7/5 V1.B.0.8
+[不具合] #648 through 生成されたセルに region 間の through を適用しない
+           region 間の through できない場合にはエラーとなるが、through プラグイン適用はされずにエラーとならない
+
+11/6/26 V1.B.0.7
+[不具合] #643 to_through で最初に目的 Region がないとエラー
+[不具合] #644 require 先のセルが非生成の場合、呼び元が非生成でもエラーとなる
+[不具合] #645 require の結合先の region のチェックがない
+[不具合] #646 require の結合先の region のチェックがない
+
+11/6/11 V1.B.0.6
+[内変] # Cell::new_def を追加、二重定義チェックをこちらに移す
+         duplicate-err.cdl のエラー数が1つ減る 14⇒13
+		 @f_def => @b_defined に変更
+[内変] # set_def_and_check_jojin を set_definition_join と check_join に分解
+# V1.0.2.36, V1.0.2.37 からのマージ
+[不具合] #642 ATK1TaskPluginのタスク関数終端にterminate関数が抜けている
+[不具合] #641 ATK1TaskPluginでEventがOILに出力されない
+         include Plugin を消した (V1.B.0 で Plugin は親クラスになったため)
+
+11/5/24 V1.B.0.5
+[内変] # if に then がついていないところに付ける
+          tecsgen.rb と componentobj.rb のみ (Ruby は then はあってもなくてもよいが then 有に統一)
+
+11/5/22 V1.B.0.4
+[内変] #639 Generator.error ⇒ Node::cdl_error に変更
+          エラー行が変わるケースが多い (owner が子要素をチェックしているケース)
+
+11/5/21 V1.B.0.3
+[内変] #637 tecslib の下を core と plugin に分離, (version.rb のみ残す)
+# V1.0.2.35 からマージ
+[不具合] #634 malloc.h は標準ではない。stdlib.h を使用すべき
+[不具合] #635 GenCopyParam.rb で strnlen が使用されているが、標準ではない
+[不具合] #636 ATK1 のプラグインを組込む
+              (inlucde Plugin を取りやめ)
+
+11/5/15 V1.B.0.2
+[内変] #638 Celltype, Cell などの構文要素を BDNode, Node クラスの子クラスとする
+
+11/5/14 V1.B.0.1
+[仕変] #633 stack trace を p から pp に変更
+	      併せてスタックトレース表示を print_exception() に一元化 (generate.rb は V1.0.2.33 で対応済み)
+[内変] #632 "STRING".to_sym を :"STRING" の形式に変更（componentobj.rb)
+          NamedList::get_name の戻り値が Symbol 以外を認めない
+          NamedList::get_item の引数は Symbol を指定すること
+[内変] #631 import 時のエラー while open or reading '#{file}' の出力先を STDERR から STDOUT に変更
+# V1.0.2.34 からマージ
+[不具合] #629 tmp_plugin_post_code.cdl の生成に失敗したときファイルがクローズされない
+[内変] #630 コード生成時エラー発生していたら update をしない
+            AppFile::update の例外 (主としてrenameの失敗)を rescue する
+
+11/5/8 V1.0.2.33
+[追加] # SharedOpaqueRPCPlugin の実装
+[内変] #627 SharedOpaqueRPC で内側の region から/へ結合する場合、生成されるチャンネルの region がそろわない
+         ThroughPlugin::set_region を廃して set_through_info を追加
+         start_region, end_region, preferred_region を定義した
+
+11/5/3 V1.0.2.32
+[内変] #621 ThroughPlugin::set_region を追加
+           共有チャンネルの場合caller_cell, next_cell のいずれの region でもないケースがある
+[内変] #622  Cell::@prototypes は使用されていないので削除
+[不具合] #554 tDataqueueOWChannel のキューのバッファサイズが 1 である
+[不具合] #620 composite の内部のセルで存在しない呼び口を外部のポートに結合しようとすると以下のエラーになる
+           "UNKNOWN is an attribute but previously defined as a port"
+           "'UNKNOWN' : not defined" に変更
+[不具合] #619 typo: エラーメッセージ codge => code: "tecsgen: fatal internal error during codge generating post"
+[不具合] #618 GenOpaqueMarshaler.rb  Unmarshaler の不要なループを削除(RPCTaskMain にループがある)
+[不具合] #617 check_region2 でプロトタイプ宣言されているだけのセルが参照できない場合、エラー出力時 Ruby 例外
+[不具合] #626 get_rhs_region generate
+
+11/4/3  V1.0.2.31
+[追加] #616 C++ から tCelltype_tecsgen.h 読み込めるように #ifdef __cplusplus を追加
+
+11/3/18  V1.0.2.30
+[不具合] #615 タグのない構造体でエラーが発生（デグレ）
+
+11/3/18  V1.0.2.29
+[不具合] #614 Expression::to_s が文字列以外を返す
+
+11/3/18  V1.0.2.28
+[不具合] #612 配列を返す関数がエラーとならない
+[不具合] #611 &&, || 演算子が '&', '&' や '|', '|' として扱われる
+[不具合] #610 true, false の演算で Ruby 例外
+[不具合] #609 属性が添数のない配列の場合、コード生成時 ruby 例外
+              添数のない配列を構造体メンバにできてしまう
+[追加] #613   整数を bool_t にキャストできない
+[作業中] CelltypePlugin, SignaturePlugin の実装
+         test/celltypePlugin, test/singnaturePlugin にテストコードを作成
+[不具合] #497 ArrayTypeのget_type_str_postが@subsciprtがnilの場合を考慮していない
+
+11/3/5  V1.0.2.27
+[追加] # CelltypePlugin の仕様見直し
+[内変] # Celltype::get_generate を get_generate_plugin に変更
+
+11/2/27  V1.0.2.26
+[不具合] #   bnf.y.rb と C_parser.y.rb に class Token が重複
+           （C_parser.y.rb のものが使われていたが C_parser.y.rb のものを削除）
+[追加] #   CelltypePlugin, SignaturePlugin 暫定対応
+
+11/2/11  V1.0.2.25
+[不具合] #603 Makefile.templ中で、'LDFLGAS'の誤記
+[不具合] #604 GenParamCopy.rb の文字コードが sjis
+[不具合] #543 新旧のTECSランタイムが混在している
+              以下のように所在を変更
+            tecs ⇒ test/RUNTIME （ランタイムは、すべてテスト用）
+			test/RPC_RUNTIME ⇒ tecs/rpc  (RPC_RUNTIME は製品組み込みを意図している)
+
+11/2/4  V1.0.2.24
+[不具合] #599 構造体メンバの配列添数に定数を用いるとコンパイルエラー
+[不具合] #584 再オープン：ArrayType::get_type_str_post．2次元配列で、添数部分が正しく出力されない
+           併せて行った「添数として評価前の文字列を出力するように変更」を取りやめ
+[不具合] #602 コーディングミス commponentobj.rb : if #{Namespace... ⇒ if "#{Namespace...  2箇所
+[追加] #601 rcov による tecsgen のカバレッジの実行
+         次のコマンドによりカバレッジデータが作成される % cd test; make do_rcov
+		 pretty.rb にパッチが必要だった (#601 参照)
+[作業中] #600 名前の持ち方が シンボルの場合と文字列の場合がある
+
+11/1/28  V1.0.2.23
+[不具合] #593 構造体メンバに volatileをつけたところエラー "not compatible with previous one"
+
+11/1/22  V1.0.2.22
+[不具合] #590 「セル CB (ダミー)型宣言 #_CCDP_#」で不用な ';' が出力される
+[追加] #591 --generate-all-template オプション：セルが1つもない、import(<>) の場合でもテンプレートを生成する
+[追加] #592 --generate-no-template オプション：テンプレートを生成しない（セルタイプ、Makefile）
+[作業中] TDR に getFloat32, getDouble64, putFloat32, putDouble64 を追加
+
+10/12/24  V1.0.2.21
+★[仕変] #589 sChannel の flush に引数 tmo が必要
+[不具合] #588 tSocketClient.c, tSocketServer.c の戻り値 ER が errno を -1 倍した値
+[不具合] #587 生成されない region の require されている cell が "non-active cell has no entry join and no factory" になる
+[作業中] sChannel/sTDR から open, close を外し、sTINETClientOpenerIPV4, sServerOpener に分離
+
+10/12/4  V1.0.2.20
+[不具合] #586 namespace に関する不具合 3つの修正
+         ・親 namespace に同名の cell があると重複エラーになる
+         ・#_INL_# の inline ヘッダファイルの名前が namespace に対応していない
+         ・子 namespace で [deviate] の指定がエラーとなる
+
+10/12/3  V1.0.2.19
+★[仕変] #148 import_C で読み込まれるヘッダで重複した typedef, struct を無視する
+              #include で同じファイルを二重読み込みしても下記エラーとならない
+               「CDefinedType & CIntType incompatible エラー」
+[不具合] #585 再帰的な構造体定義がエラーとならない
+
+10/11/30  V1.0.2.18
+[作業中] opaqueRPC で配列に対応
+[作業中] generate.rb: DEALLOC コードで配列に対応
+[作業中] rpc.cdl から import( <tDataqueueOWChannel.cdl> ); import( <tSocketChannel.cdl> ); を外す
+
+10/10/24  V1.0.2.17
+[不具合] #581 TransparentRPC で構造体メンバに size_is 等がある場合に対応 (GenParamCopy.rb を新規作成)
+[不具合] #582 *RPCPlugin::param_copy の出力コード: string(len) で最大長さが指定されていても、最大長さを超えてコピーしてしまう
+[不具合] #583 through(RPCPlugin,""),through(TracePlugin,"") と連続指定すると RPCPlugin で ruby 例外
+[不具合] #548 RPCPlugin, OpaqueRPCPlugin で ArrayType が扱えない
+[不具合] #584 ArrayType::get_type_str_post．2次元配列で、添数部分が正しく出力されない
+         添数として評価前の文字列を出力するように変更
+
+10/10/17 V1.0.2.16
+[不具合] #579  typedef された構造体で has_pointer? などが正しい結果を返さない
+               この結果 DEALLOC でメンバを dealloc するコードが生成されず、メモリリークした 
+[追加] #580 OpaqueRPCPlugin, TracePlugin で構造体メンバに size_is 等がある場合に対応
+       (TransparentRPC は未対応 #581)
+[作業中] opaqueRPC で構造体メンバのポインタのテストコードを作成
+
+10/10/10 V1.0.2.15
+[不具合] #577 TracePlugin で RECEIVE に対応できていない
+[不具合] #578 size_is(*len) の len が参照されたことになっていない（OpaqueMarshaler で転送順が優先されない）
+[作業中] OpaqueRPCPlugin の改良 receive の実装および test/opaqueRPC の実装
+
+10/10/9  V1.0.2.14
+[不具合] #574 OpaqueRPPlugn, RPCPlugin の生成するファイル名が Unarshaler. 正しくは Unmarshaler
+[作業中] OpaqueRPCPlugin の改良  send の実装および test/opaqueRPC の実装
+
+10/10/8 V1.0.2.13
+★[仕変] #571 opaqueRPCPlugin のオプション名変更 stack_size => stackSize
+[追加] #572 ThroughPlugin クラスに gen_preamble, gen_postamble を追加
+[内変] #573 opaqueRPCPlugin : アンマーシャル関数を個別生成に変更(gen_postamble 利用)
+[不具合] #570 test/RPC_RUNTIME/TDR.cdl の文字コードが SJIS
+
+10/10/2 V1.0.2.12
+[不具合] #565 composite の cell の呼び口に through 指定すると正しくコード生成されない
+         呼び口配列がすべて同じものを参照して最適化される場合に正しくコード生成されていなかった
+[不具合] #566 プラグイン引数の文字列を複数行にすることができない
+[不具合] #568 #_CPEPD_# で最適化で不要になった VDES の extern 宣言が出力される
+[不具合] #569 cd test; make test_exerb が imort_C でエラーになる
+
+10/10/2 V1.0.2.11
+[追加] #567 OpaqueRPCPlugin でチャンネル名を与える手段がない
+
+10/9/29 V1.0.2.10
+[不具合] #559 OpaqueRPCPlugin の clientChannelCelltype, serverChannelCelltypeが効かない
+[追加] #561 OpaqueRPCPlugin で allocator を変更する手段が必要
+[不具合] #562 through プラグインで allocator が変更された場合に対応できていない
+
+10/9/12 V1.0.2.9
+[追加] #555 DEALLOC コードの生成
+[追加] #394 構造体のポインタ型メンバ変数は未対応
+
+10/8/27 V1.0.2.8
+[不具合] #494 tecsgenのrubyスクリプト、MakefileなどにShift_JISコードのものが混在
+[不具合] #495 Makefile中の\rmがMingWのmakeではcommand not foundになる
+[不具合] #496 <<は前後を開けて記述した方が良い
+[仕変]   #549 Makefile.templ の clean コードが \rm である
+
+10/8/23 V1.0.2.7
+[不具合] #475 OpaqueRPCPlugin で region 名が決めうち
+[不具合] #476 TracePlugin が region に対応しない
+[不具合] #544 region 内のセル定義で allocator 指定子が指定できない
+[不具合] #545 RPCPlugin, SharedPlugin が region に対応しない
+
+10/8/1 V1.0.2.6
+[不具合] #436 tecsgenへの入力が途中までしかない場合にon_errorでnilへの参照発生
+★[内変] プラグインの改良
+        plugin.rb ThroughPlugin の new の引数を変更 (プラグインの親クラス)
+             第4引数 next_cell_name -> next_cell に変更 (呼び先 region へのアクセスのため)
+	     第7引数 caller_cell を追加 (呼び元を判別可能とするため。合流時判別できない)
+
+10/7/18 V1.0.2.5
+[追加] #526 TransparentRPC の oneway の [in,size_is(len),string(10)]const char_t **msgs を可能とした（制限の緩和）
+[不具合] #527 [receive(sAlloc),size_is(len),string]char_t ***buf で size_is が最も内側に作用している（内側から2番目が正しい）
+[不具合] #523 複数の optional 呼び口があると、テストするマクロ #_TOCP_#の生成コードが正しくない
+[不具合] #524 添数なしの呼び口の結合数が0のとき #_CCP6_# の生成コードに "," が不足
+
+10/7/4 V1.0.2.4
+[不具合] #514 tecsmerge --help のコメント誤り
+[不具合] #518 require の undef ができていないため、コンパイル時再定義が出ることがある
+[仕変] #510 SharedRPCPlugin のプラグインオプションを RPCPlugin に合わせる
+[内変] #479 トランスペアレント RPC 改良
+   ・×sop(), eop() の引き数は1、2ではなく、マジックナンバーにするか、関数を分けてはどうか
+     ・渡すマジックを TDR ごとに変更することにしたため、引数として 1, 2 を渡すこととした（従来のまま）
+        TDR を client 側 と server 側に分ける方法も考えられるが、ほとんど共通のためやめ
+   ・eop ⇒ sendEOP, is_eop⇒receiveEOP, put_int16⇒putInt16, get_int16⇒getInt16
+   ・TDR の open, close はやめて、チャンネルに設けた方がよい
+   ・TDR.cdl のコメントは全体的に見直しした方がよい
+[内変] #481 RPCチャンネルの改良
+   （TDR の変更と、それに伴うプラグインの変更．トランスペアレント RPC のファイル名、名前の整理）
+   ・マーシャラのセルタイプ名は Opaque, Transparent で分けたほうがよい
+[作業中]  RPC の改良
+   ・E_RPC を付加するのは、マーシャラ、アンマーシャラのみが行う
+       他の箇所（例えば tTDR ）では E_RPC を付加しない
+   ・func_id のデータサイズを 4バイト ⇒ 2バイト
+   ・TDR パケットの magic 値のデータサイズを 4バイト ⇒ 2バイト
+
+10/6/25 V1.0.2.3
+[不具合] #513 exerb 版では error-7.idl で無限ループになる。
+              parser.rb では無限ループになる。cparse.so では無限ループにならない。
+	      exerb 版のテスト (cd test; make test_exerb) もフルテストになるように変更
+[追加]  #435 allocator 指定子の前方参照 (不具合なし)
+        allocator 指定子のあるセルを相互参照する（プロトタイプで allocator 指定子を指定する）事例 allocatorCB
+
+10/6/12 V1.0.2.2
+[仕変] #510 SharedRPCPlugin のプラグインオプションを RPCPlugin に合わせる
+        RPCPlugin, SharedRPCPlugin のオプション処理を GenTransparentRPC.rb に移して統合
+
+10/6/12 V1.0.2.1
+[内変] #508 check_plugin_arg の本体を plugin.rb に移す
+           RPCPlugin.rb などからは消して @plugin_arg_check_proc_tab に
+           チェック関数テーブルを設定する方式に変更（従来のままのコードも動く）
+[内変] #509 RPC のデバッグメッセージを RPC_DEBUG を定義した時に出力するように変更
+
+10/5/29 V1.0.1.7
+[追加]  #498 TECSジェネレータのコマンドラインオプション--versionの追加を希望
+          併せて --no-banner にも対応
+[不具合] #507 exerb で gcc が gcc-3.exe にシンボリックリンクになっている場合、シンボリックリンクを辿れない
+
+10/5/28 V1.0.1.6
+[不具合] #506 attrで宣言された配列が定数にならない
+
+10/5/23 V1.0.1.5
+[追加]  #502 composite の呼び口に複数の内部セルの呼び口を結合できる
+[不具合] #499 composite の内部のセルに対して non-active cell has no entry join and no factory の warning が出る
+[不具合] #503 require に対し "not entry port", "required port cannot be array" エラーが出ないで ruby 例外で停止
+[不具合] #504 tDataqueuePeer_inline.hを修正しても tTDR.c が再コンパイルされない
+        tTDR.c は tDataqueueAdaptor_inline.h に依存、tDataqueueAdaptor_inline.hは tDataqueuePeer_inline.hに依存
+[不具合] #505 関数パラメータなしの場合 ruby 例外が発生
+[不具合] # 子 namespace のセルタイプの inline のみのセルタイプの出力が不適切
+           generate.rb gen_celltype_names の b_inline_only 引き数が再帰呼出し時に引き渡されていない
+
+10/4/25 V1.0.1.4
+[不具合] # TDR.cdl: get_intptr, put_intptr の引き数型が void * 型となっていたのを intptr_t 型に変更
+[不具合] #161 Transparent で oneway 関数のポインタ型の in 引き数について、PPAllocator を使用してコピーするコードの生成
+          次のものは未対応  size_is,string の両方指定、構造体メンバが size_is 指定
+[不具合] # GenTransparentMarshaler.rb
+        get_int32 等 const 指示子が出力されないように消去
+        put_int32, get_int32 等 unsigned やポインタでキャストが必要な場合、キャストを出力する
+[不具合] # 長さ指定なしの string と size_is, string （二重ポインタ）のエラーがコード生成段階で行われていた
+           RPCPlugin.rb: initialize に移した
+
+10/2/23 V1.0.1.3
+[不具合] #491 入れ子 composite の attr が未初期化でエラー
+
+10/2/6 V1.0.1.2
+[不具合] #474 内部変数の2次元配列の添数が出ていない
+[追加] #478 pointer level mismatch の警告を抑制したい (deviate)
+
+09/12/27 V1.0.1.1
+[不具合] #472 #469 実装不具合．inline の場合 テンプレートが出てしまう
+[不具合] #464(reopen) プラグインの生成文字コードが -k に従って変化しない
+      RPCPlugin.rb, OpaqueRPCPlugin.rb が未対応だった
+
+09/12/20 V1.0.1
+[追加] #469 import を共通部と独自部で区別する手段を設ける
+[不具合] #470 tecsgen -a で ruby 例外発生
+
+09/12/19  V1.0.0.15
+［作業中］# RPC コードの整理
+           ・RPCPlugin.rb, SharedRPCPlugin.rb のマーシャルコードの生成を GenTransparentMarshaler.rb にまとめる
+              この結果、専有マーシャラでも排他制御が含まれることになった
+［仕変］#  GenTransparentMarshaler.rb: アンマーシャラで入力引き数の EOP チェックと対象関数呼出しの順序を入れ換え
+            ・引き数のコピーバッファの持ち方の方針を変更
+［不具合］#  RPCPlugin.rb のコメント誤り： 誤「OpaqueRPC プラグイン」、正：「Transparent RPC プラグイン」
+［不具合］#  RPCPlugin.rb: アンマーシャラの oneway コード生成誤り
+             oneway 関数かどうかの判定がアンマーシャラ関数に対して行われていた（呼び出す関数に対して行うように変更）
+
+09/11/07  V1.0.0.14
+［作業中］# RPC コードの整理
+            ・RPC 関連のコードを RPC_RUNTIME ディレクトリに移す(最終的にはランタイムとしてまとめる)
+            ・tShmemHalfChannel => tShmemHDChannel に変更 (HD: Half Duplex)
+
+09/10/26  V1.0.0.13
+［追加］RPC 用のチャンネル実装 tDataqueueFDChannel.cdl (tDataqueueAdapter) を追加
+［不具合］RPCPlugin で channelCelltype が有効に作用しなかった
+
+09/10/11  V1.0.0.12
+［仕変］#463 import の重複インポートの抑止方法の変更
+       import( "a.cdl" ); import( "gen/a.cdl" ); で a.cdl が同一ファイルなら二重取込みしない
+       （File::expand_path メソッドで同一の文字列が生成されるものを同一とみなす）
+［不具合］#464 プラグインの生成文字コードが -k に従って変化しない
+［不具合］# skyeye 環境で RPC が期待した動作をしない(V1.0.0.11 以降)
+            test/cygwin/tShmemHalfChannel.cdl tShmemHalfChannel の attribute を修正
+
+09/09/26  V1.0.0.11
+［不具合］#458 composite の受け口配列で添数なしの場合、内側セルに配列添数が伝播しない
+［不具合］#459 Join::set_definition で呼び口配列の添数の整合性検査が外されていた
+         非配列の呼び口(celltype 定義)に、添数ありの結合が指定された(cell 定義)場合、
+         tecsgen のエラーにならず、コード生成段階で ruby 例外発生
+［不具合］#460 composite 内のセルのセルタイプが未定義の場合 CompositeCelltype::is_active? で ruby 例外
+［不具合］#462 #_NCPA_# 呼び口配列数マクロが非最適化の場合、正しいコードでなかった (->_inib が不足)
+［仕変］#461 TDR の eop 関数に継続フラグを付加 (含 RPCPlugin, sharedRPPlugin, opaqueRPCPlugin の変更)
+       TDR.cdl, tTDR.c が rpc, opaqueRPC, sharedRPC に分散しているのを cygwin 下に統合
+       sTDR の eop() に引数を追加して、継続するか否か（oneway か否か）を、識別する
+       RPCPlugin.rb, opaqueRPCPlugin.rb, sharedRPCPlugin.rb にて対応
+
+09/09/16  V1.0.0.10
+［追加］#456 生成ファイルが以前の gen ディレクトリの内容と同じなら更新しない
+        -f : 強制オーバーライト．(従来と同じ動作)
+［不具合］#457 RPCPlugin: OUT, INOUT 引き数について出力時に値渡しをしている
+          配列の場合に記憶領域がなかった．呼びだし時にポインタを渡すように変更
+
+09/08/28  V1.0.0.9
+［不具合］#451 tecsmerge: unsuitable previous keyword エラーの3つ目のコメント expect: は正しくない
+          "expect:" => "suitable previous:" に変更
+［不具合］#452 tecsmerge: #[<ENTRY_PORT>]# がないまま #[<ENTRY_FUNC>]# が来ると ruby 例外発生
+［不具合］#453 types.rb: DefinedType の get_original_type: 多重の typedef で正しく型が得られない
+［作業中］#450 through, opaqueRPC, region および TracePlugin の syslog 対応
+           実装は完了したつもりだが、sample.cdl(skyeye) でフリーズ発生
+
+09/08/15 V1.0.0.8
+［不具合］#449 受け口関数のテンプレートファイルに文字化け発生(SJIS指定の場合)
+          TEFB_comment の追加
+［作業中］#450 through, opaqueRPC, region および TracePlugin の syslog 対応
+
+09/07/27 V1.0.0.7
+［追加］#422 tecsmerge 対応 doc/tecsmerge.txt に説明文． test/merge にテストコード．
+［追加］#445 tecsmerge 用の末尾の区切りのコメントとして #[<POSTAMBLE>]#, #[</POSTAMBLE>]# を追加
+［不具合］#446 tecsmerge 用のコメント誤り " * #[/ENTRY_FUNC>]#"  => " * #<[/ENTRY_FUNC>]#"
+［不具合］#447 ENTRY_FUNC コメントの oneway が正しく出力されなかった
+
+09/07/25 V1.0.0.6
+［不具合］#443 singleton の場合の呼び口配列の個数出力 #_NCPA_#
+        CB に固定化されていたが、INIB がある場合には INIB に出力されるため、コンパイルエラー
+        #define N_CP_cMain  (tMain_SINGLE_CELL_CB.n_cMain)  <<< CB ではなく INIB
+［不具合］#442 singletonのセルタイプの変数の初期化に属性が使えない
+	#define INITIALIZE_CB()\
+		tMain_SINGLE_CELL_CB.v = tMain_ATTR_a(p_that);
+［追加］＃444 class Cell に self.get_current を追加
+        TLVTracePlugin にて呼び元のセルの情報を得るために使用
+
+09/07/17 V1.0.0.5
+［追加］#396 composite の内部にアロケータセルも置いて、composite 内部でアロケータ呼び口を結合する手段がない。
+   以下は、依然として未完
+   #416 composite内のリレーアロケータ
+   #435 allocator 指定子の前方参照 (allocator 付きセルのプロトタイプ宣言ができない)
+   #440 配列は、要素ごとに指定できる必要があるか？
+   セルフアロケータで呼び口側指定のパターンが実現されていない
+［追加］#397 複合セルタイプ文指定子として cell の allocator 指定ができない
+［不具合］#439 tecslib/componentobj.rbのnew_joinメソッドでnil.get_nameを実行して例外発生
+          composite の定義で signature 未定義エラーのあと、signature 不一致エラーを発生させようとして ruby 例外が発生
+          signature 未定義エラーが先行して出るので、signature 不一致エラーは発生させないように変更
+［不具合］#438 tecsgenでgccの予約語__extention__を置き換えるには-D__extention__=と指定してほしい
+［不具合］#437 tecsgenのopaqueRPCのテストで、CソースコードのコンパイルにLinuxでは-lpthreadが必要
+
+09/06/28 V1.0.0.4
+［仕変］#430 Makefile.templ の tecsgen を $(TECSGEN_EXE) に変更 (exerb 版テストを容易にする)
+［不具合］#386 composite の attr の size_is 指定されたポインタ
+       例外発生しないように変更．新しく、以下のチケットを発行
+       #418 composite の attr の size_is 指定されたポインタは、どう扱うべきか?
+［不具合］#415 OpaqueRPCPlugin で unmarshaler 内の関数の戻り値の型が doService_mainの戻り値型
+［不具合］#425 複合セルタイプのセルの呼び口が未結合であってもエラーにならず、呼び口が null で出力される
+	    CompositeCelltypeJoin#get_port_type で @port_type が @prot_type となっていた
+            CompositeCelltypeJoin に is_optional?, is_require?, is_allocator_port? を新設
+             optional でない呼び口を null で出力する場合、ruby 例外とするよう予防
+［不具合］#421 u_int32_t の未定義問題の解決．
+［不具合］#427 bnf.y.rb にて shift/reduce conflict, reduce/reduce conflict が多数発生している
+［内変］#429 test の make tecs で TECSGEN_EXE=$(TECSGEN_EXE) が付いていないものをすべて付けて exerb 版試験を強化
+［内変］#431 cygwin のタスク実装を pthread に変更
+［作業中］#396	composite の内部にアロケータセルも置いて、composite 内部でアロケータ呼び口を結合する手段がない。
+［作業中］#416 composite内のリレーアロケータ
+
+09/06/05  V1.0.0.3
+［不具合］#408 IntegerVal, BoolVal クラスの || 演算で && が行われる
+［不具合］#409 	IntegerVal の計算で 1+"ABC"など右辺が不適切なとき Float にキャストできないエラー&Ruby例外となる
+
+09/05/30  V1.0.0.2
+［不具合］#384 受け口配列で、添数なしだと、1つしか受け口ディスクリプタが生成されない
+          V1.0.0 では受け口配列の添数なしは、暫定対応でエラーとしたが、エラーとしなくなった
+［仕変］#406 exerb 版のデフォルト文字コードを SJIS に変更
+        非 exerb 版も、あわせて EUC に変更（従来は NONE だった．utf-8 でうまくいかなくなるケースあり）
+［仕変］#287 空の FACTORY 記述
+［仕変］#286 マクロ名にTOPPERS_をつける
+［仕変］#405 文字定数で、全角文字で例外発生（1文字として扱うように変更）
+［不具合］#404 exerb 版が SJIS 対応以降うまく動作しない
+［内変］#407 プロトタイプ宣言と定義の Cell (ruby オブジェクト) を一つにまとめた
+          class Cell において、@my_def は不要になった（プロトタイプ宣言から定義を指していた）
+	  class Cell において、@prototypes は不要となった
+          genererate.rb で get_f_def を見る必要はなくなった(@cell_list にプロトタイプ宣言は含まれなくなった)
+
+09/05/24  V1.0.0.1
+［追加］#391 CDL の文字コード指定オプション -k code を追加 (SJIS 、UTF8 対応)
+          code として euc, sjis, none, utf8
+          exerb 版は動作しなくなっている (#404) (nkf.so がうまく取込めていない模様) 
+［追加］#398 重複定義エラーを出力する際に、前定義のファイル位置を出力. 'previous: 'を前置
+          duplicate-err.cdl にテストコードを作成
+［追加］#399 exerb 版を試験する Makefile 記述
+         cd test; make test_exerb    # tecsgen.exe を指定
+［不具合］#400 README-exerb.txt を修正
+       ・cygwin 版, mingw 版の認識が誤っているようなので記述をカット
+       ・V1.0 でメークするとしたが、取りやめたので記述をカット
+［不具合］#402 tecsgen のオプションとして --include_path_opt_format が表示されていたが、
+          未対応のため表示しないように変更
+［仕変］ #403 オプション -V (長いオプション名 --unit-test) で tecsgen の単体テストコードが走るが、
+         通常使うものではないので --self-unit-test のみに変更
+
+
+09/05/10 V1.0.0
+［内変］exerb 版のビルドを util/release.sh の中に変更
+
+09/05/06 V1.A.10.2
+［不具合］#384 受け口配列で、添数なしだと、1つしか受け口ディスクリプタが生成されない
+     セルの受け口ごとに使用された添数を管理する必要があるが、暫定として以下のエラー発生
+     entry port: sizeless array not supported in current version
+
+09/05/04   V1.A.10.1
+［不具合］#380 関数へのポインタ型にキャストすると ruby 例外
+［内変］#379 bnf.y.rb にて const_statement を独立(#351 定数の説明不足)
+
+09/05/03 V1.A.10
+［追加］#60 式における型チェック  (changes.txt に up 後追記．V1.1 以降対応事項を先行対応）
+［追加］#355 定数に bool, pointer を使えない（int, float のみ使える）
+［追加］#356 cast 演算への対応．定数演算時の型導出および型の整合性チェック
+         （整数型か浮動小数型かポインタ型か）
+［追加］#367 composite 内のセルの attribute の初期化で、多項式が指定できない
+      rhs expression is not supported. Only attribute is permitted on current version. となる
+［仕変］#366 16進定数が10進数で出力される(const,attr, var)
+［仕変］#363 Makefile.templ に含まれる templ.c をそのまま使ってビルドする規則を消す（紛らわしいだけ）
+［不具合］#353 括弧でくくられた式 "( expr )" のコード生成がおかしい (changes.txt up 後に追記)
+［不具合］#357 const に対し check_init が呼び出されず、適切な初期値指定かチェックされていなかった
+［不具合］#342 「can't convert C_EXP into Integer」によりtecsgenがfatal error発生
+         C_EXP を定数値として使えない箇所で使われていた場合のチェックができていなかった
+［不具合］#358 入力引き数の取扱いが仕様書と相違する
+    2.2) ArrayType の is_const?, is_volatile? が正常に働かなかった(要素が const の場合 const とする)
+         引き数  [in] const int32_t *array[4] が const がないということでエラーになる
+    2.3) array へのポインタが正しく出力されない
+	  [in]           const int32_t  (* array)[4]
+    3) set_scs で string と count が入れ違っていた
+          [in,size_is(sz),string]const int16_t **str で @count = -1 に設定された(右辺はExpression になるべき)
+［不具合］#359 出力引き数の取扱いが仕様書と相違する
+    out の string 指定子に引き数がない場合逸脱だが警告されない（バッファオーバランの可能性）
+［不具合］#360 配列に size_is, count_is, string が指定されていると ruby 例外が発生する(以下が例外)
+	 void funcA1( [send(sAllocator),size_is(len)]int8_t buf[],  [in]int32_t len );
+［不具合］#361 添数なし配列を中途半端にポインタとみなしていた
+          get_ptr_level ではポインタ、ParamDecl ではポインタではない
+          配列型をポインタとみなす規則を適用しない（仕様と異なる、仕様書に追記）
+［不具合］#362 allocator のシグニチャが alloc, dealloc 関数を持つこと
+          それぞれの引数が仕様を満たすことのチェックがなされていなかった
+［制限］× #364 構造体メンバー変数に対する [string] などの指定子が未対応（仕様書に参照実装の制限として追記）
+［不具合］#365 定数式評価(eval_const)の改良
+          不適切なオペランドのチェック（エラーにならない）
+          ! 演算子の処置
+          expression lAND などの評価がおかしい(return 値)
+          STRING_LITERAL の処置
+
+09/04/24 V1.A.9.9
+［追加］#334 複数の require で関数名が衝突する場合の回避手段が欲しい
+     require rcCall = tSingletonCelltype.eEntryPort;   /* リクワイア呼び口を可とした */
+
+09/04/24 V1.A.9.8
+★［仕変］#312（再修正）すべてが inline の受け口の場合にセルタイプの .c が無いものとする (Makefile に含めない)
+              ただし active のものは、含めるものとする (詳細は trac 参照)
+［仕変］#193 plugin で生成されたcdl のimportに失敗する (-I gen が裁定されていない場合)
+［不具合］#329 非 active セルタイプで受け口が無いのに警告もエラーもない
+［不具合］#330 非アクティブセルタイプのセルが受け口に何も結合されていないのに警告されない
+       この修正対策は不完全で #340 composite内セルで非アクティブで受け口が未結合なセルが警告されない．が残る
+［追加］toppers-com-wg 873 test/opaqueRPC の tecsgen オプションに -D "__extention__=" を追加(一部の gcc 環境への対応)
+
+09/04/17 V1.A.9.7
+★［仕変］#312 すべてが inline の受け口の場合にセルタイプの .c が無いものとする
+               受け口が inline のみのセルタイプの .c, .o を Makefile に含めない
+［不具合］#155 region の through で 合流する場合であっても、別々に through セルが生成されてしまう
+［不具合］#315 require が複数の singleton セルに対応しない
+［不具合］#327 結合の through 指定が region の through 指定の後ろに入る
+［不具合］#292 最適化時の $cb$ の置換文字列
+          $cbp$ は CB, INIB があるときに NULL に置換。共にない時に CB 名に置換
+
+09/04/13   V1.A.9.6
+［不具合］#324 VMT不用最適化時、スケルトン関数のプロトタイプ宣言がない
+       構造体を返すとエラー
+［不具合］#325 optional で最適化された呼び口関数が消える
+       最適化で呼び口関数が消えると、戻り値を使う代入文で、コンパイルエラーとなる
+       以下のようなコードを出力
+       #define tCelltype_cCall_func()  ((int32_t(*)())0)()
+
+09/04/12   V1.A.9.5
+［追加］#292 最適化時の $cb$ の置換文字列
+       $cbp$ にて対応
+［追加］#314 optional 指定子対応
+  ・結合をチェックする関数
+       is_cCall_joined()
+       is_cCall_joined(subscript)  呼び口配列の場合
+  ・最適化パターンへの対応
+  ・呼び口配列の場合の対応
+    ・呼び口配列が完全に初期化されていない場合
+  ・要素の一部が初期化されていない（配列添数指定ありの場合のみ）
+  ・composite の場合、optional 指定を一致させる
+［不具合］#322 セルの呼び口配列で添数が指定されていない場合例外
+［不具合］#323 呼び口配列で添数0が最初に定義されないと、正しく出力されない
+
+09/04/03 V1.A.9.4
+［不具合］#321 composite の attr で初期値が指定されていないと、初期値未指定エラーとなる
+
+09/03/27 V1.A.9.3
+★［仕変］#313 attribute キーワードを attr に変更
+          test の下, プラグインも attr に変更
+
+09/03/27 V1.A.9.2
+★［仕変］#311 属性には、必ず初期値が必要としたい
+            test コードを変更 (test_err のエラー数も変更)
+［不具合］#205 .h で定義した（整数）型が無符号に扱われる
+［不具合］#206 import された cdl 中の region 記述で through プラグインコードが生成されない
+     cdl の import が nest された Generator で処理するように変更した時からの不具合(08/03/16)
+     test/region をテスト用に変更
+［不具合］#199 marshaler で戻り値があるのに戻り値を返さない
+     RPCPlugin.rb にて func_type.get_type.get_type_str == :ER の右辺を "ER" に変更
+     opaqueRPCPlugin.rb も同様の変更
+［不具合］#316  受け口スケルトン関数 #_EPSF_# にて、シングルトンの受け口配列のとき以下の行が出力されない
+         struct tag_tISR_eEnt_DES *lepd = (struct tag_tISR_eEnt_DES *)epd;
+［不具合］#293 プロトタイプ宣言された composite を参照するとジェネレータが例外で停止
+［内変］region の結合チェック check_region を変更
+         Join に get_rhs_region を新設. composite セルのリージョンを返す
+	 (compsoite の内部セルはすべて同じリージョンに属する仕様となったので、これでよい) 
+［内変］reference を削除 (tecs_spec へ移した)
+
+09/01/12  V1.A.9.1
+［仕変］#201 import_C で第1引数が同じ場合読み飛ばすが、第2引数が相違する場合にはエラーとする
+   #190 で同名のものを、重複して読み込まないようにしたが、第二引数について考慮していなかった
+［追加］#194 OpaqueRPCPlugin の exerb 対応
+［追加］#55 factory( "file.h", "format", "para" ); ... file.h の箇所で $ct$ 等の置換がなされない
+         FACTORY, factory のファイル名（第一引数）についても、文字列置換する
+［追加］#186 _inline に対応しない
+    仕様追加しない．回避方法を開示することで対応．  Chap3/11.2-import_C.txt
+［不具合］#202 import_C で第2引数を指定すると例外発生
+［不具合］#203 import_C で第2引数を "," で区切って指定しても全体が一つに扱われる
+［不具合］#204 "$ct$_tecsgen.h" のように先頭が $ct$ などキーワードの時に名前置換されない
+［不具合］#170 volatile を import_C されるヘッダで指定できない
+       以下の行でエラーとなっていたっが、実際には volatile が指定できないのではなく、右辺が評価されていたため
+           void (*volatile fp)(void) = software_term_hook;
+
+09/01/11  V1.A.9
+［仕変］#183 composite の $id$ を composite セルの名前に展開して欲しい
+［追加］#195 exerb 版をビルドするスクリプトがない
+        doc/README-exerb.txt 作成（途中）
+［不具合］#196 signature で send, receive が最初の関数だと syntax エラーとなる
+［不具合］#197 -c で 'c:\usr\bin\gcc -E' のような引数が渡せない
+［不具合］#198 int 型変数の初期値が文字列 "abc" だと、ruby 例外が発生
+          Token 型で eql? がオーバーライドされているため val == nil で例外発生する
+［不具合］#200 tecsgen -c, --cpp=cpp_cmd のデフォルトのコマンド引数の表示誤り
+          gcc -E -D TECS -D TECS_CPP と表示されているが gcc -E -D TECS 正しい
+
+09/01/02  V1.A.8.3
+［仕変］#190 import_C の二重取込みの防止
+        import_C で直接取込まれるヘッダ .h について、後から指定された import_C は無視
+        import_C で取込まれるヘッダで #include されるヘッダについては二重取込み防止されない
+［不具合］#191 var の変数が typedef した型で attribute を参照した場合、未定義エラーとなる
+          DefinedType クラスの check_init で、引数 attribute に nil を与えていた
+［不具合］#192 var の変数が attribute を参照した場合、attribute の初期値が C_EXP だと ruby の例外が発生
+          C_EXP に eval_const を設ける
+［未完］#158 OpaqueRPCPlugin の実装
+        OpaqueRPCPlugin.rb (マーシャラ生成コード)
+	テストコード: test/opaqueRPC
+	    SimpleSmaple を cygwin 上のソケットで結合するサンプル．
+            test/opaqueRPC/server/opaqueRPC-server.exe を先に起動し，
+            次に test/opaqueRPC/server/opaqueRPC-client.exe 起動する．
+            (make test_exec では自動テスト実行しない)
+        未完事項
+        ・ポインタ引数の受渡し
+        ・リージョンの指定 (rServer, rClinet 固定)
+        ・sSignature シグニチャの見直し
+        ・クローズ処理（異常処理を含む）
+	・IP アドレス、ポート番号の指定 (127.0.0.1, 8931 固定)
+        ・共有チャンネル（複数ある場合、同じポート番号で待ち受けようとする, 多重化に対応しない）
+
+08/12/16 V1.A.8.2
+［追加］ #156 region のコードの出しわけ
+          -G region_path オプションにより指定されたリージョンをコード出力
+          reference/Chap3/18-region.txt, reference/Chap4/A1-tecsgen.txt … ドキュメント記載
+	  test/region2 … テストコード
+［追加］ #188 コードを出し分ける場合、singleton を、それぞれに持ちたい
+          test/region2 … テストコード
+［不具合］ #187 相互参照となっているとき、Cコンパイルで tCelltype_IDX 未定義のエラーとなる場合がある
+         相互参照で typedef となっている型を相互に参照しようとするため
+         #_TCP_# で INIB 内のメンバ変数の型を struct tag_tCelltype * に変更
+［不具合］ #189 singleton セルタイプのプロタイプ宣言があると複数定義エラーとなる
+
+08/11/15 V1.A.8.1
+［不具合］#80 import_C|関数の中の '>>' 演算子がエラーになる
+［不具合］#182 cdl の中で <<, >> 演算子がエラーになる (#80 の類似不具合)
+［不完全］#148 import_C されるヘッダから include されるヘッダの二重取込み
+           手をつけたが終わりまでたどり着けなかった
+
+08/11/09 v1.A.8
+［追加］ #129 トレースプラグイン|send, receive の多段リレーモデル化
+［追加］ #162 TracePlugin の allocator 対応
+［不具合］ #167 トレースプラグインで同じシグニチャを throughすると、セルタイプ重複エラーが出る
+［追加］#173 exerb 対応
+［不具合］#174 requireに相対パスで与えるべきところを絶対パスを与えている
+          従来の絶対パス方式は外部のプラグインを取込む手段として残しておく
+［不具合］#175 tecsgen.rbのメソッドrequire_tecsgen_libでLoadEror の例外が捕捉できない
+          LoadError 自体は File.exist? で回避している．現状のままとする
+          rescue についてはうまく機能していなかったので #177 による変更を行う
+［不具合］#176 メソッドLoad_plugin、require_tecsgen_libでのパス名の与え方が一定でない
+         「tecslib/ファイル名」で呼出すのは、環境変数 RUBYLIB の設定
+         により、誤って異なる generate.rb などがロードされるのを防ぐため．
+         現状のままとする
+［不具合］#177 require 時の rescue　で文法エラーが捕捉できていない
+          rescue Exception ですべての例外を受取ることにした
+［不具合］#178 plugin.rb の gen_ep_func_body でデフォルト生成される受け口
+          関数の本体コードにて return が出力されていなかった
+［不具合］#179 受け口配列に対する allocator 指定の添数を、呼び口配列の添数と取り違えていた
+          受け口配列への結合について、アロケータ呼び口の結合が正しく生成されない
+［内変］#180 plugin.rb "cCall" => #{@call_port_name}
+［内変］#181 require 時の rescue に Exception を指定（文法エラーなど、すべてのエラーを捕捉）
+	  tecsgen.rb, componentobj.rb
+
+08/11/02 v1.A.7.2
+［追加］#125 アロケータ|多段リレーモデル（リレーアロケータ）
+           test/allocator2
+	   Chap3/15-celltype.txt
+
+08/10/28 v1.A.7.1
+［追加］#94 context の指定
+            test/rpc/rpc_test.cdl
+            Chap3/11.3-statement-specifier.txt 修正
+
+08/10/26 V1.A.7
+［追加］#130 受け口最適化
+［仕変］#132 CB から INIB へのポインタは構造体の先頭にあったほうがよい
+［仕変］#133 call port のポインタはINIB 構造体の先頭にあったほうがよい
+
+08/10/25 V1.A.6.1
+［削除］#100 最適化 : duplicate: #130, #131
+［内変］#115 attr_reader で属性参照しているところと、そうでないところがある
+［不具合］ #163 コード生成時の例外発生では tecsgen が正常終了になる
+［不具合］ #151 文字列の扱いに関する規則 の内、連接文字列について修正
+        （もともと連接文字列は一つの文字列として扱う仕様だったが、実装できなかった）
+［追加］ #151 文字列の扱いに関する規則 の内、文字列リテラル中の改行
+        行末にエスケープ文字 '\' を置いていない場合エラーとする仕様とした
+        reference/Chap3/02-lex.txt
+
+08/10/21 V1.A.6
+［追加］#36 // による一行コメント
+［追加］#123 RPCプラグイン|import( "tRPCPlugin_sSignature.cdl.cdl" )　
+        など RPC プラグインで生成されるものから参照されるものは、自動
+        生成された cdl で import すべき
+［追加］#149 through 引数
+［追加］#150 RPC のタスクの優先度
+［追加］#157 RPCPlugin.rb send/receive の対応
+［追加］#159 RPCPlugin のチャンネルセルタイプの指定
+［追加］#160 tShmemHalfChannelに tFlg, tSem を取込む(#159の下準備として)
+             この変更により RPC のサンプルは動作しなくなった
+             tShmemHalfChannel => tShmemHalfChannelBuf に変更が必要
+
+08/09/28
+［不具合］RPCPlugin.rb
+  cTDR_get_int_least8_t =>   cTDR_get_int8_t
+
+08/09/15 V1.A.5.1
+［不具合］#146 composite の send/receive
+08/09/09
+［変更］ #147 inline のプロトタイプ宣言 Inline を挿入
+       さらに tCelltype_inline.h のテンプレートコードにおいて
+        Inline ER func(void){} のように指定子を Inline とする
+        #define Inline static inline のように定義されることを想定
+
+
+08/09/07 V1.A.5
+［追加］oneway の対応
+  一部 async が実装されていたものを変更
+  oneway の場合、仮に戻り値の型が ER の場合、セルタイプコードでは E_OK しか返してはならない
+  直接呼出しの場合は、セルタイプコードの戻り値が返されるのに対し、RPC の場合には返されず捨てられる
+  reference/Chap3/14-signature.txt に仕様を記載
+  RPCPlugin.rb : oneway において oneway 関数を非同期呼出しとする
+
+08/08/31 V1.A.4 (再々アップ)
+［追加］#145 inline の実装見直し
+  tCt_inline_templ.h で短縮形が使える実装に気づいて変更
+  tCt_tecsgen.h にて inline の場合、CB_TYPE_ONLY の場合マクロを undef して、マクロの名前衝突を回避
+
+08/08/30 V1.A.4 (再アップ)
+［追加］#145 inline のテンプレートを変更
+  以下の不具合を修正
+   tCt_inline_templ.h の生成が正しくない
+    inline 指定された受け口が一つもないにも関わらず tCt_inline_templ.h が生成される
+    短縮形は参照できないにもかかわらず、短縮形で出力される
+    inline 受け口を持つセルタイプにおいて、非短縮マクロを参照できるように、非短縮マクロの CB_TYPE_ONLY を外す
+
+08/08/24 V1.A.4
+［追加］#73, #74 require の実装． 08/07/01 の議論に基く実装
+        reference/Chap3/15.4-require.txt
+        test/require.cdl
+［追加］#145 inline の実装． 08/07/01 の議論に基く実装（暫定）
+        inline ヘッダでは、マクロ参照できない (_CB_TYPE_ONLY が define されている)
+        ミーティングでは tecsgen.h にプロトタイプ宣言を出す代わりに inline.h の include を出力することになっていたが、
+        プロトタイプ宣言を出しておくことでチェックができるため、出しておく（ただし __inline__ を付加）
+        テストコードで __inline__, inline 指定しても cygwin でインラインにコンパイルされなかったので static としてある
+
+08/07/12 
+［仕変］#142 TECS: float32_t, double64_t  C: tecs_float, tecs_double ⇒ float32_t, double64_t に変更
+
+08/07/9 1.A.3
+［追加］#127 composite での allocator
+        テストコード： test/composite_alloc
+
+080307 （合宿）の議論に比べ 内部での allocator 指定子は無くした。
+実装上は、冗長でしかない。
+
+  signature sSendRecv {
+    ER snd(  [send(sAlloc)]int8_t *buf );
+    ER recv( [receive(sAlloc)]int8_t *buf );
+  };
+
+  composite tComp {
+    call  sSendRecv cC;
+    entry sSendRecv eS;
+    cell Cell{                 <=== 080307 議論ではここに allocator 指定子があった
+      cC => composite.cC;
+    };
+    composite.eS => Cell.eS;
+  };
+
+  [eS.snd.buf=alloc.eA,
+   eS.recv.buf=alloc.eA]
+  cell Cell {
+  };
+
+実装としては、内部的に呼び口が生成される。
+上記の例では、eS_snd_buf, eS_recv_buf, cS_snd_buf, cS_snd_buf の 4 つの呼び口が composite に対し追加される。
+（tecsgen -s で tree 表示させると確認できる）
+
+［仕変］ポートがアロケータ呼び口として生成されたという情報を持つようにした
+      これによりメッセージ出力を変更
+  1) 呼び口未初期化のエラーメッセージ
+    従来）（呼び口未初期化とアロケータ呼び口未初期化の区別が無かった）
+     "call port '#{p.get_name}' not initialized in cell '#{@name}'\nIf port has send/receive parameter, this error might be caused by no allocator initialize in entry port side cell."
+    変更）
+     呼び口未初期化： "call port '#{p.get_name}' not initialized in cell '#{@name}'"
+     アロケータ呼び口未初期化："call port '#{p.get_name}' not initialized in cell '#{@name}'. this call port is created by tecsgen. check allocator specifier"
+  2) テンプレートのコメント
+    
+［内変］ポートのすべてのパラメータを辿るメソッド each_param
+
+08/07/06 1.A.2
+［不具合］#144 composite で attr = composite.attr;  2箇所出現するとエラー.重複エクスポートになる．旧仕様の名残(呼び口は可)
+
+08/07/01 1.A.1
+★［仕変］#92 [in] のポインタに const が必須となった．例） [in]const int32_t *buf
+          [inout], [out] のポインタに const が指定されている場合、エラーとする
+
+08/06/14 1.A.0
+［追加］util/release.sh, MANIFEST 追加（util/release.shは、リリースには含めない）
+［内変］test/Makefile で error テストを仕分ける
+［内変］util/upload.sh で MANIFEST から VERSION を取る
+
+08/06/12
+［不具合］FACTORY（セルタイプ用）記述の$ct$の展開結果を見ると$ct$の前の一文字が消えてしまいます
+          例えば、
+           　write("tLedout_CB_list.h", "extern void $ct$_init(intptr_t exinf);");
+          を展開すると
+           　extern voidtLedout_init(intptr_t exinf);
+          のように$ct$の前のスペースがなくなります (com-wg 689)
+
+08/06/11
+［不具合］attribute, var のアクセスマクロ（短縮形）#_AAMA_#, #_VAMA_# において、名前が長すぎると
+         （"ATTR_" を含めて20文字以上）
+              #define ATTR_long_attribute_name tCelltype_ATTR_long_attribute_name(p_cellcb)
+          の後ろ２つがつながってしまう
+
+08/06/10
+［内変］ディレクトリ構成の変更  generator-080610 => tecsgen (バージョン名なし）
+        これに伴い svn リポジトリを generator から tecsgen に変更
+        changes.txt, knownbugs*.txt を doc ディレクトリに移した
+
+08/06/01
+［仕変］uintN_t (N:8,16,32,64,128) に対応．unsigned intN_t は obsolete．singned intN_t も obsolete．
+        テストコードとして sign-err.cdl を追加．
+［追加］reference/Chap4/tecsgen.txt tecsgen コマンドの説明
+        reference/Chap3/type.txt 加筆.  specifier … 指定子, qualifier … 修飾子
+	readme.txt を TOPPERS/ASP の README.txt を参考に加筆．
+
+08/05/27
+［不具合］messages.rb  self.get で class_variable_get が使えない(ruby 1.8.2 でも使える eval に変更)
+［不具合］generate.rb #_VAM_# で size_is 指定ありかつ singleton で正しいコードが出ていない
+［不具合］TracePlugin.rb で void 型の戻り値に対応が不完全だった
+          (func_type.kind_of?(VoidType) => func_type.get_type.kind_of?(VoidType))
+［不具合］引数に in/out/inout/send/receive のいずれも指定がなくてもエラーにならなかった
+
+08/05/26
+［追加］-R により RAM 初期化コードが生成される．また CB の初期値は出力されない（ROM サポート有の場合）
+［追加］環境変数 TECSGEN_DEFAULT_RAM を設定すると RAM only がデフォルトとなる
+       Makefile にターゲット test1.ram を作成（上記環境変数をセットして make）
+［仕変］size_is 指定された変数（ポインタ）は、定数領域 (INIB) に置くように変更 
+       ポインタの指す配列は未初期化領域に置く
+［仕変］tecsgen コマンドを Makefile.tecsgen => Makefile.templ へ移した
+        make tecsgen ; make all を実行するように変更
+［仕変］referece においてspecifier の訳を 指定子に統一。以前は修飾子も使われていた。
+        その他 referece を見直し。
+［内変］短縮形 #_AAMA_#, #_VAMA_# について、#_AAM_#, #_VAM_# を参照する方式に変更
+        これにより INIB, CB の相違について保守が必要となる箇所を減らした
+［不具合］#_VAM_#  tCelltype_VAR_var_name ==> tCelltype_VAR_var_name(p_that)
+          #_AAM_# 属性参照については、上記のように修正済み
+［不具合］Makefile.depend で CELLTYPE_tecsgen.o, CELLTYPE.o のパスの誤りを修正
+［不具合］generate.rb の #_CCP0_# のコメント誤り（呼び口と受け口が違っていた）
+［不具合］添数なしの呼び口配列 cCallPort[] で、配列要素数が出力されていなかった (#_CCP3_#)
+［不具合］singleton の ATTR_a が正しく出力されていなかった
+            INIB でなく CB を参照, ATTR_a  tSingleton_ATTR_a( p_cellcb )  ... 余分に p_cellcb が付いていた
+［不具合］単一セル最適化で呼び口側に受け口へのポインタが CB に埋め込まれなくなるが、
+          添数なし呼び口配列では配列要素数も埋め込まれないため、要素数アクセスマクロがエラーになってしまう.
+          暫定修正としては 添数なし呼び口配列の場合、その呼び口に関して最適化を行わないようにする.
+	  より望ましい変更は optimize.rb の 134 行目.
+［不具合］make の途中でエラーが発生する．もう一度 make を実行すると成功する．（これを数回繰り返す必要がある）
+          test/*/Makefile を tecsgen 生成のものに交換．
+
+08/05/04
+［仕変］ファイル文字コードを UTF-8 -> EUC-JP に変更
+
+08/05/04
+［仕変］テンプレートコードのインデントを TOPPERS/ASP にあわせた
+        併せて ercd_ => ercd に変更
+
+08/05/03
+★［仕変］composite の文法変更
+   これにより 14 種類のエラーが追加となった
+   "rhs expression is not supported. Only attribute is permitted on current version."
+   "#{ident} : cannot refer to #{@celltype.get_name}'s attribute here. Use 'composite.#{ident}' to refer to composite celltype's"
+   "composite : cannot specify out of composite celltype definition"
+   "#{export_name} : cannot refer to #{@celltype.get_name}'s here. Use 'composite.#{export_name}' to refer to composite celltype's"
+   "#{n.get_name} : cannot export, nothing designated"
+   "'#{export_name}' : exporting attribute. write in cell or use '=' to export attribute"
+   "'#{export_name}' : port type mismatch. #{type} typeis allowed here."
+   "#{export_name} has no export definition"
+   "#{export_name} is port but previously defined as anattribute"
+   "#{export_name} : type '#{obj.get_type.get_type_str}#{obj.get_type.get_type_str_post}' mismatch with previous definition'#{obj2.get_type.get_type_str}#{obj2.get_type.get_type_str_post}'"
+   "#{export_name} : port type #{obj.get_port_type} mismatch with previous definition #{obj2.get_port_type}"
+   "#{export_name} : signature '#{obj.get_signature.get_name}' mismatch with previous definition '#{obj2.get_signature.get_name}'"
+   "#{export_name} : array size mismatch with previous definition"
+   "#{export_name} is an attribute but previously defined as a port"
+［内変］composite の文法変更に伴う RPCPlugin.rb の出力の変更
+
+
+08/04/30
+★［仕変］char(TECS) => char(C)  (以前は tecs_char)
+★［仕変］CELLTYPE_tecsgen.h で tecs.h の include を取りやめた．
+          従来は cpp する時点で -I でパスが通っていればよかったが、現
+          在は tecsgen の -I でパスが通っている必要がある
+          test/*.cdl test/*/*.cdl で import_C( "tecs.h" ) を書き加える
+          とともに tecsgen に -I を追加．
+          なお tecs.h は '>>', __extesion__ がエラーとなったので、とり
+          あえず #if 0 ではずしてある．
+★［仕変］Makefile.tecsgen の出力内容を 4月22日のミーティングの議事録に合わせて変更
+          （まだ要求されているものができているか不明）
+［不具合］inline 関数が内部に一行だけもつことができた
+         （0行以上の複数持てるように修正）
+［内変］messages.rb に、各国語化必要な文字列をまとめた
+       これらのメッセージは、出力ファイルに記録されるもの
+［内変］generator.rb => tecsgen.rb に変更．
+        tecsgen.rb から require される *.rb を tecslib/ へ移した．
+        これにより、誤って違うファイルがロードされる不具合を防止．
+        require_tecsgen_lib 関数は、サーチパス上に require するファイ
+        ルがないかサーチする．なければサーチパス上の tecslib/ フォルダ
+        下にないかサーチする．(plugin からロードされるもののためにこの
+        ような仕様にしている）．
+［内変］rdoc で適当な出力が得られるようにコメント記述を変更．
+        以前は rdoc の仕様がわかっていなかったので、適当に METHOD: な
+        どのようにしておいた．
+［内変］copyright を各 .rb に含めた．
+
+
+08/04/20
+★［仕変］tecs_bool => bool_t,  tecs_true = true, tecs_false = false
+   test は OK. rpc は変更が必要 tShememchannel.c, tTDR.c
+［追加］gen/Makefile.templ, gen/Makefile.depend の出力
+        まだ import_C で読みこまれる .h ファイルが依存関係に現れていない
+［追加］C_parser.y.rb で C 関数の読み込みができるように変更した
+        しかし、まだ中途半端で ASP 1.3.0 の skyeye の kernel.h を import_C したときはエラーなくいける
+        これは偶然うまくいっているだけ
+
+08/03/30
+★［仕変］rw が使えなくなった
+［追加］var の初期化式で attribute, var を参照可能．ただし前方参照はできない
+
+08/03/22
+[追加]-L で .rb のサーチパスを指定（環境変数 $RUBYLIB の代わりに使用できる）
+[不具合]3/16 版の修正で int8_t/int8 を int_least8_t => int8_t に変更するのを漏らした
+
+08/03/21
+[不具合]呼び口関数マクロ #_CPM_# において、複数引数がある場合、引数区切りの ',' が出力されない
+        (最適化版以前では、かならず1つ引数が入った) (generate.rb 862 行目変更)
+[不具合]bool 型の初期値が C_EXP に対応できていなかった (gen_cell_cb_init)
+[不具合]Celltype の set_cell_id が optimize.rb と composite.rb の両方にあった（前者を残す．内容は同じだった）
+[不具合]Cell の set_id においてプロトタイプ定義されたセルに id をセットしていないため、プロトタイプ側を参照している場合に正しいセルが得られていない（このあたりは実装を見直す必要がありそう）
+
+
+08/3/16
+[変更]int8, int16, int32, int64, int128, char, bool は obsolete　とする
+      int8_t, int16_t, int32_t, int64_t, int128_t, char_t, bool_t を導入
+[変更]tecsgen file.cdl を import( "file.cdl" ); と同じに変更
+       引数で指定されたものが二重にロードされることはなくなった
+       この結果 cdl は、それぞれで閉じている必要がある
+       （閉じるとは構文的に閉じていることで、意味的には前に読み込まれる cdl に依存してよい）
+[追加]import を -I でサーチパス指定可とする
+[追加]import_C を -I でサーチパス指定、-D で定義可とする
+      -v で プリプロセッサに使用されるコマンドを見ることができる
+[追加]composite で active セルを内部に持たないのに、active 指定されている場合エラーとする
+[追加]composite で singleton セルを内部に持たないのに、singleton 指定されている場合ウォーニングとする
+[不具合]test コードで発生する warning が出ないように変更した（以下の2パターン）
+      struct tag_tCelltype_CB  *p_cellcb =>   CELLCB  *p_cellcb
+      int32  =>  int32_t
+[削除]serial_comp を削除(コンパイルが通らなくなっているし、テストコードとしての意味はなくなった)
+
+08/3/15
+[変更]最適化しないのを -U とする (-O は廃止)
+[変更]最適化実装にともない tCelltype_tecsgen.h の出力順序を大幅に見直し
+[変更]イテレータコードFOREACH の仕様を 2月26日の議事録にある仕様に変更
+      test/foreach/src/tCt1.c もこれに合わせて変更 (二重ループのバージョンも実装)
+[不具合]#define CELLCB tCelltype_CB が rom 対応で出力されない不具合の修正(-r がない場合も出力されるようになった)
+[追加] tCelltype_tecsgen.h は_CB_TYPE_ONLY の定義により CELLCB 型の定義のみとなる
+       (最適化で他のセルタイプの tecsgen.h で inlucde する際に、名前衝突しないように)
+[追加]呼び口最適化
+  ・呼び口を最適化する reference/Chap4/optimize.txt を参照
+    呼び口の結合先が受け口配列の場合、何も最適化していない（最適化の余地がある）
+    受け口最適化、未実施。
+    これにより FATFS を make した時、file_trace.exe は through を呼出さない問題が発生している (Makefile の問題)
+[不具合]singleton セルタイプのセルを2つ以上定義してもエラーにならない（C コンパイル時エラー）
+     エラーメッセージ： "#{@name}: multiple cell for singleton celltype"
+[追加]composite に [singleton,active] を指定可にする
+      内部のセルのセルタイプが singleton や active である場合、composite に singleton, active の指定がない場合
+     "#{@name} must be singleton. inner cell '#{cell.get_name}' is singleton"
+     "#{@name} must be active. inner cell '#{cell.get_name}' is active"
+
+08/2/16
+[追加]イテレータコード  (generate.rb, Chap4/foreach.txt)
+   テストコード foreach
+       #define FOREACH_CELL
+       #define END_FOREACH_CELL
+[追加]idx_is_id 実装
+   テストコード  recursive_composite2_idx_is_id, romram
+   tecs/runtime/include/tecs.h に ID の typedef を暫定追加（この結果 serial_comp がエラーとなる）
+[追加]idx_is_id の ID をすべて異なる値にするオプション
+   本オプションがない場合、セルタイプごとに1から始まる ID が割付けられる
+[追加]factory の write, C_EXP の $ID$, $idx$ の置換
+   $ID$ は整数値.  $idx$ は $ID$ または &$cb$ (idx_is_id かどうか)
+[不具合]attribute で omit 以外がない場合に空の CB, INIB が生成されていた
+[不具合]src/*.c で struct tag_tCelltype_CB tCelltype_CB_tab[] になっているものを tCelltype_CB tCelltype_CB_tab[] に変更
+        tCelltype_CB が tCelltype_INIB に #define されている場合 const がないため型不一致でエラーになる
+
+08/2/9
+[仕変]最適化オプション -o => -O  (-o は old mode)
+[内変] @n_attribute ==> @n_attribute_rw, @n_attribute_ro の2つに分けてカウント
+       @attribute.length で算出しているものを @n_attribute_rw, @n_attribute_ro に変更
+[仕変] ram サポートオプション  -r  (-r を付けると従来と同様．デフォルトは rom 対応)
+       CB とINIB に分けて出力。reference/Chap4/romram.txt に実装を記した
+          CB:  attribute の rw, var
+          INIB: attribute の ro, 呼び口関数テーブルへのポインタ
+             CB, INIB それぞれ出力されない場合の対応を行っている
+       generate.rb
+         gen_ph_cell_cb_type   cell CB 型の出力
+       componentobj.rb
+         has_INIB?
+         has_CB?
+       行儀の悪いプログラムは、変更が必要かもしれない
+         FatFS コンポーネントは cDisk が CB からなくなり(INIBへ移り)、コーディングを変更した(従来版と互換性のある変更)
+[内変] 受け口ディスクリプタ、受け口スケルトン関数テーブルに const 指定を追加
+       （動的に対応するときは const をはずす必要がある)
+[内変]TracePlugin.rb, RPCPlugin.rb: struct tag_CelltypeName_CB *p_cellcb; => CelltypeName_CB *p_cellcb; に変更
+      以前の template を元に作成したセルタイプコードでも、同様の変更をしないと const 有から無しへの代入が警告される．
+        CB がなく INIB しかない場合 INIB が CB の代わりに使用される．INIB は const 型である．
+	   #define CelltypeName_CB CelltypeName_INIB となっている．
+
+08/2/1(未アップ)
+［不具合］recursive_composite2 の comp2 の cell2 の呼び口配列の添数 1 の呼び先が comp1_comp12_cell3_eEntry3_des1
+になっている不具合を修正（正しくは comp2_comp12_cell3_eEntry3_des1） 08/01/26 の修正確認時に発見
+ ・debug print を多数追加
+ ・syntaxobj.rb NamedList::set_clone において i.clone => i.clone_for_composite へ変更
+   （array_member2 が clone されるようになった）
+   07/08/12 で array_member2 を追加したが、clone_for_composite が不完全だった
+［仕変］セル CB を構造体配列化(FOREACH の準備)
+      singleton の場合は従来と同じ
+      singleton でない場合 CelltypeName_CellName_CB => CelltypeName_CB_tab[0] (添数は出現順)
+ ・generate.rb : name_array[3] に cell_CB_INIT を設定(attribute, var のポインタが参照する配列の自動生成される名前)
+★［仕変］factory 出力について、$cb$ ではプロトタイプ宣言できなくなった。$cb_proto$ でプロトタイプ宣言用の文字列に置換
+ ・generate.rb : name_array[4] に cell_CB_proto を設定
+
+08/1/26 (未アップ)
+［内変］componentobj.rb, generate.rb Celltype に @n_cell を追加．ただし、コード生成の先頭でセット
+        コード生成時 @cell_list.length == 0 で判断していたものを @n_cell == 0 に変更．
+
+08/1/20
+［追加］bnf.y.rb, componentobj.rb, generate.rb: allocator の標準形を実装
+        test/allocator に試験コードを作成
+            アロケータ呼び口を内部生成
+
+08/1/1
+［内変］generate.rb: cell_global_name => cell_CB_name
+
+07/12/28
+［追加］trac #7: import 文 (11-component-description.txt, 11.1-import.txt)
+［変更］trac #11: import_C のエラー、ウォーニングメッセージのファイル名，行番号を import_C の書かれている位置から読込まれているファイルの位置に変更
+        残留不具合：プリプロセッサを通したあとのファイル名、位置が出力される
+［追加］trac #5, 6: CELLTYPE_factory.h の生成および CELLTYPE_tecsgen.c での #inlucde
+        CELLTYPE_factory.h ではガードコードのみ生成する
+        以下を記述することを想定している(ASP の cfg の出力 kernel_cfg.h を tecsgen で読込まず、コンパイル時に読込む）
+             FACTORY{ write( "CELLTYPE_factory.h", "#inlucde "kernel_cfg.h" ); }
+★［仕変］trac #15 CB の名前に CELLTYPENAME_CELLNAME ⇒ CELLTYPENAME_CELLNAME_CB に変更。
+        この結果 factory で $id$ で CB の名前を指定していた箇所は $cb$ に変更する必要がある（非互換）
+	《注意》この変更を忘れても GNU リンカは変数領域を自動生成して、未定義エラーとはならないようだ！
+［追加］C_EXP, facotry の write の format において $$ は $ に置換、また $id$ は [^\$]\$id\$ を置換
+［追加］facotry の write の第三引数以降に文字列定数を可とする（従来は属性のみ）。$id$はセル名に置換、$$は$置換
+［追加］FACTORY/facotry の write の全引数に対し $id$ 等の名前置換を行う
+［不具合］facotry の write の第三引数以降の属性の初期値が文字列定数の時、前後の '"' が出力されてしまう
+［追加］$ct$ を celltype 名に, $cb$ をセルの CB の C 言語名に、$cell$ をセル名に置換
+        ($id$ が置換される場所、セルタイプファクトリのファイル名、フォーマット文字列の中）(15.5-factory.txt)
+
+07/12/24
+・［仕変］RPCPlugin.rb: TA_HLNG の出力取りやめ
+・［追加］#define CELLCB celltype_CB, #define CELLIDX celltype_IDX を出力
+
+07/11/26
+・［不具合］cell のプロトタイプ宣言で factory が出力されていた不具合を修正
+・［不具合］セルが0個のセルタイプのプライベートヘッダで、終わりのコード (#endif) のみ出力されていた
+・［不具合］toppers_jsp.cdl: factoy のフォーマット指定で、すべて %d => %s 変更
+・［不具合］複合セルタイプ内で呼び口配列を接続したときの不具合を修正（tShmemHalfChan.cdl の生成コード不具合）
+・［仕変］出力コード .c, .h のインデントを 2 ⇒ 4 に変更 (generate.rb, RPCPlugin.rb)
+・［仕変］テンプレートコードの CB ポインタの型を struct tag_tCelltype_CB *p_cellcb; => tCelltype_CB *p_cellcb;
+・［仕変］テンプレートコードで戻り値が ER, ER_UINT 型の場合、VALID_IDX 関数が失敗に終わったとき E_ID を返す。正常時は E_OK を返す。これらのマクロ定義がない場合には、テンプレート内で define 定義する
+・［仕変］global_tecsgen.h の右の行の出力をとりやめ  /* typedef int  int_t;   /* 配列添数には int_t を使ってみた */
+・［追加］RPCPlugin.rb を全面修正 (test/rpc/rpc_test.cdl の func1, func2 については動作確認済み）
+・［追加］test/rpc の作成（VisualStudio 環境でのみ最終動作確認済み。make はリンクエラー）
+
+07/10/14
+★短縮形マクロを有効化するのに TECS_ABBREV の define を必要としなくした
+  9/19 の議論に基き、9月2日版以前の状態に戻した
+★tCelltype_GET_CELLCB は GET_CELLCB に変更
+    07/09/02 で修正したものを戻した（9月の議論に基く）
+・signature クラスに @func_name_to_id[] を追加
+   添字は func_name．値は id (関数のシリアル番号．1から始まる)
+★set_env.sh の前に $JSPPATH を設定する
+   $JSPPATH/{cfg,include} を rpc で参照
+・tecs/generator/RPCPlugin.rb
+   とりあえずコンパイルの通るコードは生成できるが、リンクを通していない
+・test/rpc を追加
+   とりあえずコンパイルは通るが、リンクはエラーが発生する（未完成）
+・NamedList (syntaxobj.rb)
+   name に .to_sym を付けるようにした
+   name が String の場合と Symbol の両方混じる不具合が後をたたないため
+・var にも size_is を可能にした
+   test/attribute.cdl にテストコードを設けた
+・-s(show-tree) で C_EXP があるとジェネレータが ruby の文法エラーになる不具合を修正
+・types.rb の Integer クラスで intptr_t への対応が不完全である不具合（実質的影響なし）
+
+07/09/02
+★配列添数 int_t でよい（tecs_int は不要）
+   old-mode では int_t がなかったので runtime/include/tecs/type.h に挿入
+★GET_CELLCB は tCelltype_GET_CELLCB に変更
+   セルタイプコードで GET_CELLCB を呼出している箇所は変更が必要
+★tecs_this ⇒ p_cellcb に変更
+   セルタイプコードで attribute, var の変数を参照する箇所は修正が必要
+★呼び口マクロ（短縮形）の this 出力を取りやめ
+  cCall_func( this, arg0, arg1 )  ⇒ cCall_func( arg0, arg1 )
+★短縮形マクロ（マクロの接頭辞としてセルタイプ名を付加しない）を有効化するには TECS_ABBREV を define する
+  attribute, var については、TECS_ABBREV を define することで従来互換になる
+  呼び口については、上記の変更 this 出力の取りやめにより TECS_ABBREV を define しただけでは従来互換性はない
+・send, receive など指定子のキーワードを '[', ']' の中でのみ有効にする（他所で使った場合、識別子として扱われる）
+・以下のマクロコードを出力
+   ○ #define  tCelltype_ATTR_a(p_that)   ((p_that)->a)    他のセル(that)を参照するときはフルネーム指定
+   ○ #define  tCellltype_VALID_IDX
+   ○ #define  tCellltype_GET_CELLCB
+・C_EXP の中に現れる $id$ について、sub で変換していたものを gsub に変更（最初の $id$ しか変換されない不具合を修正）
+・attribute でキャスト演算子が出力されないのを出力する
+   （ただし関数型、配列型を含むものは正しく出力されない、またキャスト演算の正しさをチェックしていない）
+・attribute で rw 修飾されていないのに SET マクロが生成されるのをやめる
+   ○ #define  tCellltype_GET_CELLCB
+
+07/08/26
+・ポインタ型が C_EXP で初期化できない、仕様制限を解除
+・tecsgen が生成したファイルに FACTORY/factory 出力できない問題の解決 (ガードコード #endif の前に追加)
+★plugin の initialize 呼び先の celltype を追加
+★型について
+   int8  => int_least_8  (過去互換性あり)
+   int16 => int16_t
+   int32 => int32_t
+   int64 => int64_t
+   int128 => int128_t
+★import_types ⇒ import_C に変更
+  import_C で指定されたヘッダファイルを global_tecsgen.h の最初に出力
+・instance_of? ( ...Type ) で判断している箇所が多数残っていた kind_of? に変更
+  ・size_is の引数に C で定義した uint_t を持ってきたらエラーになる不具合の対策
+・generate.rb の /}.../ -> /\}.../ に変更 (新しい ruby (1.8.3)では警告される）
+・test/Makefile attribute-err について 11 errors ⇒ 13 errors に修正
+・test/Makefile -ofile.exe ->  -o file.exe に変更 （gcc V4 ではエラー）
+
+07/08/19（実験実装版）
+・bnf.y.rb … import_types( "import.h" );
+  C_parser.y.rb を追加 … bnf.y.rb から TECS の記述を省くのと, unsigned, signed や const, volatile の語順を入れ換え可能とした
+     関数本体をパースすることができない
+  ctypes.rb … import_types によって定義された型を表すクラス群。types.rb の型を継承し, module CType を include する
+  componentobj.rb, generator.rb … *Type クラスの instance_of? から kind_of? に変更
+  test/import_types  … import_types のテストコード
+  tecsgen -c (-cpp)  デフォルトは "gcc -E -DTECS" 
+   -c で指定するかわりに、環境変数 TECS_CPP で指定することもできる
+      (tecsgen -c "gcc -E -DTECS -Iinclude -Iconfig_win" のような指定がうまく行っていないので環境変数で渡した)
+
+07/08/12
+・cell 内部の Join で、左辺に受け口を指定してもエラーにならなかった不具合を修正 (Join: set_definition)
+・呼び口配列初期化時、2番目以降の初期化がチェックされていなかった不具合を修正 (Cell: new_join)
+・コーディングみなおし (Join: add_array_member)
+・呼び口配列で、初期値が多すぎたり少なすぎたりしてもエラーとならなかった不具合修正 (Cell: check_join)
+・呼び口配列で、要素の初期化がなくてもエラーとならなかった不具合修正 (Cell: check_join)
+・受け口配列の添数範囲外を指定してもエラーとならなかった不具合修正 (Cell: set_definition)
+・070731 版で recursive_composite2 のジェネレートが内部エラーになるのを修正
+  呼び口配列 @array_member2 を新設、@array_member2 のclone を作製するために Join に clone_array_member を新設
+  @array_member2 の clone が作製されたことにより、composite の Join の配列要素についても、適切な呼び先を指すようになった
+
+07/07/31
+・namespace を指定したときに global_tecsgen.h に #end /* _MACRO_ONLY */ が余分に出力され C コンパイルエラーとなるを修正
+・受け口ディスクリプタのコード生成で namespace に対応していなかったのを修正
+  上記により、とりあえず test/namespace/Makefile が通るようになった
+・generate.rb で factory の $id$ が最初の一つしか変換されなかった  sub -> gsub
+・               factory で itron.cdl の tTask の stack が初期化されていなくても右辺出力される
+・generate.rb で上記にともない gen_cell_cb_ini を未初期化も対応させ、類似コードの分散をやめた
+・tType_tecsgen.c において size_is 指定された attribute のポインタ初期化の配列 でサイズを出力
+・generate.rb gen_cell_cb_init に init == nil の場合のコードをまとめた
+・generate.rb
+  呼び口配列の出力誤りを修正　gen_cell_ep_vdes, gen_cell_ep_vdes_array
+・tecs/tecs-runtime.jsp を追加（jsp のコンパイル用)
+
+07/05/05
+・region
+  to_through の region 指定は、実際に to_through が使われるときにチェックされる（実存するかどうかチェックしない）
+  composite の中では region 指定できない
+  test/region にテストコードを作成
+・cell の名前の重複がエラーにならなかった不具合を修正
+・reference の下に見出しを作成
+  ・18-region.txt のみちゃんと書いた
+
+07/04/30
+・attribute のポインタ型の可変長配列初期化対応
+  attribute.cdl 正常系試験用、attribute-err.cdl 異常系試験用
+・struct.cdl : struct の試験用に少し足した
+
+07/04/02
+・C_EXP の追加
+   C_EXP は整数型のみ対応
+   $id$ の変換
+   C_TYPE は実装していない
+・factory の変更
+   $id$ の変換（ただし format 文字列のみ変換する）
+・char 型を signed, unsigned 修飾できなくなった
+・intptr 型の追加
+   intptr, signed intptr, unsigned intptr
+   intptr_t, uintptr_t           # C 言語の型出力
+   tecs_intptr, tecs_uintptr     # old mode での型出力
+・this ⇒ tecs_this に変更
+   tecsgen の生成するコードを this から tecs_this に変更
+   (既存の C 言語記述されたコードは未変更）
+・plugin.rb で同じ名前の celltype を重複して生成しない（不具合を修正）
+
+07/03/18
+・TracePlugin.rb
+   size_is 指定のある引数について、最大8個分まで要素を出力
+・expression.rb
+   elements_get_type_sub メソッドについて
+    暫定実装により型を導出
+      2項演算子は左辺の型を返している
+      演算子に対して適切な型かチェックしていない
+   elements_check_dir_for_param メソッドについて
+    引数の IN, OUT 指定が適切かチェックする
+
+07/03/13
+・（ffs_tecs のための修正）
+・TracePlugin.rb
+   戻り値 void の対応漏れ
+   return retval; が出力されていなかったのを出力
+・tecs-runtime-20070227.zip を tecs フォルダ下に置いた
+   test 下のものは、まだ従来の runtime フォルダ下の古いものを参照している
+
+07/02/25
+・set_env.sh に TECSPATH を追加
+・plugin 内で async, size_is, count_is, string を判定できるようにする
+    size_is, count_is, string を PtrType の属性として登録
+　　async を FuncType の属性として登録
+・MierukaPlugin を TracePlugin に変更
+・TracePlugin 
+  　大幅に書き直して、戻り値を出力するようにした
+    size_is, count_is 指定がある場合、要素を出力
+
+07/02/13
+・Typedef, ParamDecl の attr_reader を get_...に変更   Decl, AttrType クラスで attr_reader が残っている
+・MierukaPlugin を追加（まだ途中で、戻り値を出力できない、構造体ポインタが扱えないなど、大幅に書き直しが必要）
+   [through( MierukaPlugin, "plugin_arg1 plugin_arg2 plugin_arg3" )] を付け加えるだけで、入出力がprintされる
+
+07/02/04
+・小南さんの 070128 版の不具合指摘を修正
+・int, long, short について toppers-com-wg 457 に出力型を合わせた
+・toppers-com-wg 458 に報告した -o ありの場合の signed char の出力型を tecs_schar に修正
+・toppers-com-wg 455 で指摘の this については、未対応
+・thruogh 前半実装について不具合修正
+   cell tClient client {
+     [through(plugin1,"plugin_args")]
+     cCall = server.eEntry;
+   };
+  client の cCall が server.eEntry を結合していた。through で生成されたセルの受け口へ結合する必要があった
+・through の後半実装
+  ・plugin.rb に gen_ep_func_body を追加
+  ・generate.rb にて plugin セルタイプである場合
+    ・出力ファイル名を celltype_name.c とする (_templ を出力しない)
+  　・gen_ep_func_body を呼出してコード生成する
+
+07/01/27
+・引数に指定されたファイルがないときに例外発生していたものをエラーとした
+・unsigned int8 など unsigned が付いていても tecs_uint8 のように u が出力されなかった不具合を修正
+
+・小南さんの 070121版へのバグレポートの修正（仕様の変わるものを以下に記載）
+・global_tecsgen.h 2重インクルードのガードコードを出力
+・ヘッダファイルに _MACRO_ONLY を出力
+・ATTR_attribute_name, VAR_var_name をポインタではなく、変数に変更
+  GET_attribute, SET_attribute を this ポインタつきのバージョンとして準備
+  以下のように定義されたように仕様変更されています
+    type ATTR_attribute_name;
+    type *ATTR_attribute_name(this);
+
+・C での型名を変更     int8 => int_least8_t, unsigned int8 uint_least8_t に変更
+  -o (old-mode) により従来の int8 => tecs_int8, unsigned tecs_uint8 を出力 （現状の runtime では、このオプション必須）
+・test/test_type.cdl に基本型を記述
+    # tecsgen test/test_type.cdl
+    # tecsgen -o test/test_type.cdl 
+    gen/tCelltype_tecsgen.h に型定義が出力されます
+
+07/01/21
+・through の前半実装  test/through/throug.cdl
+   プラグインにより celltype, cell が生成され、解釈される
+     through の出現時に parser インスタンスを生成して、プラグインで生成された CDL コードを解釈させる
+     生成された celltype, cell などは共通の配列に追加される
+   tecs/generator/plugin.rb に ThroughPlugin クラスを追加
+   test/through/through.cdl および Plugin1.rb, Plugin2.rb にプラグインモジュールを作成
+   同じ typedef, celltype などが繰返し出力される可能性がある。単純な重複エラーではよくに
+
+・小南さんの 010708版への不具合レポートに対応  kominami-report.txt を参照
+
+07/01/07
+・空ファイル(empty.cdl) をエラーとしない
+  bnf.y.rb: composite_description に 空要素を追加
+・始めに gen ディレクトリを作成（through で生成されるファイルが意味解析中に生成されるため）
+
+07/01/04
+・-t の意味を generate 時の内部エラー発生時スタックトレース出力に加え、行の出力を加える
+  ジェネレータが内部エラーで落ちたとき、文法依存に起因するものであれば、これで読み込まれた付近に問題がある
+・factory について 061024 の議論に合わせた
+  factory {  /* セルファクトリ */
+    write( "tCelltype.cfg", "CRE_MTX( tCelltype_MTX_%d, { TA_TPRI, 0 } );", num );
+    /*     ファイル名       出力文字列（フォーマット）                      attribute の num */
+    /* このルールでは、TOPPERS のジェネレータで決定される ID を
+  };
+  FACTORY {  /* セルタイプファクトリ */
+    write( "tCelltype.cfg", "ATT_INI( TA_HLNG, 0, tCelltype_init_hdlr );"
+    /*     ファイル名       出力文字列（フォーマット）                     ここでは attribute は指定できない */
+  };
+  フォーマット指定 %d, %s などと引数のマッチングについて、エラーチェックをしていない
+  そのような誤りは実行時に
+    '#{file_name}' : write error while writing factory (specify -t to get more info)
+  というようにエラー表示される。コード生成段階でのエラーのため行番号表示が正しくない
+
+06/12/24
+・セルのプロトタイプ宣言において、既に定義されているものがセル以外の場合にエラーを出力する
+  以前は ruby の例外になっていた
+・through の指定
+  require での plugin の呼出しにおいて plugin のファイルが無い場合、例外を受け取ることができない
+  -v (verbose mode) 指定されている場合、require で plugin をロードするごとにメッセージを出力
+・プロトタイプ宣言されていて、参照されているが、実体が定義されていないものを検出しエラーとする
+　また -v 指定されている場合、プロトタイプ宣言されていて参照されていないものを warning 出力する
+・omit, rw を構文要素として追加（まだ、意味的には解釈していない、コード生成もまだ）
+・kominami-report.txt を修正
+
+06/11/26
+・factory: write_cfg 引数チェック、出力
+  ところで put_attribute はなんだった？
+
+06/10/28
+・var のアクセスコードを出力  VAR_var_name(this)   attribute と同様に変数へのポインタを返す
+
+06/10/17
+・cell の join_list に空行を加えた。celltype, signature には加えない（これらについては空を許さない）。
+・attribute の配列の添数が出力されるようになった。
+  get_type_str_post を各 Type に設けた。 ArrayType では添数を返す。
+・構造体の初期化に対応
+・global_tecs.h の生成（typedef, struct （記述順）、const を出力）
+・attribute, var 初期値の範囲をチェック(int 値, floa, double 値は範囲をチェックしていない）
+  attribute は cell で与えられた初期値が celltype の初期値に優先する
+
+06/09/30
+・composite celltype 対応
+・composite.cdl : 単純な composite の試験用
+・recursive_composite/recursive_composite.cdl : 入れ子構造の composite の試験用
+・recursive_composite2/recursive_composite.cdl : 入れ子構造の composite の試験用（呼び口配列、受け口配列有）
+     
+
+06/09/06
+・未初期化の呼び口、属性をエラー検出
+
+06/08/27
+・serial_ が実行できるように変更
+・VMT の生成不具合修正　（実行可能に）
+  <         (THIS)->cSerialPort2->VMT->opn_port( \
+  >         (THIS)->cSerialPort2->VMT.opn_port( \
+・singleton をとりあえず false にして生成
+・attribute, var が IntType, FloatType の場合は 0, 0.0 をデフォルト初期値として CB に出力
+・test ケースとして singleton.cdl, portarray.cdl および 
+
+06/08/20
+・ディレクトリ構造の見直し
+・コマンドを generator.rb から tecsgen に変更
+・set_env.sh を作成
+・ファイルのエンコーディングを utf8 に変更
+・式の eval_expr などの文字列出力を取りやめ
+・tecsgen の banner の表示
+・version を make release で自動生成
+・test/namespace.cdl を作成（バグ多数あり）
+・test/send.cdl を作成（バグ多数あり）
+・test/composite.cdl を作成（バグ多数あり）
+・componentobj.rb
+   Namespace.new_compositecelltype( self ) を CompositeCelltypeJoin から Compositecelltype へ移した
+   Cell の show_tree にて f_def を出力
+
+06/08/15
+・シグニチャヘッダの生成
+　　新規生成
+　　呼び口側の仮想化受け口ディスクリプタは、シグニチャ毎の生成とした
+・セルタイプヘッダの生成
+　　名前を tCelltype_tecsgen.h に変更 (_prv) を除いた（パブリックヘッダがなくなったため）
+　　配列への対応、IDX の出力順変更
+・セルタイプのグルコードの生成
+　　新規生成
+・テンプレートの生成
+　　新規生成
+
+06/08/01
+・呼び口配列、受け口配列に対応するように変更
+・cell のプロトタイプ宣言に対応（composite についても対応しているが、未テスト）
+・定数定義への対応
+・#define を構文エラー化（プリプロセッサディレクティブを無視していたのを、やめる）
+・ヘッダ生成に対応

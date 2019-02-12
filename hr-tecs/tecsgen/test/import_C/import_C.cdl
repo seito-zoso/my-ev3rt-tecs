@@ -1,0 +1,45 @@
+/* import_C( "gen/win.h", "DEFINE" ); */
+import_C( "my_stdint.h" );
+import_C( "kernel.h" );
+/* import_C( "myheader.h", "_inline=,DEFINE" ); */
+import_C( "myheader.h", "DEFINE,_inline=" );
+import_C( "union.h" );
+import_C( "int_const.h" );
+import_C( "typedef.h" );
+import_C( "some_types.h" );
+// import_C( "queue.h", "DEFINE,_inline=" );
+
+// import_C( "myheader.h" ); 重複試験
+
+typedef int32_t  INT32;
+struct tag_st {
+	int32_t  member_a;
+	int16_t  member_b;
+};
+typedef ST ST2;
+
+typedef struct tag_st st;
+
+signature sSig {
+	ER func( [in]UINT len, [in,size_is(len)]const char_t *buf );
+};
+
+celltype tCt {
+	attr {
+		ST2	st2 = { 1, 2 };
+		VP                   len  = (VP)(10 * 2);
+		int32_t              intval = 2 << 10;
+		/* int32_t           len  = 10; */
+		[size_is(intval)]char_t *buf = { 1, 2, 3, 4, 5 };
+
+		/* VP  buf2 = { 0 }; */
+		C_CHAR  *ct = C_EXP( "\"string initializer\"" );
+	};
+	FACTORY {
+		write( "global_tecsgen.h", "#include \"a.h\"" );
+		write( "tecsgen.cfg", "#include \"a.h\"" );
+	};
+};
+
+cell tCt c {
+};

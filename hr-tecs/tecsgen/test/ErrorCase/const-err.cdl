@@ -1,0 +1,29 @@
+const int32_t    a0 = 10/0;
+const int32_t    a1 = 10/0.0;
+const float32_t  a2 = 10.0/0.0;
+const int32_t    b0 = (int32_t)10/3.0;
+const int32_t    b1 = (int32_t)(10/3.0);  /* OK */
+const double64_t c0 = 10.0 / 30.0;
+const double64_t c1 = 10.0 >> 9;
+const double64_t c2 = ((int)10.0) >> 9;
+const int32_t    d0 = 10 / "A";
+const int8_t     d1 = 'a';
+
+struct tTag {
+	int32_t a;
+	struct tTag2 {
+		int32_t b;
+	} b;
+};
+
+/* const として構造体は定義できない */
+const struct tTag st = { 1, { 2 } };
+
+celltype tConst {
+	attr {
+		const int8_t a = 0;
+	};
+	var {
+		const int8_t v = a;
+	};
+};

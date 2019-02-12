@@ -1,0 +1,59 @@
+signature sArray {
+  int32_t func( [in]int32_t a );
+};
+
+signature sArrayBack {
+  int32_t func( [in]int32_t a );
+};
+
+celltype tCallArray {
+  call  sArray     carray[2];
+  call  sArray     carray2[];
+  entry sArrayBack callback[2];
+};
+
+celltype tEntryArray {
+  call  sArrayBack callback[3];
+  entry sArray     earray[2];
+};
+
+/* プロトタイプ宣言 */
+cell tEntryArray entryarray;
+
+cell tCallArray callarray {
+  carray[0] = entryarray.earray[0];
+  carray2[2] = entryarray.earray[0];
+  /* carray[1] = entryarray.earray[1]; */   /* 大きさ 2 の配列で、1つだけ初期化 */
+};
+
+cell tCallArray callarray2 {
+  carray[0] = entryarray.earray[0];
+  carray[1] = no_entryarray.earray[1];
+};
+
+cell tEntryArray entryarray {
+  callback[0] = callarray.callback[0];
+  /* callback[1] = callarray[0].callback[1];  mikan 異常パターン： error にならない */
+  callback[1] = callarray.callback[1];
+};
+
+cell tEntryArray entryarray2 {
+  callback[0] = callarray.callback[0];
+  /* callback[1] = callarray[0].callback[1];  mikan 異常パターン： error にならない */
+  callback[2] = callarray.callback[2];
+};
+
+cell tEntryArray entryarray3 {
+  callback[0] = callarray.callback[0];
+  /* callback[1] = callarray[0].callback[1];  mikan 異常パターン： error にならない */
+  callback[3] = callarray.callback[3];
+};
+
+
+celltype tEnt {
+  entry sArray eA;
+};
+
+cell tEnt ent {
+  eA = entryarray.earray[0];     /* 呼び口を結合しようとしている */
+};

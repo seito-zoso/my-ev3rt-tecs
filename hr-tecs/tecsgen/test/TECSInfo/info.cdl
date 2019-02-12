@@ -1,0 +1,24 @@
+import_C( "char_t.h" );
+import( <cygwin_kernel.cdl> );
+import( <TECSInfo.cdl> );
+
+celltype tTaskMain {
+    entry sTaskBody            eBody;
+    call  nTECSInfo::sTECSInfo cTECSInfo;
+};
+
+cell tTask Task {
+    taskAttribute = C_EXP("TA_ACT");
+    priority      = 11;
+    stackSize     = 4096;
+    cBody         = TaskMain.eBody;
+};
+
+cell tTaskMain TaskMain {
+    cTECSInfo  = TECSInfo.eTECSInfo;
+};
+
+/******* TECSInfo cell *******/
+cell nTECSInfo::tTECSInfo TECSInfo {
+    // cTECSInfo = rTECSInfo::TECSInfoSub.eTECSInfo;
+};

@@ -1,0 +1,96 @@
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+struct tagStruct {
+  [size_is(len)]
+    int32_t  *buf;
+  [size_is(len),string]
+    int32_t  **buf2;
+  int32_t  len;
+};
+
+struct tagStruct2 {
+  [size_is(len),count_is(count)]
+    int32_t  *buf;
+  int32_t  len;
+  int32_t  count;
+
+  struct tagStruct st;
+  struct tagStruct *stp;
+};
+
+struct tagStructNG {
+  [size_is(len)]
+     int8_t  *buf;
+  int32_t   len;
+};
+
+[deviate]
+signature sAlloc {
+  ER  alloc( [in]int32_t size, [out]void **p );
+  ER  dealloc( [in]const void *p );
+};
+
+signature sSig {
+  struct tagStruct func1( [in]struct tagStruct                    in,
+			  [in]const struct tagStruct              *in_p,
+			  [inout]struct tagStruct                 *inout_p,
+			  [out]struct tagStruct                   *out_p );
+  struct tagStruct func2( [in]struct tagStruct        in,
+			  [in,size_is(len)]const struct tagStruct *in_p,
+			  [inout,size_is(len)]struct tagStruct    *inout_p,
+			  [out,size_is(len)]struct tagStruct      *out_p,
+			  [in]int32_t                             len );
+  struct tagStruct func3( [in]struct tagStruct2                   in,
+			  [in]const struct tagStruct2             *in_p,
+			  [inout]struct tagStruct2                *inout_p,
+			  [out]struct tagStruct2                  *out_p );
+  struct tagStruct func4( [in]struct tagStruct2       in,
+			  [in,size_is(len)]const struct tagStruct2 *in_p,
+			  [inout,size_is(len)]struct tagStruct2   *inout_p,
+			  [out,size_is(len)]struct tagStruct2     *out_p,
+			  [in]int32_t                             len );
+  struct tagStruct func5( [send(sAlloc)]struct tagStruct                    *inp,
+			  [receive(sAlloc)]struct tagStruct                 **outp );
+  struct tagStruct func6( [send(sAlloc),size_is(*len)]struct tagStruct2     *sendp,
+			  [receive(sAlloc),size_is(*len)]struct tagStruct2  **receivep,
+			  [send(sAlloc),size_is(*len),string(32)]char_t     **strs,
+			  [receive(sAlloc),size_is(*len),string(32)]char_t  ***strr,
+			  [inout]int32_t                                    *len );
+};
+
+celltype tAlloc{
+  entry sAlloc eAlloc;
+};
+cell tAlloc Alloc{
+};
+
+celltype tCelltype {
+  entry sSig eEnt;
+};
+
+celltype tCelltypeCaller {
+  call sSig cCall;
+  entry sTaskBody eMain;
+};
+
+[allocator(eEnt.func5.inp=Alloc.eAlloc,
+	   eEnt.func5.outp=Alloc.eAlloc,
+	   eEnt.func6.sendp=Alloc.eAlloc,
+	   eEnt.func6.receivep=Alloc.eAlloc,
+	   eEnt.func6.strs=Alloc.eAlloc,
+	   eEnt.func6.strr=Alloc.eAlloc
+)]
+cell tCelltype Cell {
+};
+
+cell tCelltypeCaller Caller {
+  cCall = Cell.eEnt;
+};
+
+cell tTask Task {
+  cBody = Caller.eMain;
+  priority = 8;
+  stackSize = 4096;
+  taskAttribute = C_EXP( "TA_ACT" );
+};

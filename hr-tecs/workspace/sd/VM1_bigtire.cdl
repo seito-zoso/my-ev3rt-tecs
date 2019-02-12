@@ -1,0 +1,36 @@
+import("EV3_common_bigtire.cdl");
+
+//[domain(HRP2, "trusted")]
+//[domain(HRP2, "nontrusted")]
+region rDomainEV3 {
+	cell nMruby::tMruby Mruby {
+		mrubyFile = "$(MRUBY_LIB_DIR)/EV3_common.rb "
+			"$(MRUBY_LIB_DIR)/RTOS.rb "
+			"$(MRUBY_LIB_DIR)/Speaker.rb "
+			"$(MRUBY_LIB_DIR)/Button.rb "
+			"$(MRUBY_LIB_DIR)/Motor.rb "
+			"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+			"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+			"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+			"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+			"$(MRUBY_LIB_DIR)/LED.rb "
+			"$(MRUBY_LIB_DIR)/LCD.rb "
+			"$(MRUBY_LIB_DIR)/Battery.rb "
+			"$(MRUBY_LIB_DIR)/Balancer.rb "
+			"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+			"$(APP_PARAM_RB) "
+			"$(APP_PARAM_SET_RB) "
+			"$(APP_RB)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+	cell tTask MrubyTask1 {
+	// 呼び口の結合
+		cBody = Mruby.eMrubyBody;
+		//* 属性の設定
+		taskAttribute 	= C_EXP("TA_ACT");
+		priority 		= C_EXP("EV3_MRUBY_VM_PRIORITY");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+		//userStackSize = C_EXP("STACK_SIZE");
+	};
+
+};

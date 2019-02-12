@@ -1,0 +1,66 @@
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+import( "mruby.cdl" );
+
+////////////////////////////////
+
+typedef struct tagSt {
+	int32_t		m;
+} ST;
+
+signature sTest {
+	void		test( [in]int_t input );
+	int32_t		test2( [in]int_t input,				[out]int32_t *ret );
+	int32_t		test3( [in]const char_t *input,		[out]int32_t *ret );
+	int32_t		test4( [in,string(len)]const char_t *input, [in]int32_t len );
+	int32_t		test5( [in]const ST *input );
+	int32_t		test6( [out]SYSTIM *systim );
+};
+
+// This is an example of C2TECSBridgePlugin.
+// In tTECSTest.c cTest is called from eTaskBody.main using C interface.
+// See eTaskBody_main in tTECSTest.c
+celltype tTECSTest {
+	entry sTaskBody eTaskBody;
+	entry sTest eTest;
+};
+
+cell tTask Task{
+    cBody = TECSTest.eTaskBody;
+    priority = 11;
+    stackSize = 4096;
+    taskAttribute = C_EXP( "TA_ACT" );
+};
+
+cell tTECSTest TECSTest {
+};
+
+// generate( RTMBridgePlugin, sTest, "\\'" );
+// generate( RTMBridgePlugin, sTest, "" );
+// generate( MrubyBridgePlugin, sTest, "" );
+
+// cell tRTMsTestBridge RTMTest {
+// 	cTECS = TECSTest.eTest;
+// };
+
+// #833 のテスト プラグイン生成された cdl の中から import( <....cdl> ); されているもののセルタイプコードを生成してしまう
+// cell tA A {
+// };
+
+// generate( C2TECSBridgePlugin, sTest, "" );
+
+// cell nC2TECS::tsTest C2TECSTest {
+//   cCall = TECSTest.eTest;
+// };
+
+generate( C2TECSBridgePlugin, sTest, "prefix='X_', header_name='TestProto.h'" );
+
+cell nC2TECS::tsTest C2TECSBridge {
+	cCall = TECSTest.eTest;
+};
+
+generate( MrubyBridgePlugin, sTest, "" );
+cell nMruby::tsTest Mruby {
+	cTECS = TECSTest.eTest;
+};
+

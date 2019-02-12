@@ -1,0 +1,47 @@
+import_C( "cygwin_tecs.h" );
+import_C( "temp.h" );
+
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+import( <rpc.cdl> );
+import( <tDataqueueOWChannel.cdl> );
+
+cell tSysLog SysLog{};
+cell tKernel Kernel{};
+
+/*
+cell tDataqueue Queue { };
+
+celltype tTaskMain {
+	call sDataqueue cQueue;
+	entry sTaskBody eTaskBody;
+};
+
+cell tTaskMain TaskMain {
+    cQueue = Queue.eDataqueue;
+};
+
+*/
+
+cell tDataqueueOWChannel QueueChannel { };
+
+celltype tTaskMain2 {
+	call sTDR       cTDR;
+	call sDataqueue cDataqueue;
+	call sEventflag cEventflag;
+	entry sTaskBody eTaskBody;
+};
+
+cell tTaskMain2 TaskMain {
+    cTDR       = QueueChannel.eTDR;
+	cDataqueue = QueueChannel.eDataqueue;
+	cEventflag = QueueChannel.eEventflag;
+};
+
+cell tTask Task {
+	cBody = TaskMain.eTaskBody;
+	priority = 1;
+	stackSize = 1024;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+

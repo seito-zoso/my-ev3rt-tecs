@@ -1,0 +1,36 @@
+celltype tCt {
+	attr {
+		int32_t  id = C_EXP( "$id$" );
+	};
+};
+
+cell tCt C0{};
+cell tCt C1{};
+
+celltype tCelltype {
+	attr{
+		int32_t  id = C_EXP( "$id$" );
+	};
+};
+
+// [id("3")]   // エラー 整数ではない
+cell tCelltype Cell2{
+};
+
+// [id(4)]     // エラー -2 と重複
+cell tCelltype Cell3{
+};
+
+[id(-2)]
+cell tCelltype Cell4{
+};
+
+[id(1)]
+cell tCelltype Cell1{
+};
+
+[id(-1)]
+cell tCelltype Cell5{
+};
+
+

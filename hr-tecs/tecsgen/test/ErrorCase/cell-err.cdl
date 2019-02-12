@@ -1,0 +1,73 @@
+import_C( "tecs.h" );
+
+signature sSig {
+  void func( void );
+};
+
+[active]
+celltype tCelltype {
+   attr {
+     int32_t  attr1;
+     int32_t  attr2;
+     int32_t  attr3;
+     int32_t  attr4;
+   };
+   var {
+     int32_t  var1;
+     int32_t  var2 = attr2;
+     int32_t  var3 = attr3;
+     int32_t  var4 = attr4;
+   };
+   call sSig cCall;
+   call sSig cCall2[];
+};
+
+celltype tCelltype2 {
+  attr {
+    char_t  *name = C_EXP( "\"$id$\"" );
+  };
+  entry sSig eEnt;
+};
+
+/////// prototypes ///////
+[prototype]
+cell tCelltype Cell {
+  // cCall = Cell2.eEnt; // set by revserse join
+  cCall2[0] = Cell3.eEnt;
+
+  attr3 = 0;
+  attr4 = 0;
+};
+
+[prototype]
+cell tCelltype2 Cell2 {
+	 eEnt <= CellX.cCall;
+};
+
+[prototype]
+cell tCelltype2 Cell3 {
+};
+
+///////// definitions ///////
+cell tCelltype2 Cell2 {
+};
+
+cell tCelltype2 Cell3 {
+};
+
+cell tCelltype2 Cell4 {
+};
+
+////// ERROR: prototype after definition //////
+////// ERROR: specified generate and prototype simultaneously //////
+[generate(NOPlugin,""), prototype]
+cell tCelltype2 Cell3 {
+};
+
+cell tCelltype Cell {
+  cCall2[1] = Cell4.eEnt;
+  attr1 = 0;
+  attr2 = 0;
+  attr3 = 0;  // ERROR: duplicate join
+};
+

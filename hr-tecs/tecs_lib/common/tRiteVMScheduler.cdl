@@ -1,0 +1,34 @@
+/*
+ *   RiteVMスケジューラのセルタイプ記述
+ */
+celltype tRiteVMSchedulerMain{
+    require tKernel.eiKernel;
+    entry siHandlerBody eiBody;
+    
+    attr {
+        PRI priority;
+	};
+};
+
+[active]
+composite tRiteVMScheduler {
+    attr {
+		/*
+		 *  TA_NULL     0x00U   デフォルト値
+		 * 	TA_STA 		0x01U   周期ハンドラが動作している状態
+		 */
+        ATR    cyclicAttribute = C_EXP("TA_NULL");
+        RELTIM cyclicTime = 1;  /* 周期時間 */
+        RELTIM cyclicPhase = 1;
+    };
+
+    cell tRiteVMSchedulerMain RiteVMSchedulerMain{
+        priority = C_EXP("RITEVM_PRIORITY");
+    };
+    cell tCyclicHandler CyclicHandler{
+        ciBody = RiteVMSchedulerMain.eiBody;
+        attribute = composite.cyclicAttribute;
+        cyclicTime = composite.cyclicTime;
+        cyclicPhase = composite.cyclicPhase;
+    };
+};

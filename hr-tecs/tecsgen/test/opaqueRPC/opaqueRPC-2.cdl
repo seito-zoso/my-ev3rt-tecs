@@ -1,0 +1,195 @@
+/*
+ * simple なサンプル
+ *
+ * このサンプルは tecsgen/test/simple 階層に置いて実行する
+ * Linux, Cygwin 環境で実行できるはず
+ *
+ * opaqueRPC-2.cdl は、2つの tSimpleClient => tSimpleServer の結合がある。
+ * 2つのチャンネルが生成され 2つのポートを使用する。
+ * tecs_package for OpaqueRPC の skyeye 版とは一致しない。
+ */
+import_C( "cygwin_tecs.h" );
+import_C( "my_setjmp.h" );
+
+// ログ機能
+import( <tSysLog.cdl> );
+// カーネル機能
+import( <cygwin_kernel.cdl> );
+import( <rpc.cdl> );
+import( <tSocketChannel.cdl> );
+import( "tAlloc.cdl" );
+import( "sSimple.cdl" );
+
+/// Server Celltype ///
+celltype tSimpleServer {
+	require	tSysLog.eSysLog;
+	entry	sSimple			eEnt;
+/*	entry	sServerControl	eServerControl; */
+};
+
+/// Client Celltype ///
+[active]
+celltype tSimpleClient {
+	require	tSysLog.eSysLog;
+	call	sSimple		cCall;
+	/* call	sServerControl	cServerControl;	/* サーバをシャットダウンする */
+	call	sSocketClientOpener	cOpener;	/* チャンネルを開く */
+	entry	sTaskBody	eMain;					/* メイン */
+	entry   sRPCErrorHandler eHandler;
+	var {
+		jmp_buf  jbuf;
+	};
+};
+
+/// Error Handler Celltype Client side & Server side ///
+celltype tClientRPCErrorHandler {
+	entry sRPCErrorHandler eHandler;
+	call sRPCErrorHandler cHandler;
+};
+celltype tServerRPCErrorHandler {
+	entry sRPCErrorHandler eHandler;
+	call  sServerChannelOpener cOpener;
+};
+
+// to_through で使用できるその他のオプション ( '\"', '%', '!' が使える )．
+//			"clientChannelCelltype= "\tSocketClient"\, "		// クライアント側チャンネルセルタイプ名
+//			"serverChannelCelltype= "\tSocketClient"\, "		// サーバー側チャンネルセルタイプ名
+//			"clientChannelInitializer= !portNo=8931+$count$; serverAddr=\"127.0.0.1\";!, "
+//			"serverChannelInitializer= !portNo=8931+$count$;!, "	// チャンネル
+//			"clientSemaphoreInitializer= !count = 1; attribute = C_EXP( \"TA_NULL\" );! ,"
+//			"clientSemaphoreCelltype = tCelltype;, "                // セマフォセルタイプ
+//			"TDRCelltype=\"tNBOTDR\","
+//			"taskCelltype=tTask,"									// サーバー側タスクセルタイプ
+//			"taskPriority=11,"										// サーバー側タスク優先度
+//			"StackSize=4096,"										// サーバー側タスクスタックサイズ
+//  試験目的のため、'!', '%', "'", "\"" を使っているが、どれでも同じである。
+//  ただし、引数の中で \" を使いたい場合には、それ以外を使用する必要がある。
+//  間に ',' がないのであれば、必ずしも、これらで括る必要はない。
+
+//[ out_through(),   out_through は不要になった  V1.B.0.11
+[to_through(rServer ,OpaqueRPCPlugin,
+			"PPAllocatorSize=1024,"									// PPAllocator サイズ(引数の総和)
+			"substituteAllocator=%Alloc.eAlloc=>CAlloc.eAlloc%, "	// 代替アロケータ指定 (デフォルトは未指定)
+			"clientChannelCell= 'ClientChannel_$destination$', "	// クライアント側チャンネルセル名
+			"serverChannelCell= !ServerChannel_$destination$!,  "	// サーバー側チャンネルセル名
+			"clientErrorHandler = 'ClientRPCErrorHandler_$destination$.eHandler', " // エラーハンドラー (デフォルトは未指定)
+			"serverErrorHandler = 'ServerRPCErrorHandler_$destination$.eHandler', " // エラーハンドラー (デフォルトは未指定)
+			), linkunit]
+region rClient /*,nNamespace */ {
+	cell tSysLog ClientSysLog {
+	};
+	cell tAlloc CAlloc {
+	};
+	cell tKernel KernelInClient {
+	};
+
+	// RPC Error Handler Client Side
+	cell tClientRPCErrorHandler ClientRPCErrorHandler_SimpleServer{
+		cHandler = rCPon::SimpleClient.eHandler;
+	};
+	cell tClientRPCErrorHandler ClientRPCErrorHandler_SimpleServer2{
+		cHandler = rCPon2::SimpleClient.eHandler;
+	};
+
+	[out_through(TracePlugin,""),in_through()]
+	// [out_through()]
+	region rCPon {
+		cell tSimpleClient SimpleClient {
+			cCall = rServer::rSPon::SimpleServer.eEnt;
+			cOpener = ClientChannel_SimpleServer.eOpener;
+		};
+		cell tTask Task {
+			cBody = SimpleClient.eMain;
+			priority = 1;
+			stackSize = 4096;
+			taskAttribute = C_EXP( "TA_ACT" );
+		};
+	};
+
+	[out_through(TracePlugin,""),in_through()]
+	// [out_through()]
+	region rCPon2 {
+		cell tSimpleClient SimpleClient {
+			cCall = rServer::rSPon2::SimpleServer2.eEnt;    // 合流しない  ($destination$ のために 2 とする)
+			// cCall = rServer::rSPon::SimpleServer.eEnt;     // 合流する
+			cOpener = ClientChannel_SimpleServer2.eOpener;
+		};
+		cell tTask Task {
+			cBody = SimpleClient.eMain;
+			priority = 1;
+			stackSize = 4096;
+			taskAttribute = C_EXP( "TA_ACT" );
+		};
+	};
+};
+
+// [in_through()]   不要になった V1.B.0.11
+[linkunit]
+region rServer {
+	cell	tSysLog	ServerSysLog {
+	};
+	cell tKernel KernelInServer {
+	};
+	// RPC Error Handler Server Side
+	cell tServerRPCErrorHandler ServerRPCErrorHandler_SimpleServer{
+		cOpener = ServerChannel_SimpleServer.eOpener;
+	};
+	cell tServerRPCErrorHandler ServerRPCErrorHandler_SimpleServer2{
+		cOpener = ServerChannel_SimpleServer2.eOpener;
+	};
+
+	[in_through(TracePlugin,""),out_through()]
+		// [in_through()]
+	region rSPon {
+    //      cell tSysLog ServerSysLog {
+    //      };
+		cell tAlloc Alloc {
+		};
+		[allocator(eEnt.func21.a=Alloc.eAlloc,
+				   eEnt.func22.sta=Alloc.eAlloc,
+				   eEnt.func23.str=Alloc.eAlloc,
+				   eEnt.func24.msg=Alloc.eAlloc,
+				   eEnt.func25.msg=Alloc.eAlloc,
+				   eEnt.func26.sta=Alloc.eAlloc,
+				   eEnt.func27.array2=Alloc.eAlloc,
+				   eEnt.func31.a=Alloc.eAlloc,
+				   eEnt.func32.sta=Alloc.eAlloc,
+				   eEnt.func33.str=Alloc.eAlloc,
+				   eEnt.func34.msg=Alloc.eAlloc,
+				   eEnt.func35.msg=Alloc.eAlloc,
+				   eEnt.func36.sta=Alloc.eAlloc,
+				   eEnt.func37.sta=Alloc.eAlloc,
+				   eEnt.func38.array2=Alloc.eAlloc,
+				   eEnt.func39.arraySt=Alloc.eAlloc)]
+		cell tSimpleServer SimpleServer {
+		};
+	};
+
+	[in_through(TracePlugin,""),out_through()]
+		// [in_through()]
+	region rSPon2 {
+    //      cell tSysLog ServerSysLog {
+    //      };
+		cell tAlloc Alloc {
+		};
+		[allocator(eEnt.func21.a=Alloc.eAlloc,
+				   eEnt.func22.sta=Alloc.eAlloc,
+				   eEnt.func23.str=Alloc.eAlloc,
+				   eEnt.func24.msg=Alloc.eAlloc,
+				   eEnt.func25.msg=Alloc.eAlloc,
+				   eEnt.func26.sta=Alloc.eAlloc,
+				   eEnt.func27.array2=Alloc.eAlloc,
+				   eEnt.func31.a=Alloc.eAlloc,
+				   eEnt.func32.sta=Alloc.eAlloc,
+				   eEnt.func33.str=Alloc.eAlloc,
+				   eEnt.func34.msg=Alloc.eAlloc,
+				   eEnt.func35.msg=Alloc.eAlloc,
+				   eEnt.func36.sta=Alloc.eAlloc,
+				   eEnt.func37.sta=Alloc.eAlloc,
+				   eEnt.func38.array2=Alloc.eAlloc,
+				   eEnt.func39.arraySt=Alloc.eAlloc)]
+		cell tSimpleServer SimpleServer2 {
+		};
+	};
+};
+

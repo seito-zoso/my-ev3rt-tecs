@@ -1,0 +1,5 @@
+signature sAbc 
+{
+	int64_t foo( void );
+	int128_t foo2( [in] float32_t xyz );
+};

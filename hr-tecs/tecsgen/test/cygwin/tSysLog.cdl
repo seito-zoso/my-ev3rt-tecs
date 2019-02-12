@@ -1,0 +1,14 @@
+import_C("t_syslog.h");
+
+signature sSysLog {
+	ER		write([in] uint_t prio, [in] const SYSLOG *p_syslog);
+	ER_UINT	read([out] SYSLOG *p_syslog);
+	ER		mask([in] uint_t logmask, [in] uint_t lowmask);
+	ER		refer([out] T_SYSLOG_RLOG *pk_rlog);
+};
+
+[singleton]
+celltype tSysLog {
+	entry sSysLog	eSysLog;
+};
+

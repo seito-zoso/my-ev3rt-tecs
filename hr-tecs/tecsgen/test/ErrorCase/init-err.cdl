@@ -1,0 +1,36 @@
+typedef struct A {
+	int8_t				a;
+	unsigned int16_t	b;
+	signed int16_t		c[2];
+	char				d;
+	uchar_t				e;
+	schar_t				f;
+} structA;
+
+
+celltype tA {
+  attr {
+    struct A a = { 128, -32769, {1,2}, 129, 256, 128 };
+    struct A b = { 127, -32768, {3,4}, -129, -1, -129 };
+    int8_t   e;
+  };
+  var {
+    struct A c = { 128, -32769 };
+    struct A d = { 127, -32768 };
+  };
+};
+
+cell tA a {
+  a = { 127, -32768, {105,106} };
+  b = { 128, -32769, {100,99101} };
+};
+
+cell tA b {
+  e = 128;
+};
+
+cell tA c {
+  a = 10;
+  e = { 128 };
+};
+

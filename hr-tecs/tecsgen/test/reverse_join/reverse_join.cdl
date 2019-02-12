@@ -1,0 +1,99 @@
+import_C( "tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+signature sSig {
+	void  func(void);
+};
+
+celltype tMain {
+  entry sTaskBody eBody;
+};
+
+[prototype]
+cell tMain Main {
+  eBody <= Task.cBody;
+};
+
+cell tTask Task {
+  priority = 11;
+  stackSize = 512;
+  taskAttribute = C_EXP( "TA_ACT" );
+};
+
+cell tMain Main
+{};
+
+[callback]
+signature sCallback {
+    void  func(void);
+};
+
+celltype tCBMain {
+    entry sTaskBody eBody;
+    call sCallback cCallback;
+};
+
+celltype tCBTarget {
+    entry sCallback eCallback;
+    attr {
+        char_t *name = C_EXP( "\"$cell$\"" );
+    };
+};
+
+cell tCBMain CBMain {
+};
+
+cell tCBTarget CBTarget {
+    eCallback <= CBMain.cCallback;
+};
+
+cell tTask Task2 {
+    priority = 11;
+    stackSize = 512;
+    taskAttribute = C_EXP( "TA_ACT" );
+    cBody = CBMain.eBody;
+};
+
+/******   ******/
+[active]
+composite tInCompositeCallBack {
+    cell tCBMain CBMain {
+    };
+
+    cell tCBTarget CBTarget {
+        eCallback <= CBMain.cCallback;
+    };
+
+    cell tTask Task2 {
+        priority = 11;
+        stackSize = 512;
+        taskAttribute = C_EXP( "TA_ACT" );
+        cBody = CBMain.eBody;
+    };
+};
+cell tInCompositeCallBack InCompositeCallBack {
+};
+
+/******   ******/
+composite tExportCallBack {
+    entry sCallback eCallback;
+
+    cell tCBTarget CBTarget {
+    };
+    composite.eCallback => CBTarget.eCallback;
+};
+    
+region rExportCallBack {
+    cell tExportCallBack CBTarget {
+        eCallback <= CBMain.cCallback;
+    };
+    cell tCBMain CBMain {
+    };
+    cell tTask Task2 {
+        priority = 11;
+        stackSize = 512;
+        taskAttribute = C_EXP( "TA_ACT" );
+        cBody = CBMain.eBody;
+    };
+};
+

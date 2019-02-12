@@ -1,0 +1,58 @@
+﻿/*
+ * Simple な Sample
+ *
+ *  +-------------+           +-------------+          +-------------+
+ *  |             |           |             |          |             |
+ *  |   tTask     | sTaskBody |   tSimple   |  sSample |   tSample   |
+ *  |   Task      |-----------|>  Simple    |----------|>  Sample    |
+ *  |             |cTask eBody|             |cCall eEnt|             |
+ *  |             |Body       |             |          |             |
+ *  +-------------+           +-------------+          +-------------+
+ */
+
+
+// cygwin 用の簡易な型定義
+import( <cygwin_kernel.cdl> );
+  // TECS 対応 TOPPERS/ASP ならば import( <kernel.cdl> ); でよい
+
+[deviate]
+signature sAllocator {
+   void  alloc( [in]int32_t size, [out]void **buf );
+   void  dealloc( [in]const void *buf );
+};
+
+celltype tAllocator {
+    entry  sAllocator eAlloc;
+};
+
+cell tAllocator Allocator {};
+
+signature sSignature {
+	ER  sayHello( [send(sAllocator),size_is(length)]char_t *message, [in]int16_t length );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+};
+
+celltype tCelltype2 {
+	entry sSignature eEntry;
+};
+
+celltype tCelltype1 {
+	call sSignature cCall;
+};
+
+[allocator(eEntry.sayHello.message=Allocator.eAlloc)]
+cell tCelltype2 Cell2 {
+};
+
+cell tCelltype1 Cell1 {
+	cCall = Cell2.eEntry;
+};
+
+/*
+cell tTask Task {
+	cBody = Simple.eBody;
+	priority = 11;
+	stackSize = 1024;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+*/

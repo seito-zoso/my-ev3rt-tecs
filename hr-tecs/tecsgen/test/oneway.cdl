@@ -1,0 +1,23 @@
+typedef int32_t  ER;
+
+signature sSigOneway {
+	[oneway]
+		ER  oneway( [in]int32_t  a );
+	ER  not_oneway( [in]int32_t  b );
+};
+
+celltype tCtCallee{
+	entry sSigOneway eEnt;
+};
+
+celltype tCtCaller{
+	call sSigOneway cCall;
+};
+
+cell tCtCallee Callee {
+};
+
+cell tCtCaller Caller {
+	cCall = Callee.eEnt;
+};
+

@@ -1,0 +1,13 @@
+celltype tSign {
+	attr {
+		uint8_t          u8;
+		unsigned int8_t  ui8;   /* unsigned int8_t: obsolete. use uint8_t 従来 OK */
+		signed   int8_t  si8;   /* singed int8_t: obsolete. use int8_t */
+	};
+};
+
+cell tSign Sing {
+	u8  = -1;
+	ui8 = -12;
+	si8 = -18;
+};

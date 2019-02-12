@@ -1,0 +1,20 @@
+/* 共有メモリコンポーネント */
+signature sSharedMemory {
+    void    putVal( [in]int32_t index, [in]int32_t val );
+      // 0<= index < size
+    int32_t getVal( [in]int32_t index );
+    int32_t getSize(void);
+    //int32_t exchange( [in]int32_t index, [in]int32_t val );
+      // 値を交換する (アトミックに操作する)
+};
+
+celltype tSharedMemory {
+    entry sSharedMemory eSharedMemory;
+    attr {
+        int32_t size = 32;
+    };
+  var {
+    [size_is(size)]
+        int32_t *data;
+    };
+};

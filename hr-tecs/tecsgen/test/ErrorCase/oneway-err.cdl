@@ -1,0 +1,13 @@
+typedef int32_t ER;
+
+signature sOneway {
+	[oneway]
+		ER  func1( [in]int32_t     inval );    /* 正常 */
+	[oneway]
+		ER  func2( [inout]int32_t  *ioval );   /* ERROR (inout がある) */
+	[oneway]
+		ER  func3( [out]int32_t    *outval );  /* ERROR (out がある) */
+	[oneway]
+		int32_t  func4( void );                /* ERROR (ER でない return がある) */
+};
+

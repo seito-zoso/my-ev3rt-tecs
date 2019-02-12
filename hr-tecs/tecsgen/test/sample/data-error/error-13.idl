@@ -1,0 +1,4 @@
+signature sAbc 
+{
+　int64 foo( int8 bar );
+};

@@ -1,0 +1,38 @@
+import_C( "cygwin_tecs.h" );
+
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+
+import( <rpc.cdl> );
+import( <tDataqueueOWChannel.cdl> );
+
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+[deviate]
+signature sAlloc {
+	ER   alloc( [in]int32_t size, [out]void **p );
+	ER   dealloc( [in]const void *ptr );
+};
+
+celltype tAlloc {
+	entry sAlloc eAlloc;
+	require tSysLog.eSysLog;
+};
+
+[out_through()]
+region rTransparent {
+  cell tAlloc Allocator {
+  };
+};
+
+import( "SimpleSample.cdl" );
+
+/*--------- TECS Info ----------*/
+import( "TECSInfo.cdl" );
+region rTransparent {
+//    cell nTECSInfo::tTECSInfo TECSInfo {
+//        cTECSInfo = TECSInfoSub.eTECSInfo;
+//    };
+};
+

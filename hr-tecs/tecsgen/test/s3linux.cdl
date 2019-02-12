@@ -1,0 +1,354 @@
+/*
+ *  シリアルインタフェースドライバの動作制御用のための定数
+ *
+ *  以下の定数は，ビット毎に論理和をとって用いる．
+ */
+const unsigned int IOCTL_NULL	=0;		/* 指定なし */
+const unsigned int IOCTL_ECHO	=0x0001;		/* 受信した文字をエコーバック */
+const unsigned int IOCTL_CRLF	=0x0010;		/* LF を送信する前に CR を付加 */
+const unsigned int IOCTL_FCSND	=0x0100;		/* 送信に対してフロー制御を行う */
+const unsigned int IOCTL_FCANY	=0x0200;		/* どのような文字でも送信再開 */
+const unsigned int IOCTL_FCRCV	=0x0400;		/* 受信に対してフロー制御を行う */
+
+/*
+ *  ログ情報の種別の定義
+ *
+ *  LOG_TYPE_CYC，LOG_TYPE_ASSERT 以外は，デバッギングインタフェース仕
+ *  様と合致している．
+ */
+const unsigned int LOG_TYPE_INH	=	0x01;	/* 割込みハンドラ */
+const unsigned int LOG_TYPE_ISR	=	0x02;	/* 割込みサービスルーチン */
+const unsigned int LOG_TYPE_CYC	=	0x03;	/* 周期ハンドラ */
+const unsigned int LOG_TYPE_EXC	=	0x04;	/* CPU例外ハンドラ */
+const unsigned int LOG_TYPE_TEX	=	0x05;	/* タスク例外処理ルーチン */
+const unsigned int LOG_TYPE_TSKSTAT =	0x06;	/* タスク状態変化 */
+const unsigned int LOG_TYPE_DSP	=	0x07;	/* ディスパッチャ */
+const unsigned int LOG_TYPE_SVC	=	0x08;	/* サービスコール */
+const unsigned int LOG_TYPE_COMMENT =	0x09;	/* コメント */
+const unsigned int LOG_TYPE_ASSERT =	0x0a;	/* アサーションの失敗 */
+
+const unsigned int LOG_ENTER	=	0x00;	/* 入口／開始 */
+const unsigned int LOG_LEAVE	=	0x80;	/* 出口／終了 */
+
+/*
+ *  ログ情報の重要度の定義
+ */
+const unsigned int LOG_EMERG	=0;		/* シャットダウンに値するエラー */
+const unsigned int LOG_ALERT	=1;
+const unsigned int LOG_CRIT	=2;
+const unsigned int LOG_ERROR	=3;		/* システムエラー */
+const unsigned int LOG_WARNING	=4;		/* 警告メッセージ */
+const unsigned int LOG_NOTICE	=5;
+const unsigned int LOG_INFO	=6;
+const unsigned int LOG_DEBUG	=7;		/* デバッグ用メッセージ */
+
+
+const int TMAX_LOGINFO	= 6;
+/* #define TMAX_LOGINFO 6 */
+
+ const int NULL = 0;
+ const int FALSE = 0;
+ const int32 SERIAL_BUFSZ = 256;
+ const int32 SERIAL_RCV_SEM1 = 1;
+ const int32 SERIAL_SND_SEM1 = 2;
+ const int32 SERIAL_RCV_SEM2 = 3;
+ const int32 SERIAL_SND_SEM2 = 4;
+
+ /*　
+ 	初期化 
+ 	       受け口関数とする
+ 	       Factoryで指定する
+ 	       ITRONでは静的APIで初期化ハンドラに指定する
+ 	       
+
+ */
+
+
+ /*
+ 	LogOutputセルとしては初期化は必要ない
+ 	sio_initialize()はSerialIOPortセルの初期化である
+ 	コントロールブロックの初期化は、シリアルポートセルの属性、変数
+ 	の初期化で実現する
+ 	ポートの出力先はセルの接続を指定したときに定まる
+
+ 	一般的な(あるいは抽象的な)ログ出力の状態の参照は出来たとしても、
+ 	シリアルポート特有の状態の項目の参照は、一般的なログ出力の状態
+ 	参照からは、直接指定できないのでは無いか?
+ */
+
+
+ /****/
+
+ /* for SH3 */
+ typedef signed   int32	INT;
+ typedef signed   int32	SYSTIM;
+ typedef signed   int32	VP_INT;
+ typedef unsigned int32	UINT;
+ typedef unsigned int32	UW;
+ typedef unsigned int8	UB;
+
+ /* for uITRON4.0 */
+
+ typedef INT		ER;
+ typedef INT		ID;
+ typedef INT		ER_UINT;
+ typedef bool		BOOL;
+
+
+ /* for serial */
+ /*
+  *  シリアルポート管理ブロック
+  */
+
+ typedef struct serial_port_initialization_block {
+ 	ID	rcv_semid;	/* 受信バッファ管理用セマフォのID */
+ 	ID	snd_semid;	/* 送信バッファ管理用セマフォのID */
+ } SPINIB;
+
+ typedef struct serial_port_control_block {
+ 	BOOL	openflag;	/* オープン済みフラグ */
+ 	UINT	ioctl;		/* 動作制御の設定値 */
+
+ 	UINT	rcv_read_ptr;	/* 受信バッファ読出しポインタ */
+ 	UINT	rcv_write_ptr;	/* 受信バッファ書込みポインタ */
+ 	UINT	rcv_count;	/* 受信バッファ中の文字数 */
+ 	char	rcv_fc_chr;	/* 送るべき START/STOP */
+ 	BOOL	rcv_stopped;	/* STOP を送った状態か？ */
+
+ 	UINT	snd_read_ptr;	/* 送信バッファ読出しポインタ */
+ 	UINT	snd_write_ptr;	/* 送信バッファ書込みポインタ */
+ 	UINT	snd_count;	/* 送信バッファ中の文字数 */
+ 	BOOL	snd_stopped;	/* STOP を受け取った状態か？ */
+
+ 	char	rcv_buffer[SERIAL_BUFSZ];	/* 受信バッファ */
+ 	char	snd_buffer[SERIAL_BUFSZ];	/* 送信バッファ */
+ } SPCB;
+
+ /*
+  *  シリアルインタフェースドライバの用いるパケット
+  */
+ typedef struct {
+ 	UINT	reacnt;		/* 受信バッファ中の文字数 */
+ 	UINT	wricnt;		/* 送信バッファ中の文字数 */
+ } T_SERIAL_RPOR;
+
+ const int32 SIO_ERDY_SND = 0;   /* oyama */
+ const int32 SIO_ERDY_RCV = 1;
+
+ /*
+  *  シリアルI/Oポート初期化ブロック
+  */
+ typedef struct sio_port_initialization_block {
+     UW reg_base;    /* レジスタのベースアドレス */
+     UB lcr_val;     /* モードレジスタの設定値   */
+     UB dlm_val;     /* ボーレート上位の設定値   */
+     UB dll_val;     /* ボーレート下位の設定値   */
+     UW pinter_val;  /* 割込み許可ビット   */    
+ } SIOPINIB;
+
+ /*
+  *  シリアルI/Oポート管理ブロック
+  */
+ typedef struct {
+     VP_INT  exinf;		/* 拡張情報 */
+     BOOL    openflag;		/* オープン済みフラグ */
+     BOOL    sendflag;		/* 送信割込みイネーブルフラグ */
+     BOOL    getready;		/* 文字を受信した状態 */
+     BOOL    putready;		/* 文字を送信できる状態 */
+ } SIOPCB;
+
+typedef struct {
+	UINT	logtype;		/* ログ情報の種別 */
+	SYSTIM	logtim;			/* ログ時刻 */
+	VP_INT	loginfo[TMAX_LOGINFO];	/* その他のログ情報 */
+} SYSLOG;
+
+
+signature sLog {
+	  void log(void);	
+};
+
+signature sSysLog {
+	  ER vwri_log( [in] UINT prio,  [in] SYSLOG *p_log);
+	  ER_UINT vrea_log( [out] SYSLOG *p_log);
+	  ER vmsk_log( [in] UINT logmask,  [in] UINT lowmask);
+
+	  ER opn_port( void ); /* ポートのオープン */
+	  ER cls_port( void ); /* ポートのクローズ */
+};
+
+const int TCNT_SYSLOG_BUFFER = 32;
+
+signature sFormattedOutput {
+	  void syslog_output( void );
+	  void syslog_print( [in] SYSLOG *p_log );
+	  void syslog_printf( [in,string] char *format, [in,size_is(expr)] VP_INT *args, [in] int expr);
+
+ 	  ER opn_port( void ); /* ポートのオープン */
+ 	  ER cls_port( void ); /* ポートのクローズ */
+ 	  ER_UINT wri_dat( [in , size_is(len)] char *buf,  [in] UINT len); /* 文字列送
+ 	  信 */
+ 	  ER_UINT rea_dat( [out , size_is(len)] char *buf,  [in] UINT len); /* 文字列
+ 	  受信 */
+ 	  ER ctl_por( [in] UINT ioctl); /* ポートの制御 */
+};
+
+signature sPort {
+ 	  ER opn_port( void ); /* ポートのオープン */
+ 	  ER cls_port( void ); /* ポートのクローズ */
+ 	  ER_UINT wri_dat( [in , size_is(len)] char *buf,  [in] UINT len); /* 文字列送
+ 	  信 */
+ 	  ER_UINT rea_dat( [out , size_is(len)] char *buf,  [in] UINT len); /* 文字列
+ 	  受信 */
+ 	  ER ctl_por( [in] UINT ioctl); /* ポートの制御 */
+
+};
+
+
+signature sSerialPortCallBack {
+ 	  void ierdy_snd( [in] VP_INT exinf);/* シリアルポートからの送信可能コールバック */
+ 	  void ierdy_rcv( [in] VP_INT exinf); /* シリアルポートからの受信通知コールバック */
+};
+
+signature sSIOPort {
+ 	  void opn_por( [in] ID id , [in] VP_INT exinf);
+ 	  void cls_por( [in] ID id);
+ 	  BOOL snd_chr( [in] char c);
+ 	  INT  rcv_chr( void );
+ 	  void ena_cbr( [in] UINT cbrtn);
+ 	  void dis_cbr( [in] UINT cbrtn);
+ 	  void init_for_banner(void);
+
+ 	  /* 初期化ハンドラ */
+ 	  void initialize(void);
+ 	  /* 割込みハンドラ */
+ 	  void interrupt(void);
+};
+
+[singleton] 
+celltype tLog {
+	entry sLog eLog;
+	call  sFormattedOutput cFormattedOutput;
+};
+
+[singleton] 
+celltype tSysLog {
+	entry sSysLog eSysLog;
+	call  sFormattedOutput cFormattedOutput;
+
+	  var {
+	  /*
+	   *  出力すべきログ情報の重要度（ビットマップ）
+	    */
+	    UINT	syslog_logmask;			/* ログバッファに記録すべき重要度 */
+	    UINT	syslog_lowmask;			/* 低レベル出力すべき重要度 */
+	  /*
+	   *  ログバッファとそれにアクセスするためのポインタ
+	    */
+	     SYSLOG	syslog_buffer[TCNT_SYSLOG_BUFFER];	/* ログバッファ */
+	     UINT	syslog_count;			/* ログバッファ中のログの数 */
+	     UINT	syslog_head;			/* 先頭のログの格納位置 */
+	     UINT	syslog_tail;			/* 次のログの格納位置 */
+	     UINT	syslog_lost;			/* 失われたログの数 */
+	  };
+
+ /*
+ 以下の関数は手で独自に追加する
+
+	 factory( INIT_HANDLER ,      TA_HLG, 0, tSysLog_initialize );
+ 	 factory( INTERRUPT_HANDLER , TA_HLG, INHNO_SIO, tSysLog_interrupt );*/
+
+};
+
+celltype tFormattedOutput {
+	entry  sFormattedOutput eFormattedOutput;
+	call   sPort cPort;
+	call   sSysLog cSysLog;
+};
+
+celltype tLowOutputSIO {
+	entry sPort ePort;
+	call  sSIOPort cSIOPort;
+};
+
+celltype tSerialPort {
+	entry sPort ePort;
+	entry sSerialPortCallBack eSerialPortCallBack;
+	call  sSIOPort cSIOPort;
+
+	var {
+		SPCB spcb;
+	};
+};
+
+celltype tSIOPortLinux {
+	entry sSIOPort eSIOPort;
+	call sSerialPortCallBack cSerialPortCallBack;
+
+	var {
+		SIOPCB siopcb;
+	};
+};
+
+celltype tSIOPortST16C2550 {
+	entry sSIOPort eSerialIOPort[2];
+	call sSerialPortCallBack eSerialPortCallBack;
+
+	var {
+		SIOPCB siopcb;
+	};
+};
+
+ /* プロトタイプ宣言 */
+cell tSerialPort SerialPort;
+
+cell tSIOPortLinux SIOPortLinux {
+	cSerialPortCallBack = SerialPort.eSerialPortCallBack;
+
+/*      siopcb = { {FALSE,FALSE,FALSE,FALSE},
+                 {FALSE,FALSE,FALSE,FALSE}
+		 };      060830 */
+/*
+      siopinib = { {ST16C_CHB, LCR_VAL, DLM_VAL, DLL_VAL, PINTER_PINT7E},
+ 		   {ST16C_CHA, LCR_VAL, DLM_VAL, DLL_VAL, PINTER_PINT6E}
+ 		   };
+*/
+};
+
+cell tSerialPort SerialPort {
+	cSIOPort = SIOPortLinux.eSIOPort;
+      	spcb = { FALSE , 0 , NULL , NULL, 0 , '\0' , FALSE };
+      /*spinib = { SERIAL_RCV_SEM1, SERIAL_SND_SEM1 };  060830 */
+};
+
+
+
+/* cell tSIOPortST16C2550 SIOPortST16C2550;
+*/
+cell tLowOutputSIO LowOutputSIO {
+	cSIOPort = SIOPortLinux.eSIOPort;
+};
+
+/* 
+cell tLowOutputSTUB LowOutputSTUB{
+	cPort = SIOPortLinux.eSIOPort;
+};
+*/
+cell tFormattedOutput FormattedOutputSysLog {
+	cPort = LowOutputSIO.ePort;
+};
+
+cell tFormattedOutput FormattedOutput {
+	cPort = SerialPort.ePort;
+};
+
+cell tSysLog SysLog {
+	cFormattedOutput = FormattedOutputSysLog.eFormattedOutput;
+};
+
+cell tLog Log {
+	  cFormattedOutput = FormattedOutput.eFormattedOutput;
+};
+
+
+

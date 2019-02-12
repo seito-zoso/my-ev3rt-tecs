@@ -1,0 +1,20 @@
+
+[deviate]
+signature sAlloc {
+  ER  alloc( [in]int32_t size, [out]void **p );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+  entry sAlloc eAlloc;
+  attr {
+    int32_t  size = 8192;
+  };
+  var {
+    [size_is(size)]
+    int8_t  *buffer;
+  };
+};
+
+cell tAlloc Allocator {
+};

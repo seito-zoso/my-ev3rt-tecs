@@ -1,0 +1,52 @@
+﻿// cygwin 用の簡易な型定義
+import( <cygwin_kernel.cdl> );
+  // TECS 対応 TOPPERS/ASP ならば import( <kernel.cdl> ); でよい
+
+[deviate]
+signature sAlloc {
+    void  alloc( [in]int32_t size, [out]void **buf );
+    void  dealloc( [in]const void *buf );
+};
+
+signature sSendRecv {
+	ER  snd( [send(sAlloc),size_is(size)]int32_t *buf, [in]int32_t size );
+};
+
+celltype tCelltype2 {
+	entry sSendRecv eEntry;
+};
+
+celltype tRelayComponent {
+	[allocator(	                        // リレーアロケータの指定
+            snd.buf <= cSR.snd.buf      // 前方参照可能
+            )]
+		entry  sSendRecv eS;            // リレーする元の受け口
+	call   sSendRecv cSR;               // リレーする先の呼び口
+
+	attr {
+		char_t	*name = C_EXP( "\"$id$\"" );
+	};
+};
+
+celltype tCelltype1 {
+	call sSendRecv cCall;
+};
+
+celltype tAllocator {
+    entry  sAlloc eAlloc;
+};
+
+cell tAllocator Alloc {};
+
+[allocator(eEntry.snd.buf=Alloc.eAlloc)]
+cell tCelltype2 Cell2 {
+};
+
+cell tRelayComponent RelayCell {
+    cSR = Cell2.eEntry;
+};
+
+cell tCelltype1 Cell1 {
+	cCall = RelayCell.eS;
+};
+

@@ -1,0 +1,40 @@
+import_C( "cygwin_tecs.h" );
+
+struct tTag {
+	int		a;
+	int		b;
+};
+struct tTag2 {
+	int		a;
+	int		b;
+};
+
+celltype tCelltype {
+	attr {
+		struct tTag		sta = { 1, 2 };
+		struct tTag2	sta2 = { 1, 2 };
+		// int		*a			 = { 11, 12 };	// 初期化コードが出ない（Cコンパイルでエラー）
+		int		sz			= 2;
+		// int		sz;
+	};
+	var {
+		struct tTag stv  = { 3, 4 };
+		// struct tTag stv2 = sta;			// コード生成で Ruby 例外
+
+		// int		*av = a;				// コード生成で Ruby 例外
+		// int		*av2 = { 1, 2 };		// 初期化コードが出ない( Cコンパイルでエラー)
+		[size_is(sz)]
+			int		*sz_array1;
+		[size_is(sz)]
+			int		*sz_array2 = { 1, 2 };	// tecsgen コード生成時に sz が見つからずエラー
+	};
+};
+
+cell tCelltype Cell0{
+};
+cell tCelltype Cell1{
+	// sz = 1;     エラー 初期化子要素の方が多すぎる
+};
+cell tCelltype Cell2{
+	sz = 2;
+};

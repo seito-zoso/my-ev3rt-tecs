@@ -1,0 +1,21 @@
+/* 2 errors */
+
+signature sSig{
+  int32 func(void);
+};
+
+celltype tCT {
+  call sSig c;
+  attr {
+    int32 a = 1;
+    int32 b;
+    int16 d;
+  };
+};
+
+cell tCT ce {
+ /* a: initialize with default value */
+ b = 1;
+ /* c: error: not initialized */
+ /* d: error: not initialized */
+};

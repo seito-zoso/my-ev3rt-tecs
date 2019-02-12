@@ -1,0 +1,33 @@
+import_C( "stdint.h" );
+
+typedef int32_t ER;
+
+namespace ns1 {
+	signature sSig {
+		ER func( [in]int32 inval );
+	};
+
+	celltype tCell {
+		entry sSig eEnt;
+	};
+};
+
+composite tComp {
+	entry	ns1::sSig	eCompEnt;
+	cell	ns1::tCell	comp_cell1{
+	};
+	composite.eCompEnt => comp_cell1.eEnt;
+};
+
+cell tComp cell1 {
+};
+
+
+celltype tCell {
+  call ns1::sSig cCall;
+};
+
+cell tCell cell2 {
+  cCall = cell1.eCompEnt;
+};
+

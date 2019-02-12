@@ -1,0 +1,75 @@
+// allocator 指定子をセルのプロトタイプ宣言で指定する例
+
+import_C( "cygwin_tecs.h" );
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+
+cell tSysLog SysLog {};
+
+[deviate]
+signature sAlloc {
+  ER  alloc( [in]int32_t size, [out]void **p );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+
+	attr {
+		int32_t  size = 8192;
+	};
+	var {
+		[size_is(size)]
+			int8_t  *buffer;
+	};
+};
+
+cell tAlloc Alloc {
+};
+
+signature sSigDev {
+   ER Send( [send(sAlloc),size_is(len)]int8_t *buf, [in]int32_t len );
+   ER Receive( [receive(sAlloc),size_is(*len)]int8_t **buf, [out]int32_t *len );
+};
+
+signature sSigCB {
+   ER Send( [send(sAlloc),size_is(len)]int8_t *buf, [in]int32_t len );
+   ER Receive( [receive(sAlloc),size_is(*len)]int8_t **buf, [out]int32_t *len );
+};
+
+celltype tDev {
+	entry sSigDev eDev;
+	call  sSigCB  cCB;
+	require tSysLog.eSysLog;
+};
+
+celltype tDriver {
+	entry sSigCB      eCB;
+	call  sSigDev     cDev;
+	entry sTaskBody   eTaskBody;
+	require tSysLog.eSysLog;
+};
+
+// プロトタイプ宣言でアロケータ指定
+[allocator(eCB.Send.buf=Alloc.eA,
+		   eCB.Receive.buf=Alloc.eA)]
+cell tDriver Driver;
+
+[allocator(eDev.Send.buf=Alloc.eA,
+		   eDev.Receive.buf=Alloc.eA)]
+cell tDev    Dev{
+   cCB = Driver.eCB;
+};
+
+cell tDriver    Driver{
+   cDev = Dev.eDev;
+};
+
+cell tTask MainTask {
+	cBody = Driver.eTaskBody;
+	priority = 0;
+	stackSize = 4096;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+
+

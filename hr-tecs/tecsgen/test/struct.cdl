@@ -1,0 +1,79 @@
+struct tagStruct {
+  int32_t  array[32];
+};
+
+celltype tCellStruct {
+  attr {
+    struct tagStruct st;
+    struct tagStruct sta[2];
+    //		[size_is(1)]
+    //			struct tagStruct *stp = { {1 } };
+  };
+  var {
+    [size_is(1)]
+      struct tagStruct *stp2;
+  };
+};
+
+cell tCellStruct structCell {
+  st = { { 7, 8, 9, 10 } };
+  sta = { { { 1 } } };
+};
+
+cell tCellStruct structCell2 {
+  sta = { { { 1, 2 } }, { { 2, 3 } } };
+  st = { { 11, 12, 13, 14 } };
+};
+
+/*
+cell tCellStruct structCell3 {
+  sta = { { { 1, 2 } }, { { 2, 3 } } };
+  st = C_EXP( "{ { 11, 12, 13, 14 } }" );
+  stp = { { 11, 12, 13, 14 } };
+};
+*/
+
+
+// composite の attribute が struct のケース
+composite tCompStruct {
+  attr {
+    struct tagStruct st;
+	struct tagStruct sta[2];
+    //		[size_is(1)]
+    //			struct tagStruct *stp = { {1 } };
+  };
+
+  cell tCellStruct Cell {
+	  st = composite.st;
+	  sta = composite.sta;
+  };
+};
+
+cell tCompStruct structComp {
+  st = { { 7, 8, 9, 10 } };
+  sta = { { { 1 } } };
+};
+
+
+cell tCompStruct structCcmp2 {
+  sta = { { { 1, 2 } }, { { 2, 3 } } };
+  st = { { 11, 12, 13, 14 } };
+};
+
+
+// typedef されているケース
+typedef struct {
+	int32_t   a;
+} STRUCT;
+
+celltype tTypedefStruct {
+	attr {
+		STRUCT	st;
+	};
+};
+
+cell tTypedefStruct TypedefStruct {
+	st = {
+		1,		/* a */
+	};
+};

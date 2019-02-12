@@ -1,0 +1,139 @@
+import_C( "cygwin_tecs.h" );
+import( <cygwin_kernel.cdl> );
+import( <utility.cdl> );
+
+////// Signature Description //////
+signature sHello {
+	void  hello(void);
+};
+
+signature sTalkerSelector {
+	void  getTalker([out]Descriptor(sHello) *talker, [in]int_t i);
+	void  getNTalker([out]int_t *n);
+
+    // Error: self reference
+	// void  getMySelf([out]Descriptor(sTalkerSelector) *talkerSel );
+};
+
+////// Celltype Description //////
+celltype tMain {
+	entry sTaskBody eMain;
+	[ref_desc]
+		call sHello cDefaultTalker;
+	[dynamic,optional]
+		call sHello cTalker;
+	call sTalkerSelector cTalkerSelector;
+/*
+    attr {
+        int_t  a = 0;
+    };
+    var {
+        int_t  v = 0;
+    };
+*/
+};
+
+celltype tTalkerSelector {
+	entry sTalkerSelector eTalkerSelector;
+	[ref_desc]
+		call  sHello  cHello[];
+	attr {
+		char_t *name = C_EXP( "\"$cell_global$\"" );
+	};
+};
+
+celltype tTalker {
+	entry sHello eHello;
+    attr {
+        char_t *name = C_EXP( "\"$cell_global$\"" );
+        char_t *message = "hello";
+    };
+};
+
+/////// Build Description //////
+cell tSerialTask Task {
+	cBodyArray[] = Main.eMain;
+	cBodyArray[] = rComposite::CompMain.eMain;
+	priority = 11;
+	taskAttribute = C_EXP( "TA_ACT" );
+	stackSize = 256;
+};
+
+cell tMain Main{
+	cDefaultTalker = Talker0.eHello;
+	cTalker = Talker0.eHello;
+	cTalkerSelector = Selector.eTalkerSelector;
+};
+
+cell tTalkerSelector Selector {
+	cHello[] = Talker0.eHello;
+	cHello[] = Talker1.eHello;
+	cHello[] = Talker2.eHello;
+	cHello[] = Talker3.eHello;
+	cHello[] = Talker4.eHello;
+	
+};
+
+cell tTalker Talker0 {};
+cell tTalker Talker1 {};
+cell tTalker Talker2 {};
+cell tTalker Talker3 {};
+cell tTalker Talker4 {};
+
+/******************************************/
+/*         Composite                      */
+/******************************************/
+[idx_is_id]
+celltype tMainForComp {
+	entry sTaskBody eMain;
+	[ref_desc]
+		call sHello cDefaultTalker;
+	[dynamic,optional]
+		call sHello cTalker;
+	call sTalkerSelector cTalkerSelector;
+/*
+    attr {
+        int_t  a = 0;
+    };
+    var {
+        int_t  v = 0;
+    };
+*/
+};
+composite tCompMain {
+	entry sTaskBody eMain;
+	[ref_desc]
+		call sHello cDefaultTalker;
+	[dynamic,optional]
+		call sHello cTalker;
+	call sTalkerSelector cTalkerSelector;
+    cell tMainForComp Main {
+        cDefaultTalker => composite.cDefaultTalker;
+        cTalker => composite.cTalker;
+        cTalkerSelector => composite.cTalkerSelector;
+    };
+    composite.eMain => Main.eMain;
+};
+
+[in_through()]
+region rComposite {
+    cell tCompMain CompMain {
+        cDefaultTalker = Talker0.eHello;
+        cTalker = Talker0.eHello;
+        cTalkerSelector = Selector.eTalkerSelector;
+    };
+
+    cell tTalkerSelector Selector {
+        cHello[] = Talker0.eHello;
+        cHello[] = Talker1.eHello;
+        cHello[] = Talker2.eHello;
+        cHello[] = Talker3.eHello;
+        cHello[] = Talker4.eHello;
+	};
+
+    cell tTalker Talker0 {};
+    cell tTalker Talker1 {};
+    cell tTalker Talker2 {};
+    cell tTalker Talker3 {};
+    cell tTalker Talker4 {};
+};

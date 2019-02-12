@@ -1,0 +1,72 @@
+
+
+signature sSingleCall {
+  /* int32_t  single( [in]int32 single );    060827   エラーにならない*/
+  int32_t  single( [in]int32_t s );
+};
+
+signature sSingleEntry {
+  int32_t  single( [in]int32_t s );
+};
+
+[singleton]
+celltype tSingle {
+  call  sSingleCall  cCall;
+  entry sSingleEntry eEntry;
+
+  attr {
+
+    int32_t  single;
+  };
+
+  var {
+    int32_t  single_var;
+  };
+
+};
+
+celltype tSingleCall{
+  call sSingleEntry cSingleEntry;
+};
+
+celltype tSingleEntry{
+  entry sSingleCall eSingleCall;
+  attr{
+    int32_t a;
+  };
+};
+
+
+cell tSingleEntry singleentry{
+  a = 0;
+};
+
+cell tSingle single{
+  cCall = singleentry.eSingleCall;
+  single = 0;
+};
+
+cell tSingle single2{
+  cCall = singleentry.eSingleCall;
+  single = 0;
+};
+
+cell tSingleCall singlecall{
+  cSingleEntry = single.eEntry;
+};
+
+composite tSingleComp {
+  cell tSingle c{
+    single = 10;
+  };
+  cSingle = c.cCall;
+};
+
+cell tSingleComp singleComp1 {
+  cSingle = single.eEntry;
+ };
+cell tSingleComp singleComp2 {
+  cSingle = single.eEntry;
+};
+
+

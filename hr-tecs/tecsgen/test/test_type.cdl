@@ -1,0 +1,171 @@
+
+celltype tCelltype {
+  var {                  /* bug 2. */
+    unsigned char  cu   = 10;
+    signed   char  cs   = 20;
+             char  c    = 30;
+
+    unsigned int   iu   = 10;
+    signed   int   is   = 20;
+             int   i    = 30;
+
+    unsigned short su   = 10;
+    signed   short ss   = 20;
+             short s    = 30;
+
+    unsigned long  lu   = 10;
+    signed   long  ls   = 20;
+             long  l    = 30;
+
+    unsigned int8  i8u  = 10;
+    signed   int8  i8s  = 20;
+             int8  i8   = 30;
+
+    unsigned int16 i16u = 10;
+    signed   int16 i16s = 20;
+             int16 i16  = 30;
+
+    unsigned int32 i32u = 10;
+    signed   int32 i32s = 20;
+             int32 i32  = 30;
+
+    unsigned int64 i64u = 10;
+    signed   int64 i64s = 20;
+             int64 i64  = 30;
+
+             float f    = 10.0;
+            double d    = 10.0;
+  };
+};
+
+cell tCelltype aCell {
+};
+
+[singleton]
+celltype tCelltypeSingle {
+  var {                  /* bug 2. */
+    unsigned char  cu   = 10;
+    signed   char  cs   = 20;
+             char  c    = 30;
+
+    unsigned int   iu   = 10;
+    signed   int   is   = 20;
+             int   i    = 30;
+
+    unsigned short su   = 10;
+    signed   short ss   = 20;
+             short s    = 30;
+
+    unsigned long  lu   = 10;
+    signed   long  ls   = 20;
+             long  l    = 30;
+
+    unsigned int8  i8u  = 10;
+    signed   int8  i8s  = 20;
+             int8  i8   = 30;
+
+    unsigned int16 i16u = 10;
+    signed   int16 i16s = 20;
+             int16 i16  = 30;
+
+    unsigned int32 i32u = 10;
+    signed   int32 i32s = 20;
+             int32 i32  = 30;
+
+    unsigned int64 i64u = 10;
+    signed   int64 i64s = 20;
+             int64 i64  = 30;
+
+             float f    = 10.0;
+            double d    = 10.0;
+  };
+};
+
+cell tCelltypeSingle aCells {
+};
+
+
+celltype tCelltypeAttr {
+  attr {
+    unsigned char  cu   = 10;
+    signed   char  cs   = 20;
+             char  c    = 30;
+
+    unsigned int   iu   = 10;
+    signed   int   is   = 20;
+             int   i    = 30;
+
+    unsigned short su   = 10;
+    signed   short ss   = 20;
+             short s    = 30;
+
+    unsigned long  lu   = 10;
+    signed   long  ls   = 20;
+             long  l    = 30;
+
+    unsigned int8  i8u  = 10;
+    signed   int8  i8s  = 20;
+             int8  i8   = 30;
+
+    unsigned int16 i16u = 10;
+    signed   int16 i16s = 20;
+             int16 i16  = 30;
+
+    unsigned int32 i32u = 10;
+    signed   int32 i32s = 20;
+             int32 i32  = 30;
+
+    unsigned int64 i64u = 10;
+    signed   int64 i64s = 20;
+             int64 i64  = 30;
+
+             float f    = 10.0;
+            double d    = 10.0;
+  };
+};
+
+cell tCelltypeAttr cella {
+};
+
+[singleton]
+celltype tCelltypeAttrSingle {
+  attr {
+    unsigned char  cu   = 10;
+    signed   char  cs   = 20;
+             char  c    = 30;
+
+    unsigned int   iu   = 10;
+    signed   int   is   = 20;
+             int   i    = 30;
+
+    unsigned short su   = 10;
+    signed   short ss   = 20;
+             short s    = 30;
+
+    unsigned long  lu   = 10;
+    signed   long  ls   = 20;
+             long  l    = 30;
+
+    unsigned int8  i8u  = 10;
+    signed   int8  i8s  = 20;
+             int8  i8   = 30;
+
+    unsigned int16 i16u = 10;
+    signed   int16 i16s = 20;
+             int16 i16  = 30;
+
+    unsigned int32 i32u = 10;
+    signed   int32 i32s = 20;
+             int32 i32  = 30;
+
+    unsigned int64 i64u = 10;
+    signed   int64 i64s = 20;
+             int64 i64  = 30;
+
+             float f    = 10.0;
+            double d    = 10.0;
+  };
+};
+
+cell tCelltypeAttrSingle cellattrsingle {
+};

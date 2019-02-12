@@ -1,0 +1,42 @@
+typedef int32 ER;
+
+struct _structA{
+  int32   a;
+};
+
+struct _structB{
+  [size_is(size)]int32   *a;
+  int16                  size;
+  [size_is(*size2)]int32 *b;
+  int16                  *size2;
+};
+
+struct _structC{
+  [size_is(size)]int32   **a;
+  int16                  size;
+  [size_is(*size2)]int32 *b;
+  int16                  *size2;
+};
+
+typedef struct _structA structA;
+typedef struct _structB structB;
+typedef struct _structC structC;
+
+signature sSigA{
+  ER funcA( [in]structA *a );
+  ER funcB( [in]structB *a );
+  ER funcC( [in]structC *a );
+};
+
+celltype ctA{
+  attr {
+    int b;
+    structA a;
+ };
+};
+
+cell ctA a{
+/* b = 32; */
+  a = { 1 };
+};
+

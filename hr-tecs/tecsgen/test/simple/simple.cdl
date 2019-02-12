@@ -1,0 +1,30 @@
+/*
+ * simple なサンプル
+ *
+ * このサンプルは tecsgen/test/simple 階層に置いて実行する
+ * Linux, Cygwin 環境で実行できるはず
+ */
+
+import_C( "tecs.h" );
+
+/* typedef int32_t ER; */
+
+signature sSimple {
+	ER  func1( [in]int32_t inval );
+	ER  func2( [out,string]char_t *str );
+};
+
+celltype tSimpleServer {
+	entry sSimple eEnt;
+};
+
+celltype tSimpleClient {
+	call sSimple cCall;
+};
+
+cell tSimpleServer SimpleServer {
+};
+
+cell tSimpleClient SimpleClient {
+	cCall = SimpleServer.eEnt;
+};

@@ -1,0 +1,30 @@
+import_C( "cygwin_tecs.h" );
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+import( <rpc.cdl> );
+import( <tDataqueueOWChannel.cdl> );
+
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+
+signature sAlloc {
+	ER   alloc( [in]int32_t size, [out]void **p );
+	ER   dealloc( [in]const void *ptr );
+};
+
+celltype tAlloc {
+	entry sAlloc eAlloc;
+};
+
+//[in_through(),out_through()]
+[out_through()]
+region rRegion {
+
+cell tAlloc Allocator {
+};
+
+};
+
+import( "SimpleSample.cdl" );
+

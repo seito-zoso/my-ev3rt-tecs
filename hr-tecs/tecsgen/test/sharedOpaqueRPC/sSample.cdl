@@ -1,0 +1,3 @@
+signature sSample {
+	void	func(void);
+};

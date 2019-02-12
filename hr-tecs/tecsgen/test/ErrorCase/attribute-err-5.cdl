@@ -1,0 +1,15 @@
+// import_C( "cygwin_tecs.h" );
+
+celltype tCelltype {
+  attr {
+    int	      *a = (int *)5;
+  };
+};
+
+cell tCelltype Cell1 {
+};
+
+cell tCelltype Cell2 {
+  a = { 1, 2 };
+};
+

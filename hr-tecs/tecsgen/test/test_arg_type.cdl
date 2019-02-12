@@ -1,0 +1,38 @@
+typedef int *pINT;
+
+signature sig {
+  int func(
+	   [in] pINT a0,                 /* OK */
+	   [in] pINT *a1,                /* warning */
+	   [in] int  a,                  /* OK */
+	   [out]int  a2,                 /* warning */
+	   [in] int  *b,                 /* OK */
+	   [in] int  c[],                /* error */
+	   [in,size_is(z)] int  c2[], /* warning: use pointer rather than array */
+	   [in,size_is(a)] int  *c3,     /* OK */
+	   [in] int  d[2],               /* OK */
+	   [in] int  *(e[2]),            /* OK */
+	   [in] int  f(void),            /* error: function */
+	   [in] int  *g(void),           /* error: function */
+	   [in] int  (*h)(void),         /* warning */
+	   [in] int  i[](void),          /* error: array of function */
+	   [in] int  j(void)[],          /* error: function */
+	   [in] int  k(void)(void),      /* error: function */
+	   [in] int  (*l(void))(void),   /* error: function */
+	   [in,size_is(a)] int  (*l(void))(void),/* error: duplicate */
+	   [in,size_is(5)] int  m,       /* OK */
+	   [in,size_is(7.5)] int  n,     /* error: size_is not integer */
+	   [in,count_is(7)] int  o,      /* OK */
+	   [in,count_is(a)] int  o2,     /* OK */
+	   [in,count_is(b)] int  o3,     /* error not integer*/
+	   [in,count_is(a2)]int  o4      /* error */
+       );
+  int func2(
+	    [in,string]     char *a,         /* OK */
+	    [in,string(c)]  char *b,         /* OK */
+	    [in]            int32 c,         /* OK */
+	    [in,string,size_is(c)]char **d,  /* OK */
+	    [in,string,size_is(c)]char *d2   /* OK */
+      );
+};
+

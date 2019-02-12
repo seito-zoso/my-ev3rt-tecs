@@ -1,0 +1,144 @@
+/*
+ * 逆requireテストコード
+ *
+ * 以下の4つのケースをテストする
+ * (1) セルタイプの entry で逆require (celltype) が指定されている (標準的な使い方)
+ * (2) セルタイプの entry で逆require (cell) が指定されている (標準的な使い方)
+ * (3) composite の内部のセルに逆requireが指定されている
+ * (4) composite の entry で逆requireが指定されている
+ *
+ * ・このテストケースには、逆require 受け口に別の結合がなされている（2つ以上の結合があること）による warning が出ることの試験も行う
+ */
+
+import_C( "cygwin_tecs.h" );
+
+signature sInit {
+	void initialize( void );
+};
+
+[singleton,active]
+celltype tInitializer {
+   call sInit cInit[];
+};
+
+cell tInitializer Initializer {
+	cInit[] = Cell11.eInit;      /* 逆 require 指定されているセル (warning) */
+	cInit[] = Cell21.eInit;      /* 逆 require 指定されているセル (warning) */
+	cInit[] = CompCell31.eInit;  /* 逆 require 指定されているセル (warning) */
+	cInit[] = CompCell41.eInit;  /* 逆 require 指定されているセル (warning) */
+	cInit[] = CompCell51.eInit;  /* 逆 require 指定されているセル (warning) */
+};
+
+// (1) 逆require をセルタイプで指定する場合
+celltype tCelltype {
+	// entry sInit eInit <= Initializer.cInit;
+	entry sInit eInit <= tInitializer.cInit;
+	attr {
+		int32_t  no;
+	};
+};
+
+cell tCelltype Cell11 {
+	no = 11;
+};
+
+
+cell tCelltype Cell12 {
+	no = 12;
+};
+
+
+// (2) 逆require をセルで指定する場合
+celltype tCelltype2 {
+	entry sInit eInit <= Initializer.cInit;
+	// entry sInit eInit <= tInitializer.cInit;
+	attr {
+		int32_t  no;
+	};	
+};
+
+
+cell tCelltype2 Cell21 {
+	no = 21;
+};
+
+
+cell tCelltype2 Cell22 {
+	no = 22;
+};
+
+/* (3) composite セルタイプの内側のセルで、逆 require が指定されている */
+composite tComposite {
+	attr{ int32_t no; };
+	entry sInit eInit;       /* 逆requie 指定されている受け口を export */
+	cell tCelltype2 Cell {
+		no = composite.no;
+	};
+	composite.eInit => Cell.eInit;
+};
+
+cell tComposite CompCell31 {
+	no = 31;
+};
+
+cell tComposite CompCell32 {
+	no = 32;
+};
+
+// (4) 逆require をセルで指定する場合
+celltype tCelltype3 {
+	entry sInit eInit;
+	attr {
+		int32_t  no;
+	};	
+};
+
+/* (4-1) composite セルタイプの entry で、逆 require が指定されている */
+composite tComposite2 {
+	entry sInit eInit <= tInitializer.cInit;
+	attr {
+		int32_t no;
+	};
+
+	cell tCelltype3 Cell {
+		no = composite.no;
+	};
+	composite.eInit => Cell.eInit;
+};
+
+/* (4-2) */
+composite tComposite3 {
+	entry sInit eInit <= Initializer.cInit;
+	attr {
+		int32_t no;
+	};
+
+	cell tCelltype3 Cell {
+		no = composite.no;
+	};
+	composite.eInit => Cell.eInit;
+};
+
+cell tComposite2 CompCell41 {
+	no = 41;
+};
+
+cell tComposite3 CompCell42 {
+	no = 42;
+};
+
+composite tCompositeOuter {
+	entry sInit eInit;
+	attr {
+		int32_t no;
+	};
+
+	cell tComposite Cell {
+		no = composite.no;
+	};
+	composite.eInit => Cell.eInit;
+};
+
+cell tCompositeOuter CompCell51 {
+	no = 51;
+};

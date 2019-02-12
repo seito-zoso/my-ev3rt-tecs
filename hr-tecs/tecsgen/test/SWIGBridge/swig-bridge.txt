@@ -1,0 +1,238 @@
+SWIG ブリッジに関するメモ
+												2011年4月3日
+												2011年4月8日 一部加筆
+												2011年4月22日  再加筆
+												大山 博司
+
+【概要】
+
+SWIG (http://www.swig.org/) を用いて Ruby => TECS ブリッジプラグイン 
+SWIGBridgePlugin を作成した。
+
+扱えるデータ型の制限は多いものの、手軽な実装である。SWIG は多言語に対
+応するため Ruby 以外の言語への対応も将来の拡張として考えられる。
+これは SWIG に与えるオプションと、その後のビルド手順の変更により対応で
+きる。そのため RubyBridge ではなく SWIGBridge と名づけた。
+
+現状の実装は、末尾に記載した、多くの制限事項がある。
+
+【構造】
+
+SWIG を用いて Ruby ⇒ TECS ブリッジするプラグイン SWIGBridgePlugin は、
+シグニチャプラグインで、シグニチャに対応するセルタイプの定義 (CDL) お
+よびセルタイプコード (C/C++) を生成する。
+
+以下にセル TargetCell の受け口 eTest へ Ruby から結合する場合の構造を
+示す。この受け口のシグニチャ名は sSignature であるとする。
+
+プラグイン SWIGBridgePlugin により シグニチャ名 sSignature の前に 
+"tSWIG", 後ろに "Bridge" を付加した名前のセルタイプが生成される。以下
+ではセルタイプ tSWIGsSignatureBridge の定義およびセルタイプコードが生
+成される。
+
+セルタイプ tSWIGsSignatureBridge のセル BridgeCell を定義して、このセ
+ルの呼び口 cTECS に、呼び出したいセルの受け口を結合する。 なお 
+BridgeCell 自体は、プラグインでは生成されないので、アプリケーション設
+計者が組み上げ記述する。
+
+         +-----------------------+              +-------------------+
+         |                       |              |                   |
+Ruby     | tSWIGsSignatureBridge |  sSignature  |  tTargetCelltype  |
+ - - - > |     BridgeCell        |--------------|>   TargetCell     |
+         |                       |cTECS    eTest|                   |
+         | Ruby クラス：         |              |                   |
+         |        CsSignature    |              |                   |
+         +-----------------------+              +-------------------+
+
+Ruby 側からは BridgeCell に対して結合を行う。Ruby 側のクラス名は、シグ
+ニチャ名 sSignature の前に "C" を置いた "CsSignature" となる。
+
+CsSignature クラスには、このクラスに属するセルへの結合するためのクラス
+メソッド join と、シグニチャ sSignature に含まれる関数がインスタンスメ
+ソッドとして備えられる。
+
+もし tTargetCelltype に複数の受け口があり、それらを Ruby と結合したい
+場合には、それぞれの受け口ごとに一つのブリッジセルを設けて結合する。
+
+【プラグインの使用方法】
+
+コンポーネント記述 (CDL)ファイルで、SWIGBridgePlugin を使用する方法に
+ついて説明する。
+
+  /* SWIGBridge プラグインの呼び出し */
+  generate( SWIGBridgePlugin, sSignature, "" );
+
+  /* プラグイン生成された tSWIGsSignatureBridge のセルを定義する */
+  /* TargetCell は呼び出したい受け口を持つセルで、別途準備する */
+  cell tSWIGsSignatureBridge BridgeCell {
+      cTECS = TargetCell.eTest;
+  };
+
+【扱えるデータ型】
+
+シグニチャ sSignature に含めることのできるデータ型、および基本指定子は、
+以下のものに限られる。char * は文字列として扱われる。char 以外のポイン
+タ型は、配列とすることはできない。
+この制約は SWIGBridge が未成熟なためである。
+
+■引数
+    [in]intN_t  par    N: 8, 16, 32, 64
+    [in]intN_t         *par  N: 16, 32, 64
+    [in,string]char    *str
+
+    char_t は使えない（かもしれない）
+    inout,out,send,receive は指定禁止
+
+■戻り値
+    intN_t           N: 8, 16, 32, 64
+    char   *str      文字列
+
+【生成物の名前】
+
+SWIGBridgePlugin によって生成されるものの名前のサマリーを記す。
+
+■モジュール名 (Ruby スクリプト)
+
+モジュール名は、Ruby スクリプトに取り込まれる際のモジュール名で、so 
+（Ruby インタプリタに取り込まれる DLL）の名前でもある。Ruby のモジュー
+ル名と .so の主ファイル名は一致しなくてはならない(Ruby の制約か、SWIG 
+の制約かは知らない）。モジュール名は SWIGBridge に固定されている。
+
+■クラス名 (Ruby スクリプト)
+
+このクラス名は、Ruby スクリプト内でのもので、シグニチャ名の前に 'C' を
+置いたもである。シグニチャ名が "sSignature" の場合、以下のようになる。
+
+ クラス名： CsSignature
+
+CsSignature クラスはインタフェースするためだけに設けられるクラスである。
+
+■ C++ ファイル (C++ 記述されたブリッジコード)
+
+以下の C++ ファイルは、クラス CsSignature を実装するもので、TECS セル
+タイプ tSWIGsSignatureBridge の呼び口関数を呼び出す。
+
+ * CsSignature.cxx
+ * CsSignature.hxx
+
+これは、C++ => TECS ブリッジの実装になっている。ただし、コンストラクター
+周りは、スクリプト言語向きである。
+
+■ SWIG インタフェース定義ファイル
+
+SWIG がインタフェース生成するために取り込むファイル。CsSignature.hxx 
+の内容と同等である。
+
+ * SWIGBridge.i
+
+■セルタイプ名 (TECS CDL)
+
+TECS のセルタイプ名で SWIGBridge により生成されるセルタイプの名前であ
+る。シグニチャ名の前に "tSWIG", 後ろに "Bridge" を付加したものである。
+シグニチャ名が "sSignature" の場合、以下のようになる。
+
+ tSWIGsSignatureBridge
+
+【ビルド方法】
+
+cygwin 環境でビルドを行った。これは Linux など POSIX 互換の OS であれ
+ば、同様にビルドできるはずである。
+
+■SWIG の実行
+
+tecsgen を実行すると gen フォルダに SWIGBridge.i が生成される。この 
+SWIGBridge.i を引数として swig を実行する。標準の include パス 
+(/usr/include) がサーチされないので、オプションで指定する。
+
+ % swig -ruby -c++ SWIGBridge.i -I/usr/include gen/SWIGBridge.i
+
+■C++ ファイルのコンパイル
+
+SWIGBridge が生成する C++ のファイル CsSignature.cxx および SWIG によっ
+て生成されるラッパ SWIGBridge_wrap.cxx を C++ コンパイラにてコンパイル
+する。
+
+SWIGBridge_wrap.cxx をコンパイルする際には、以下の対応が必要である。
+
+・ruby.h へのヘッダパスを指定する
+・ID の typedef が重複するので適当に措置する
+
+ruby.h で ID が typedef されている。ID は TOPPERS/ASP 由来のヘッダファ
+イル t_stddef.h でも typedef するため、衝突する。両者の typedef は微妙
+に異なる(ruby.h は unsigned long、t_stddef.h は int_t である)。上記を
+コンパイルする場合には、ruby.h の ID 定義を優先すればよい
+(SWIGBridgePlugi は ID に負数を用いないため)。
+
+■リンク
+
+以下は、リンクコマンドの例である。
+
+gcc -shared -o SWIGBridge.so $(TECSGEN_COBJS) $(CELLTYPE_COBJS) \
+    $(PLUGIN_COBJS) CsSignature.o SWIGBridge_wrap.o -l ruby -l stdc++
+
+Makefile.templ に生成されるリンクコマンドとの相違は以下の通りである。
+
+・-shared オプションを指定した (.so の作成を指示)
+・出力ファイル名を SWIGBridge.so に変更した
+・C++ ファイルをコンパイルしてできたリロケータブルオブジェクトを追加した
+・ruby および stdc++ ライブラリをリンクした
+
+【呼び出し方法】
+
+ Ruby から呼び出すには、準備としてモジュールをロードし、オブジェクトを
+生成する。その後、生成したオブジェクトを介して TECS のセルの受け口関数
+を呼び出すことができる。
+
+■モジュールのロード
+
+   require "SWIGBridge.so"
+
+■オブジェクトの生成
+  
+   Ruby オブジェクトの生成は、TECS セルへの結合とともに行う。
+
+    targetCell = SWIGBridge::CsSignature.join( "TargetCell" )
+
+■呼び出し
+
+    p targetCell.test 3
+    p targetCell.test4 ( "hello", 6 )
+
+【制限】
+
+■CDL に関するもの
+
+・扱えるデータ型以外を指定しても、tecsgen ではエラーとならない。
+・inout, out, send, receive を扱えない
+   これらの一部は SWING の INOUT, OUTPUT 指定により回避できる
+・size_is, string も扱えない
+   これらは typemap により回避できる。
+   しかし、SWIGBridge で自動生成させようとすると、Ruby のインタフェースコードを生成する必要がある。
+   そうした場合 SWIG を用いないで直接 Ruby コードを生成するプラグインを作ったほうがよいかもしれない。
+
+■生成コードに関するもの
+
+・SWIGBridge.i への出力に関して、以下の問題がある。
+  ・stdint.h を include している
+  ・typdef int int_t; を加えている
+  ・global_tecsgen.h を加えているが、swig ではうまく扱えないものも含まれてしまう
+・malloc によるメモリ確保が、どのようになされるか、メモリリークしないかの調査が必要
+・Makefile を出力しない
+
+■実行時に関するもの
+
+・存在しないセルを指定しても、例外やエラーが返されないで, join は未結合のインスタンスを生成して返す
+・それを通してメソッドを呼び出した場合も、例外やエラーが返されない
+
+■機能拡張について
+
+・SWIG は Ruby のほかにも Java, C#, Perl, Python などの言語から C/C++ 
+  のプログラムを呼び出すためのグルーコードを生成する。将来、拡張として、
+  プラグインオプションにより対応言語を切り替えられるようにする。
+
+■問題点
+
+・sSignature の関数名として join が使えない
+・SWIGBridge::CsSignature.join により結合している。C/C++ 実装では join は CsSignature のポインタしか返すことができないため
+  できれば、SWIGBridge::Joiner::join( "CellName" ) により結合できるのが望ましい（か？）。
+

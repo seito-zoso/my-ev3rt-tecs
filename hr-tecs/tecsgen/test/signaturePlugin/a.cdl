@@ -1,0 +1,31 @@
+cell ::tTECSTest TECSTest {
+};
+cell ::tRTMsTestBridge RTMTest {
+    cTECS = TECSTest.eTest;
+};
+cell ::tA A {
+};
+//////////  TECSCDE  ///////////
+
+/*************************************************
+ *             LOCATION INFORMATION              *
+ *   location information is used by tecscde     *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__location_information__ {
+    __cell__  TECSTest( 81.37399999999998, 17.36600000000001, 25, 15 ) {
+        eTest( EDGE_LEFT, 5 )
+    }
+    __cell__  RTMTest( 22.581999999999997, 16.858000000000004, 25, 15 ) {
+        cTECS( EDGE_RIGHT, 3 )
+    }
+    __cell__  A( 121.77799999999999, 17.112, 25, 15 ) {
+    }
+    __join__( RTMTest.cTECS => TECSTest.eTest ){
+        HBar( 57.58200000000002 )
+        VBar( 12.36600000000001 )
+        HBar( 71.37399999999998 )
+        VBar( 22.36600000000001 )
+        HBar( 81.37399999999998 )
+    }
+} //__location_information

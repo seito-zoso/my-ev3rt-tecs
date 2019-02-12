@@ -1,0 +1,84 @@
+import( "toppers_jsp.cdl" );
+import( "sChannel.cdl" );
+import( "tShmemHalfChannel.cdl" );
+import( "TDR.cdl" );
+
+
+const PRI  MAIN_PRIORITY =  5;		/* メインタスクの優先度 */
+					/* HIGH_PRIORITY より高くすること */
+const PRI  HIGH_PRIORITY =  9;		/* 並列に実行されるタスクの優先度 */
+const PRI  MID_PRIORITY  = 10;
+const PRI  LOW_PRIORITY  = 11;
+
+/* 周期ハンドラ */
+[singleton]
+celltype tCycMain {
+  entry sMain eMain;
+  call  siSystem ciSys;   /* tSampleMain の呼び口と名前を変えておく */
+};
+
+cell tCycMain cyc_main {
+  ciSys = toppers_jsp.eiSystem;
+};
+
+cell tCyc cyc_hdlr {
+  cHdlr = cyc_main.eMain;
+  cyctim = 2000;
+  cycatr = C_EXP( "TA_HLNG" );
+};
+
+/* サブメインタスク */
+[singleton]
+celltype tSubMain {
+  entry sMain eSubMain;
+  call  sSystem cSysSub;   /* tSampleMain の呼び口と名前を変えておく */
+};
+
+cell tSubMain sub_main{
+  cSysSub = toppers_jsp.eSystem;
+};
+
+cell tTask task0 {
+  cMain = sub_main.eSubMain;
+  exinf = 1;
+  tskatr = C_EXP( "TA_HLNG" );
+  itskpri = MID_PRIORITY;
+};
+
+cell tTask task1 {
+  cMain = sub_main.eSubMain;
+  exinf = 2;
+  tskatr = C_EXP( "TA_HLNG" );
+  itskpri = MID_PRIORITY;
+};
+
+cell tTask task2 {
+  cMain = sub_main.eSubMain;
+  exinf = 3;
+  tskatr = C_EXP( "TA_HLNG" );
+  itskpri = MID_PRIORITY;
+};
+
+/* メインタスク */
+[singleton]
+celltype tSampleMain {
+  entry sMain   eMain;
+  call  sTask   cTask[3];
+  call  sSystem cSysMain;
+  call  sCyc    cCyc;
+};
+
+cell tSampleMain sample_main {
+  cTask[0]  = task0.eT;
+  cTask[1]  = task1.eT;
+  cTask[2]  = task2.eT;
+  cSysMain  = toppers_jsp.eSystem;
+  cCyc      = cyc_hdlr.eCyc;
+};
+
+cell tTask main {
+  cMain = sample_main.eMain;
+  tskatr = C_EXP( "TA_HLNG | TA_ACT" );
+  itskpri = MAIN_PRIORITY;
+};
+

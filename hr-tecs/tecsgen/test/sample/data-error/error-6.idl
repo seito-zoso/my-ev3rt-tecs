@@ -1,0 +1,9 @@
+celltype TaskMain {
+/*　attributeの定義が空でならsyntax error */
+	attr {
+/*
+		x = 0;
+*/
+	};
+};
+

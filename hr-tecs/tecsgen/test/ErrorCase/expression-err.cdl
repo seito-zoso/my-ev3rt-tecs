@@ -1,0 +1,16 @@
+const float32_t   f_val = 1.0;              // 正常
+const float32_t   f_val2 = 1.0 << 2;        // 浮動小数は << できない
+const float32_t   f_val3 = 1 << 2.0;        // 2.0 の前に cast が必要
+const double64_t  f_val4 = "abc";          // 
+int16_t * const p = (int16_t *)"string";  // TECS では型変換を許さない
+int16_t * const p = (int16_t *)1 << 32;   // pointer 値をシフトできない
+const int16_t  *p = (int16_t *)0xfff00;   // const ではない
+const int16_t   i_val1 = (int16_t)9999999999.999;   // 大きすぎる
+const int16_t   i_val2 = (int16_t)-9999999999.999;   // 小さすぎる
+const uint16_t  i_val3 = (uint16_t)-9999999999.999;  // 負の値
+const uint16_t  i_val4 = (uint16_t)-9999999999;      // 負の整数値
+const uint16_t  i_val5 = (uint16_t)-0xff123456;      // 負の整数値
+const uint16_t  i_val6 = "abc";          // 
+const char_t  *const  p_str  = "abc";    // 正常
+const int8_t  *const  p_str1  = "abc";
+const int16_t *const  p_str2  = "abc";

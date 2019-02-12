@@ -1,0 +1,55 @@
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+/*
+ * 以下の不具合をテストする目的で作成 
+ * Makefile では -U を指定する
+ * 
+ * [不具合] #516 名前なし require の関数が他の呼び口の関数名と重複し、かつ後者が最適化されないと、コンパイル時エラー
+ * [不具合] #515 最適化なし -U で require 呼び口の所でコンパイル時エラー
+ *                関数名に "__T" を後置することで解決
+ */
+signature sSig {
+	int func( void );
+};
+
+/* Required Celltype & Cell */
+[singleton]
+celltype tRequired {
+	entry sSig eEnt;
+};
+cell tRequired Required {
+};
+
+celltype tCelltype {
+	require Required.eEnt;
+	call    sSig     cCall;
+    entry sTaskBody  eBody;
+};
+
+cell tCelltype Cell {
+	cCall = Required.eEnt;
+};
+
+cell tTask Task {
+    priority = 11;
+    stackSize = 4096;
+    taskAttribute = C_EXP("TA_ACT");
+    cBody = Cell.eBody;
+};
+
+[out_through(TracePlugin,"")]
+region rRegion {
+    cell tCelltype Cell {
+    	cCall = Required.eEnt;
+    };
+    cell tTask Task {
+        priority = 11;
+        stackSize = 4096;
+        taskAttribute = C_EXP("TA_ACT");
+        cBody = Cell.eBody;
+    };
+};

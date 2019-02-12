@@ -1,0 +1,254 @@
+import_C( "cygwin_tecs.h" );
+import( <cygwin_kernel.cdl> );
+import( <allocator.cdl> );
+import( <utility.cdl> );
+
+struct tagST {
+	int32_t  a;
+};
+
+signature sSig{
+  void func( void );
+  int32_t func2( [in]int32_t arg );
+  struct tagST func3( [in]struct tagST a );
+};
+
+cell tSerialTask SerialTask {
+    cBodyArray[] = Comp.eMain;
+    cBodyArray[] = SendRecvClnt.eMain;
+    cBodyArray[] = SendRecvClntOmit.eMain;
+    cBodyArray[] = CCP5R_1.eMain;
+    cBodyArray[] = CCP5R_2.eMain;
+
+    /* attribute */
+    priority = 11;
+    stackSize = 4096;
+    taskAttribute = C_EXP("TA_ACT");
+};
+
+/*** 1.単一セル最適化 ***/
+// 単一セル最適化 (VMT 不要最適化、スケルトン不要最適化を含む)
+// 受け側のセルが一つで、ポートも一つだけ
+
+celltype tSingleCellOptimizeCaller {
+	[optional]	call sSig cCall;
+	[optional]	call sSig cWhite[];
+	[optional]	call sSig cBlack[];
+	[optional]	call sSig cBrown[3];
+	entry       sSig eEnt;
+};
+
+celltype tSingleCellOptimizeCallee {
+	entry sSig eEnt;
+};
+
+// 呼び側セル 1つ目
+cell tSingleCellOptimizeCallee SingleCellOptimizeCallee;
+
+cell tSingleCellOptimizeCaller SingleCellOptimizeCaller {
+//	cCall = SingleCellOptimizeCallee.eEnt;
+};
+// 受け側セル
+cell tSingleCellOptimizeCallee SingleCellOptimizeCallee {
+};
+// 呼び側セル 2つ目
+cell tSingleCellOptimizeCaller SingleCellOptimizeCaller2 {
+//	cCall = SingleCellOptimizeCallee.eEnt;
+};
+
+/*** 2. VMT 不要最適化 ***/
+// 受け側のセルが一つだが、受け口配列
+
+celltype tVMTUselessOptimizeCaller {
+	[optional]
+		call sSig cCall;
+	entry sSig eEnt;
+};
+
+celltype tVMTUselessOptimizeCallee {
+	entry sSig eEnt[2];
+	attr {
+		int32_t  attribute = 100;
+	};
+};
+
+// 受け側セル
+cell tVMTUselessOptimizeCallee VMTUselessOptimizeCallee;
+
+// 呼び側セル 1つ目
+cell tVMTUselessOptimizeCaller VMTUselessOptimizeCaller {
+  cCall = VMTUselessOptimizeCallee.eEnt[0];
+};
+// 呼び側セル 2つ目
+cell tVMTUselessOptimizeCaller VMTUselessOptimizeCaller2 {
+  cCall = VMTUselessOptimizeCallee.eEnt[1];
+};
+// 受け側セル
+cell tVMTUselessOptimizeCallee VMTUselessOptimizeCallee {
+};
+
+/*** VMT 不要最適化&スケルトン不要最適化 ***/
+// 受け側のセルが複数だが、単一のセルタイプ
+
+celltype tSkeltonUselessOptimizeCaller {
+	[optional]
+		call sSig cCall;
+	entry sSig eEnt;
+};
+
+celltype tSkeltonUselessOptimizeCallee {
+  entry sSig eEnt;
+  attr {
+	  int32_t  attribute = 100;
+  };
+};
+
+// 受け側セル
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee;
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee2;
+
+// 呼び側セル 1つ目
+cell tSkeltonUselessOptimizeCaller SkeltonUselessOptimizeCaller {
+  cCall = SkeltonUselessOptimizeCallee.eEnt;
+};
+// 呼び側セル 2つ目
+cell tSkeltonUselessOptimizeCaller SkeltonUselessOptimizeCaller2 {
+  cCall = SkeltonUselessOptimizeCallee2.eEnt;
+};
+// 受け側セル
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee {
+};
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee2 {
+};
+
+[singleton]
+celltype tMain {
+    entry sTaskBody eMain;
+	call sSig cMain[];
+};
+/*cell tMain Main{
+	cMain[] = SingleCellOptimizeCaller.eEnt;
+	cMain[] = VMTUselessOptimizeCaller.eEnt;
+    cMain[] = SkeltonUselessOptimizeCallee.eEnt;
+    cMain[] = SkeltonUselessOptimizeCallee2.eEnt;
+	};*/
+
+celltype tCPArray {
+	[optional]
+		call sSig cCall[3];
+	entry sSig eEnt;
+};
+cell tCPArray CPArray1{
+};
+cell tCPArray CPArray2{
+	cCall[0] = SingleCellOptimizeCaller.eEnt;
+	cCall[1] = VMTUselessOptimizeCaller.eEnt;
+};
+cell tCPArray CPArray3{
+	cCall[2] = VMTUselessOptimizeCaller.eEnt;
+};
+
+celltype tNCPArray {
+	[optional]
+		call sSig cCall[];    // 呼び口配列要素数未指定
+};
+cell tNCPArray NCPArray1{
+};
+
+cell tNCPArray NCPArray2{
+	cCall[] = SingleCellOptimizeCaller.eEnt;
+	cCall[] = VMTUselessOptimizeCaller.eEnt;
+};
+
+[singleton]
+composite tComposite {
+    entry sTaskBody eMain;
+	call sSig cMain[];
+	[optional]
+		call sSig cCall[3];
+
+	cell tMain Main{
+//		cMain = composite.cMain;
+		cMain => composite.cMain;
+	};
+	cell tCPArray CPArray {
+		cCall => composite.cCall;
+	};
+    composite.eMain => Main.eMain;
+};
+
+cell tComposite Comp
+{
+	cMain[] = SingleCellOptimizeCaller.eEnt;
+	cMain[] = VMTUselessOptimizeCaller.eEnt;
+    cMain[] = SkeltonUselessOptimizeCallee.eEnt;
+    cMain[] = SkeltonUselessOptimizeCallee2.eEnt;
+    cMain[] = CPArray1.eEnt;
+    cMain[] = CPArray2.eEnt;
+    cMain[] = CPArray3.eEnt;
+};
+
+/****** optioanl and allocator *****/
+typedef struct { int32_t  a; int32_t b; } ST_VAL;
+
+cell tAlloc Alloc{};
+
+signature sSigSendRecv {
+    ER  snd( [send(sAlloc)]ST_VAL  *st_val );
+    ER  rcv( [receive(sAlloc)]ST_VAL  **st_val );
+};
+
+celltype tSendRecvClnt {
+    entry sTaskBody          eMain;
+    [optional] //, omit]
+        call   sSigSendRecv  cCall;
+};
+
+celltype tSendRecvServ {
+    entry  sSigSendRecv  eEnt;
+};
+
+cell tSendRecvClnt SendRecvClnt {
+//    cCall=SendRecvServ.eEnt;
+};
+
+[allocator(eEnt.snd.st_val=Alloc.eA,
+           eEnt.rcv.st_val=Alloc.eA)]
+cell tSendRecvServ SendRecvServ {};
+
+/****** optioanl and allocator OMIT *****/
+celltype tSendRecvClntOmit {
+    entry sTaskBody          eMain;
+    [optional, omit]
+        call   sSigSendRecv  cCall;
+};
+
+cell tSendRecvClntOmit SendRecvClntOmit {
+    cCall = SendRecvServ2.eEnt;
+};
+
+[allocator(eEnt.snd.st_val=Alloc.eA,
+           eEnt.rcv.st_val=Alloc.eA)]
+cell tSendRecvServ SendRecvServ2 {};
+
+/******************************************/
+/* optional CCP5 */
+celltype tCCP5Caller {
+    entry sTaskBody eMain;
+    [optional]
+        call sSig cCall;
+};
+
+celltype tCCP5Callee {
+	entry sSig eEnt;
+};
+
+cell tCCP5Caller CCP5R_1 {
+    cCall = CCP5E_1.eEnt;
+};
+
+cell tCCP5Caller CCP5R_2 {
+};
+
+cell tCCP5Callee CCP5E_1 {
+};

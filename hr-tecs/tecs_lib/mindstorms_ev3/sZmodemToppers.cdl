@@ -1,0 +1,4 @@
+signature sZmodemToppers {
+	ER zmodem_recv_file([in]ID portid, [in,size_is(size)]const uint8_t *buf,
+						[in]uint32_t size, [out]SIZE *filesz);
+};

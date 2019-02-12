@@ -1,0 +1,44 @@
+const int32_t CONST = 10;
+const int32_t CONST = 10;      // duplicate
+
+typedef int32_t ER;
+// typedef int32_t ER;            // duplicate but synatx error
+// V1.0.0.4 この行があると、残りの部分がスキップされてしまうので、取りやめ
+
+signature sSig {
+	ER func( [in]int32_t in );
+	ER func( [in]int32_t in );      // duplicate
+};
+
+signature sSig {      // duplicate
+  ER func( [in]int32_t in, [out]int32_t *in );      // duplicate
+};
+
+celltype tCelltype {
+   entry  sSig a;
+   call  sSig a;        // duplicate
+   attr {
+      int32_t  b;
+   };
+   var {
+      int32_t  b;       // duplicate
+   };
+};
+celltype tCelltype {    // duplicate
+   entry  sSig a;
+   call  sSig  b;
+   attr {
+      int32_t  a;       // duplicate
+   };
+   var {
+      int32_t  b;       // duplicate
+   };
+};
+
+
+cell tCelltype Cell { 
+   b = 10;
+   b = 10;             // duplicate
+};
+cell tCelltype Cell {   // duplicate
+};

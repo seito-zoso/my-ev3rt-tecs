@@ -1,0 +1,60 @@
+/**
+ *  VM1.cdl
+ *
+ */
+import("EV3_mruby_common.cdl");
+import("tRiteVMBluetooth.cdl");
+//import("tRiteVMScheduler.cdl");
+
+import("Bridge_VM1.cdl");
+
+const FLGPTN waitptn = 0x00;    /* イベントフラグ：待ちパターン */
+
+//[domain(HRP2, "trusted")]
+//[domain(HRP2, "nontrusted")]
+region rDomainEV3 {
+    /* RiteVM 1 */
+	cell nMruby::tRiteVMBluetooth RiteVMBluetooth1 {
+        cTask = MrubyTask1.eTask;
+        cReset = Reset.eReset;
+        // cCyclic = rDomainEV3::tRiteVMScheduler.eCyclic;
+        // cEventflag[] = rDomainEV3::Eventflag_begin.eEventflag;  /* イベントフラグ操作 */
+        // cEventflag[] = rDomainEV3::Eventflag_end.eEventflag;    /* イベントフラグ操作 */
+        setptn = 0x01;  /* イベントフラグ：セットパターン */
+        cSemaphore = rDomainEV3::Semaphore.eSemaphore;   /* セマフォ操作 */
+
+        /* mrubyライブラリ */
+		mrubyLib = "$(MRUBY_LIB_DIR)/EV3_common.rb "
+			"$(MRUBY_LIB_DIR)/RTOS.rb "
+			"$(MRUBY_LIB_DIR)/Speaker.rb "
+			"$(MRUBY_LIB_DIR)/Button.rb "
+			"$(MRUBY_LIB_DIR)/Motor.rb "
+			"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+			"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+			"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+			"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+			"$(MRUBY_LIB_DIR)/LED.rb "
+			"$(MRUBY_LIB_DIR)/LCD.rb "
+			"$(MRUBY_LIB_DIR)/Battery.rb "
+			"$(MRUBY_LIB_DIR)/Balancer.rb "
+			"$(MRUBY_LIB_DIR)/SharedMemory.rb ";
+        cInit = VM_TECSInitializer.eInitialize;     /* TECSイニシャライザ */
+		cMalloc = TLSFMalloc1.eMalloc;
+	};
+
+    /* タスク本体 */
+	cell tTask MrubyTask1 {
+	// 呼び口の結合
+        cBody = RiteVMBluetooth1.eMrubyBody;
+		//* 属性の設定
+		taskAttribute 	= C_EXP("TA_ACT");
+		priority 		= C_EXP("RITEVM_PRIORITY");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+	    //userStackSize = C_EXP("STACK_SIZE");
+	};
+
+	cell tTLSFMalloc TLSFMalloc1 {
+    	memoryPoolSize = 1024 * 1024;
+    };
+};
+

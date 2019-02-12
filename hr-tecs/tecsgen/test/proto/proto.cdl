@@ -1,0 +1,139 @@
+import_C( "tecs.h" );
+import( "cygwin_kernel.cdl" );
+import( "allocator.cdl" );
+
+signature sSig {
+	void func( void );
+	void Send( [send(sAlloc), size_is(sz)]int32_t *buf, [in]int32_t sz );
+};
+
+celltype tCelltype {
+	attr {
+		int32_t  attr1;
+		int32_t  attr2;
+		int32_t  attr3;
+		int32_t  attr4;
+	};
+	var {
+		int32_t  var1;
+		int32_t  var2 = attr2;
+		int32_t  var3 = attr3;
+		int32_t  var4 = attr4;
+	};
+	call sSig cCall;
+	call sSig cCall2[];
+	entry sTaskBody eBody;
+};
+
+celltype tCelltype2 {
+	attr {
+		char_t  *name = C_EXP( "\"$id$\"" );
+	};
+	entry sSig eEnt;
+	entry sSig eEnt2[];
+};
+
+cell tTask Task{
+	cBody = Cell.eBody;
+	priority = 11;
+	stackSize = 512;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+
+/////// prototypes ///////
+[prototype]
+cell tCelltype Cell {
+	// cCall = Cell2.eEnt;
+	cCall2[0] = Cell3.eEnt;
+	attr3 = 0;
+	attr4 = 0;
+};
+
+[prototype,
+ allocator(eEnt.Send.buf=Allocator.eAlloc,
+           eEnt2[0].Send.buf=Allocator.eAlloc,
+           eEnt2[1].Send.buf=Allocator.eAlloc
+)]
+//[prototype]
+cell tCelltype2 Cell2 {
+};
+
+[prototype]
+cell tCelltype2 Cell3 {
+};
+
+[prototype]
+cell tCelltype2 Cell4 {
+	eEnt <= Cell.cCall2[1];
+	//	eEnt2[1] <= Cell.cCall;
+	eEnt2[1] <= Cell.cCall;
+	eEnt2[2] <= Cell.cCall2[2];
+};
+
+///////// definitions ///////
+cell tCelltype2 Cell2 {
+};
+
+[allocator(eEnt.Send.buf=Allocator.eAlloc,
+           eEnt2[0].Send.buf=Allocator.eAlloc,
+           eEnt2[1].Send.buf=Allocator.eAlloc)]
+cell tCelltype2 Cell3 {
+};
+
+[allocator(eEnt.Send.buf=Allocator.eAlloc,
+           eEnt2[0].Send.buf=Allocator.eAlloc,
+           eEnt2[1].Send.buf=Allocator.eAlloc)]
+cell tCelltype2 Cell4 {
+};
+
+////// Cell //////
+cell tCelltype Cell {
+	// cCall2[1] = Cell4.eEnt;
+  attr1 = 0;
+  attr2 = 0;
+};
+
+////// Composite //////
+composite tComposite {
+	attr {
+		int32_t  attr1;
+		int32_t  attr2;
+		int32_t  attr3;
+		int32_t  attr4;
+	};
+	call sSig cCall;
+	call sSig cCall2[];
+	entry sTaskBody eBody;
+
+	cell tCelltype Cell {
+		cCall  => composite.cCall;
+		cCall2 => composite.cCall2;
+		attr1  = composite.attr1;
+		attr2  = composite.attr2;
+		attr3  = composite.attr3;
+		attr4  = composite.attr4;
+	};
+	composite.eBody => Cell.eBody;
+};
+
+cell tTask Task2 {
+	cBody = CompCell.eBody;
+	priority = 11;
+	stackSize = 512;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+
+[prototype]
+cell tComposite CompCell {
+	cCall = Cell2.eEnt;
+	//  cCall2[0] = Cell3.eEnt;
+	cCall2[0] = Cell3.eEnt;
+	attr3 = 0;
+	attr4 = 0;
+};
+
+cell tComposite CompCell {
+	cCall2[1] = Cell3.eEnt;
+	attr1 = 0;
+	attr2 = 0;
+};

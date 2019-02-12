@@ -1,0 +1,23 @@
+import_C( "tecs.h" );
+
+const int32_t (*const  c_fp)(void)  = (int32_t (*)(void))0x300;
+const int32_t (**const c_fp1)(void) = (int32_t (**)(void))0x400;
+const int32_t (**const c_fp2)(void) = C_EXP( "0" );
+const int32_t c_int = 100;
+
+[singleton]
+celltype tPtrCt {
+	attr {
+		int32_t (* a_fp)(void);
+		int32_t (* v_fp)(void)   = c_fp;
+		int32_t (** v_fp1)(void) = c_fp1;
+		int32_t (** v_fp2)(void) = c_fp2;
+	};
+	var {
+		int32_t (* fp)(void);
+	};
+};
+
+cell tPtrCt Cell {
+	a_fp = (int32_t (*)(void))(0x300);
+};

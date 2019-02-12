@@ -1,0 +1,240 @@
+const int32_t MRUBY_VM_STACK_SIZE = 81920;
+
+import( "ReadyQueueRotator.cdl" );
+import( "TaskWakeupper.cdl" );
+import("EV3_common.cdl");
+
+/*
+ * MainTask:   主タスク       EV3 起動時から唯一起動  優先度 EV3_MRUBY_VM_PRIORITY - 1   優先度が服タスクより高いので、副タスク起動後は休止させる
+ * SubTask1:   副タスク1      EV3 起動時停止         優先度 EV3_MRUBY_VM_PRIORITY       副タスク1, 2 を ReadyQueueRotator で一定時間ごとに回す
+ * SubTask2:   副タスク2      EV3 起動時停止         優先度 EV3_MRUBY_VM_PRIORITY
+ * WakeupTask: 周期起床タスク  EV3 起動時停止         優先度 EV3_MRUBY_VM_PRIORITY - 2   タスクが周期的に wakeup される
+ * CyclicTask: 周期起動タスク  EV3 起動時停止         優先度 EV3_MRUBY_VM_PRIORITY - 2   タスクが周期的に activate される
+ */
+
+//[domain(HRP2, "trusted")]
+//[domain(HRP2, "nontrusted")]
+region rDomainEV3 {
+  /*----------- Main VM  -----------*/
+	cell nMruby::tMruby MrubyMainVM {
+		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+				"$(MRUBY_LIB_DIR)/RTOS.rb "
+       			"$(MRUBY_LIB_DIR)/Speaker.rb "
+				"$(MRUBY_LIB_DIR)/Button.rb "
+				"$(MRUBY_LIB_DIR)/Motor.rb "
+				"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+				"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+				"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+				"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+				"$(MRUBY_LIB_DIR)/LED.rb "
+				"$(MRUBY_LIB_DIR)/LCD.rb "
+				"$(MRUBY_LIB_DIR)/Battery.rb "
+				"$(MRUBY_LIB_DIR)/Balancer.rb "
+				"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+        		"sharedmemory_def.rb "
+				"$(APP_PARAM_RB) "
+				"$(APP_PARAM_SET_RB) "
+				"$(APP_RB)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+	cell tTask MrubyMainTask {
+	// 呼び口の結合 
+		cBody = MrubyMainVM.eMrubyBody;
+		//* 属性の設定
+		taskAttribute = C_EXP("TA_ACT");
+		priority = C_EXP("EV3_MRUBY_VM_PRIORITY - 1");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+	};
+
+  /*----------- Sub VM 1 -----------*/
+///****
+  cell nMruby::tMruby MrubySub1 {
+		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+				"$(MRUBY_LIB_DIR)/RTOS.rb "
+        		"$(MRUBY_LIB_DIR)/Speaker.rb "
+				"$(MRUBY_LIB_DIR)/Button.rb "
+				"$(MRUBY_LIB_DIR)/Motor.rb "
+				"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+				"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+				"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+				"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+				"$(MRUBY_LIB_DIR)/LED.rb "
+				"$(MRUBY_LIB_DIR)/LCD.rb "
+				"$(MRUBY_LIB_DIR)/Battery.rb "
+				"$(MRUBY_LIB_DIR)/Balancer.rb "
+        		"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+		        "sharedmemory_def.rb "
+				"$(APP_PARAM_RB) "
+				"$(APP_PARAM_SET_RB) "
+				"$(APP_RB_Sub1)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+
+	cell tTask MrubySubTask1 {
+    // taskAttribute      = C_EXP("TA_ACT");
+    	taskAttribute      = C_EXP("TA_NULL");
+		priority = C_EXP("EV3_MRUBY_VM_PRIORITY");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+
+		cBody = MrubySub1.eMrubyBody;
+	};
+//****/
+
+  /*----------- Sub VM 2 -----------*/
+// /****
+  cell nMruby::tMruby MrubySub2 {
+		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+				"$(MRUBY_LIB_DIR)/RTOS.rb "
+				"$(MRUBY_LIB_DIR)/Speaker.rb "
+				"$(MRUBY_LIB_DIR)/Button.rb "
+				"$(MRUBY_LIB_DIR)/Motor.rb "
+				"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+				"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+				"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+				"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+				"$(MRUBY_LIB_DIR)/LED.rb "
+				"$(MRUBY_LIB_DIR)/LCD.rb "
+				"$(MRUBY_LIB_DIR)/Battery.rb "
+				"$(MRUBY_LIB_DIR)/Balancer.rb "
+        		"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+        		"sharedmemory_def.rb "
+				"$(APP_PARAM_RB) "
+				"$(APP_PARAM_SET_RB) "
+				"$(APP_RB_Sub2)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+
+	cell tTask MrubySubTask2 {
+    // taskAttribute      = C_EXP("TA_ACT");
+        taskAttribute     = C_EXP("TA_NULL");
+		priority = C_EXP("EV3_MRUBY_VM_PRIORITY");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+
+		cBody = MrubySub2.eMrubyBody;
+	};
+//****/
+  
+  /*----------- Sub VM Round Robin Scheduler -----------*/
+  cell tReadyQueueRotator ReadyQueueRotator {
+      priority = C_EXP("EV3_MRUBY_VM_PRIORITY");
+      cyclicTime = 100;
+      attribute = C_EXP( "TA_STA" );
+  };
+  /*-------*/
+
+  /*----------- Wakeup VM -----------*/
+// /****
+  cell nMruby::tMruby MrubyWakeupVM {
+		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+				"$(MRUBY_LIB_DIR)/RTOS.rb "
+        		"$(MRUBY_LIB_DIR)/Speaker.rb "
+				"$(MRUBY_LIB_DIR)/Button.rb "
+				"$(MRUBY_LIB_DIR)/Motor.rb "
+				"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+				"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+				"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+				"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+				"$(MRUBY_LIB_DIR)/LED.rb "
+				"$(MRUBY_LIB_DIR)/LCD.rb "
+				"$(MRUBY_LIB_DIR)/Battery.rb "
+				"$(MRUBY_LIB_DIR)/Balancer.rb "
+        		"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+        		"sharedmemory_def.rb "
+				"$(APP_PARAM_RB) "
+				"$(APP_PARAM_SET_RB) "
+				"$(APP_RB_Wakeup)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+
+	cell tTask MrubyWakeupTask {
+    // taskAttribute      = C_EXP("TA_ACT");
+        taskAttribute     = C_EXP("TA_NULL");
+		priority = C_EXP("EV3_MRUBY_VM_PRIORITY");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+
+		cBody = MrubyWakeupVM.eMrubyBody;
+	};
+
+  //--- WakeupTask を周期的に起床させる ----//
+  cell tTaskCyclicWakeupper TaskCyclicWakeupper {
+		ciTask = MrubyWakeupTask.eiTask;
+		// attribute = C_EXP( "TA_STA" );
+		attribute = C_EXP( "TA_NULL" );
+		cyclicTime   = 40;
+		cyclicPhase  = 0;
+  };
+// ****/
+
+  /*----------- Cyclic VM  -----------*/
+///**** Cyclic VM
+  cell nMruby::tMrubyCyclic MrubyCyclicVM {
+		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+				"$(MRUBY_LIB_DIR)/RTOS.rb "
+        		"$(MRUBY_LIB_DIR)/Speaker.rb "
+				"$(MRUBY_LIB_DIR)/Button.rb "
+				"$(MRUBY_LIB_DIR)/Motor.rb "
+				"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+				"$(MRUBY_LIB_DIR)/GyroSensor.rb "
+				"$(MRUBY_LIB_DIR)/ColorSensor.rb "
+				"$(MRUBY_LIB_DIR)/TouchSensor.rb "
+				"$(MRUBY_LIB_DIR)/LED.rb "
+				"$(MRUBY_LIB_DIR)/LCD.rb "
+				"$(MRUBY_LIB_DIR)/Battery.rb "
+				"$(MRUBY_LIB_DIR)/Balancer.rb "
+				"$(MRUBY_LIB_DIR)/SharedMemory.rb "
+        		"sharedmemory_def.rb "
+				"$(APP_PARAM_RB) "
+				"$(APP_PARAM_SET_RB) "
+				"$(APP_RB_Cyclic)";
+//		mrubyFile="$(MRUBY_LIB_DIR)/EV3_common.rb "
+//        "$(MRUBY_LIB_DIR)/RTOS.rb  "
+//        "$(MRUBY_LIB_DIR)/Button.rb "
+//        "$(MRUBY_LIB_DIR)/LED.rb $(APP_RB3)";
+		cInit = VM_TECSInitializer.eInitialize;
+	};
+
+	cell tTask MrubyCyclicTask {
+    // taskAttribute      = C_EXP("TA_ACT");
+    	taskAttribute      = C_EXP("TA_NULL");
+		priority = C_EXP("EV3_MRUBY_VM_PRIORITY - 1");
+		systemStackSize = C_EXP("MRUBY_VM_STACK_SIZE");
+
+		cBody = MrubyCyclicVM.eMrubyBody;
+	};
+
+	cell tCyclicTaskActivator CyclicMain3 {
+		ciTask = MrubyCyclicTask.eiTask;
+	};
+	cell tCyclicHandler CyclicHandler {
+ 		ciBody = CyclicMain3.eiBody;
+		// attribute = C_EXP( "TA_STA" );
+		attribute = C_EXP( "TA_NULL" );
+		cyclicTime   = 120;
+		cyclicPhase  = 0;
+	};
+  // **** Cyclic VM ****/
+};
+
+
+/*** Bridges ***/
+generate( MrubyBridgePlugin, rDomainEV3::TaskCyclicWakeupper, "" );
+generate( MrubyBridgePlugin, tCyclicHandler, "" );
+generate( MrubyBridgePlugin, tTask, "" );
+generate( MrubyBridgePlugin, tSemaphore, "" );
+
+/*** Bridges already written manually
+generate( MrubyBridgePlugin, tKernel, "" );
+generate( MrubyBridgePlugin, tBalancer, "" );
+generate( MrubyBridgePlugin, tEV3Platform, "" );
+generate( MrubyBridgePlugin, tLED, "" );
+generate( MrubyBridgePlugin, tSpeaker, "" );
+generate( MrubyBridgePlugin, tBattery, "" );
+generate( MrubyBridgePlugin, tGyroSensor, "" );
+generate( MrubyBridgePlugin, tMotor, "" );
+generate( MrubyBridgePlugin, tButton, "" );
+generate( MrubyBridgePlugin, tTouchSensor, "" );
+generate( MrubyBridgePlugin, tColorSensor, "" );
+generate( MrubyBridgePlugin, tLCD, "" );
+generate( MrubyBridgePlugin, tUltrasonicSensor, "" );
+***/
+

@@ -1,0 +1,35 @@
+import( <kernel.cdl> );
+
+/* タスクレディキューを回すコンポーネント(非タスク部) */
+celltype tiReadyQueueRotatorMain {
+    attr {
+        PRI    priority;  /* タスクの優先度 */
+    };
+    entry siHandlerBody  eiBody;
+    require tKernel.eiKernel;
+};
+
+/* 周期にタスクのレディキューを回すコンポーネント */
+[active]
+composite tReadyQueueRotator {
+    attr {
+        PRI       priority;  /* タスクの優先度 */
+        RELTIM    cyclicTime;
+        RELTIM    cyclicPhase  = 0;
+        ATR       attribute    = C_EXP( "TA_NULL" );
+    };
+    entry sCyclic   eCyclic;
+
+    /* レディキューを回す */
+    cell tiReadyQueueRotatorMain ReadyQueueRotatorMain{
+        priority = composite.priority;
+    };
+    /* 周期ハンドラ */
+    cell tCyclicHandler CyclicHandler{
+        ciBody = ReadyQueueRotatorMain.eiBody;
+        attribute = composite.attribute;
+        cyclicTime   = composite.cyclicTime;
+        cyclicPhase  = composite.cyclicPhase;
+    };
+    composite.eCyclic => CyclicHandler.eCyclic;
+};

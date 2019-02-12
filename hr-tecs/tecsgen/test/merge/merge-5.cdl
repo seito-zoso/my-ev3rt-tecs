@@ -1,0 +1,34 @@
+
+/* 4 => 5
+ * 受け口のリネーム
+ */
+import_C( "cygwin_tecs.h" );
+
+signature sSig {
+	void func( void );
+	void func2( void );
+	void func3( void );
+};
+
+signature sSig2 {
+	void funcX( void );
+	void funcX2( void );
+	void funcX3( void );
+};
+
+celltype tCelltype {
+//	entry sSig eEnt;
+	entry sSig2 eEnt2;   // eEntX ==> eEnt2
+};
+
+[active]
+celltype tCelltype2 {
+	call sSig2  cCall;
+};
+
+cell tCelltype Cell {
+};
+
+cell tCelltype2 Cell2 {
+	cCall = Cell.eEnt2;
+};

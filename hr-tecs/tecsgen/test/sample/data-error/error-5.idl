@@ -1,0 +1,4 @@
+signature sAir 
+{
+	const int32 serial_rea_dat( [out] unsigned int64 *len );
+};

@@ -1,0 +1,63 @@
+import_C( "tecs.h" );
+
+typedef const int32_t  cint32;
+typedef int32_t  LONG;
+// typedef const cint32 ccint32;  // const duplicate エラー (V1.C.0.30)
+typedef cint32 ccint32;
+typedef const LONG CLONG;
+
+CLONG clong = C_EXP( "10" );
+// const volatile int8_t  * const IOREG = 0x8011;
+const volatile uint32_t  P_IOREG = 0xff808011;
+const volatile uint32_t  P_IOREG2 = 0xff808012;
+const volatile uint32_t  P_IOREG3 = 0xff808013;
+const float32_t F_val = 32.0;
+const int32_t I_val = (int32_t)F_val;
+const int32_t I_val2 = - (int32_t)F_val;
+const int32_t I_val3 = - 992;
+const int32_t I_val4 = ~ 992;
+//const bool_t  B_val = 100 == 100;
+//const bool_t  B_val = true;
+const bool_t  B_val = false;
+const int32_t I_val5 = ( B_val ? 200 : - 300 );
+const uint32_t I_val6 = (uint32_t)~ 992;
+//const uint32_t I_val7 = (uint32_t)0xffff0080;
+const uint32_t I_val7 = 0xffff0080;
+const uint8_t I_val8 = (uint8_t)'a';
+const double64_t F_val9 = 30.0 / 99.0;
+const double64_t F_val10 = ((int)10.0) >> 2;
+
+celltype tIO {
+	attr {
+		volatile int8_t *ioreg;
+		int32_t  aI_val4 = I_val4;
+		bool_t   boo = B_val;
+		bool_t   aI_val5 = I_val5;
+		uint32_t aI_val6 = I_val6;
+		uint32_t aI_val7 = I_val7;
+		uint32_t aI_val8 = I_val8;
+		uchar_t	 aU_val9 = (uchar_t)I_val3;
+		char_t	 aC_val10 = (char_t)I_val3;
+	};
+};
+
+cell tIO IO {
+	ioreg = (volatile int8_t *)P_IOREG;
+	aI_val4 = (int32_t)99999999999999;
+};
+
+composite tConst {
+	attr {
+		volatile int8_t *ioreg  = (volatile int8_t *)P_IOREG2;
+	};
+	cell tIO IO {
+		ioreg = composite.ioreg;
+	};
+};
+
+cell tConst Const {
+};
+
+cell tConst Const2 {
+	ioreg = (volatile int8_t *)P_IOREG3;
+};

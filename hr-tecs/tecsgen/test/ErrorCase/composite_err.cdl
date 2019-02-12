@@ -1,0 +1,162 @@
+
+
+signature sSig1 {
+  int32_t  func1( [in]int32_t a );
+  int32_t  func2( [in]int32_t a );
+};
+
+signature sSig2 {
+  int32_t  func1( [in]int32_t a );
+  int32_t  func2( [in]int32_t a );
+};
+
+signature sSig3 {
+  int32_t  func1( [in]int32_t a );
+  int32_t  func2( [in]int32_t a );
+};
+
+celltype tCell1 {
+  call sSig1 cCall;
+  entry sSig2 eEntry;
+  attr {
+    int32_t a;
+  };
+  var {
+    int32_t b;
+  };
+};
+
+celltype tCell2 {
+  call sSig2 cCall;
+  entry sSig3 eEntry;
+  attr {
+    int32_t a;
+  };
+  var {
+    int32_t b;
+  };
+};
+
+composite tComposite {
+
+  // cell tComposite Recursive {};  #564
+
+  cell tCell1 cell1 {
+    a = 2000;
+  };
+
+  cell tCell2 cell2 {
+   cCall = cell1.eEntry;
+  };
+
+  eEntry => cell2.eEntry;
+  cCall1 => cell1.cCall;
+  a => cell1.a;
+};
+
+celltype tCell_serv{
+  entry sSig1 eEntry;
+  attr {
+    int32_t a;
+  };
+};
+
+[singleton]
+celltype tCell_clnt {
+  call sSig3 cCall;
+  attr {
+    int32_t a;
+  };
+};
+
+cell tCell_serv cell_serv{
+   a = 5;
+};
+
+cell tComposite compcell1 {
+  a=10;
+  cCall1 = cell_serv.eEntry;
+};
+
+cell tComposite compcell2 {
+  a=20;
+  cCall1 = cell_serv.eEntry;
+};
+
+cell tCell_clnt cell_clnt {
+  a = 30;
+  cCall = compcell1.eEntry;
+};
+
+
+
+[active,singleton]
+celltype tCell2_active_single {
+  call sSig2 cCall;
+  entry sSig3 eEntry;
+  attr {
+    int32_t a;
+  };
+  var {
+    int32_t b;
+  };
+};
+
+[active,singleton]
+composite tComposite_active_singleton {
+
+  attr {
+    int16_t  a;
+  };
+  entry  sSig3 cCall1;
+  call  sSig1 eEntry;
+
+  cell tCell1 cell1 {
+    /* a = composite.a; */
+    a = a;
+    /* 正しい位置 cCall => composite.cCall1; */
+  };
+
+  cell tCell2_active_single cell2 {
+   cCall = cell1.eEntry;
+  };
+
+  cell tCell2_active_single cell3 {
+   cCall = cell1.eEntry;
+  };
+
+  /* cCall => composite.cCall1; */
+  cCall1 => cell1.cCall;
+  eEntry => cell2.eEntry;
+  eEntry => cell3.eEntry;   /* 分流 */
+};
+
+cell tCell_serv cell_serv2{
+   a = 5;
+};
+cell tComposite_active_singleton active_singleton {
+  a = 30;
+  cCall1 = cell_serv2.eEntry;
+};
+
+/// 
+celltype tCelltype {
+  attr {
+    int32_t  size;
+    [size_is(size)]
+       char     *buf;
+  };
+};
+
+composite tComp {
+  attr {
+    int32_t  size;
+    // [size_is(size)]
+       char     *buf;
+  };
+  cell tCelltype Cell1 {
+     size = composite.size;
+     buf  = composite.buf;
+  }; 
+};
+

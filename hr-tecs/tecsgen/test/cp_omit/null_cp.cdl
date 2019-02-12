@@ -1,0 +1,85 @@
+import( "cygwin_kernel.cdl" );
+import( "tSysLog.cdl" );
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+signature sSendRecv {
+  // void func(void);
+};
+
+/****  Server Celltypes ****/
+celltype tTestComponent {
+  entry  sSendRecv eS;
+  entry  sSendRecv eA[2];
+};
+
+celltype tTestComponent2 {
+  entry  sSendRecv eS;
+  entry  sSendRecv eA[];
+};
+
+composite tTestComponent3{
+  entry  sSendRecv eS;
+  entry  sSendRecv eA[];
+
+  cell tTestComponent2 Cell {
+  };
+  composite.eS => Cell.eS;
+  composite.eA => Cell.eA;
+};
+
+/****  Server Cells ****/
+cell tTestComponent Comp{
+};
+
+cell tTestComponent3 Comp2{
+};
+
+/**** Client Celltype ****/
+celltype tTestClient {
+    call   sSendRecv cS;
+    call   sSendRecv cA[2];
+    entry  sTaskBody eBody;
+};
+
+cell tTestClient Cl {
+  cS    = Comp.eS;
+  cA[0] = Comp.eA[0];
+  cA[1] = Comp.eA[1];
+};
+
+
+composite tTestClient2 {
+    call   sSendRecv cS;
+    call   sSendRecv cA[2];
+    entry  sTaskBody eBody;
+    cell tTestClient Cell {
+        cS    => composite.cS;
+        cA    => composite.cA;
+    };
+    composite.eBody => Cell.eBody;
+    
+};
+
+cell tTestClient2 Cl2 {
+  [through(TracePlugin,"")]
+  cS =    Comp2.eS;
+  cA[0] = Comp2.eA[0];
+  cA[1] = Comp2.eA[1];
+};
+
+cell tTask Task1{
+    taskAttribute = C_EXP("TA_ACT");
+    priority = 15;
+    stackSize = 4096;
+    cBody = Cl.eBody;
+};
+
+cell tTask Task2{
+    taskAttribute = C_EXP("TA_ACT");
+    priority = 15;
+    stackSize = 4096;
+    cBody = Cl2.eBody;
+};
+
+generate( sSendRecv, sSendRecv, "" );

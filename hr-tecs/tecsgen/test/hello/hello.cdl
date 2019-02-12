@@ -1,0 +1,37 @@
+// hello !
+
+import_C( "cygwin_tecs.h" );
+import( "tSysLog.cdl" );
+import( "cygwin_kernel.cdl" );
+
+cell tSysLog SysLog{
+};
+cell tKernel Kernel{
+};
+
+
+signature sPrint {
+   void print( [in,string]const char_t *str );
+};
+
+[singleton]
+celltype tTECSMain {
+	call sPrint cPrint;
+	attr {
+		char_t *msg = "Hello World\n";
+	};
+};
+
+celltype tOutput {
+	entry sPrint ePrint;
+};
+
+
+cell tOutput Output {
+};
+
+cell tTECSMain Main {
+	[through(TracePlugin,"")]
+	cPrint = Output.ePrint;
+};
+

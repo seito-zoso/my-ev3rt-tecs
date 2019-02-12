@@ -1,0 +1,42 @@
+typedef int32_t ER;
+
+signature sSig {
+  ER func1( [in]int32_t arg1 );
+  ER func2( [in]int32_t arg1 );
+};
+
+celltype tCt {
+  entry sSig c;
+  attr {
+    int32_t a;
+    int32_t ab;
+    char_t *s;
+    bool_t boo = true;
+  };
+  var {
+    int32_t b;
+  };
+  FACTORY {
+    write( "tecs.cfg", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+    write( "tecs.cfg", "a = %d;, %d;, %s; ", a, ab, s );
+  };
+
+  factory {
+    write( "tecs.cfg", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+    write( "tecs.cfg", "a = %d;, %d;, %s; ", a, ab, s );
+    write( "tecs.cfg", "a = %d;, %d;, %s; %d %d", a, ab, s, c, d );
+
+    write( "tecs.cfg", "a = %d;, %d;, %s; %d %d", a, ab, s, c, d, boo );  /* boo が %d に対応 */
+    write( "tecs.cfg", "a = %d;, %d;, %s; %d %d %s", a, ab, s, c, d );  /* %s が多すぎ */
+
+    write( "/dev/null", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+    write( "/dev/null", "a = %d;, %d;, %s; ", a, ab, s );
+
+  };
+};
+
+cell tCt ce {
+  a = 0;
+  ab = 99;
+  s = "abc";
+};

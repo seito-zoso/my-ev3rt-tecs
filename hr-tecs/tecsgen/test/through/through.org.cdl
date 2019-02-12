@@ -1,0 +1,121 @@
+/*
+ * through プラグインの試験
+ *
+ * 試験のバリエーション
+ * ・ローカルで定義した Plugin1, Plugin2 と標準の TracePlugin を直列に挿入する。
+ *   (TracePlugin の試験用でもある)
+ * ・send/receive （アロケータ）
+ * ・composite セルタイプのセルの呼び口
+ * ・呼び口配列
+ */
+import_C( "cygwin_tecs.h" );
+import( "tSysLog.cdl" );
+import( "cygwin_kernel.cdl" );
+
+cell tSysLog SysLog {
+};
+
+cell tKernel Kernel {
+};
+
+struct tag { int32_t member; };
+typedef int32_t INT;
+typedef struct tag stTag;
+
+signature sAlloc {
+  ER    alloc( [in]int32_t sz, [out]void **ptr );
+  ER    dealloc( [in]const void *ptr );
+};
+
+[singleton]
+celltype tAlloc {
+  entry sAlloc eA;
+  var {
+    int32_t  n_alloc;
+    int32_t  n_dealloc;
+  };
+};
+
+cell tAlloc Alloc {
+};
+
+signature sSignature {
+	ER	func1( [in]int32_t inval );
+	ER	func2( [out]int32_t *outval );
+	ER	func3( [in]struct tag stval );
+	ER	func4( [in]stTag stval, [in]INT inval );
+	ER	func5( [inout]stTag *stval, [in]INT inval );
+	ER	func6( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t sz );
+	ER	func7( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t *sz );
+};
+
+signature sSig {
+	ER	func1(void );
+};
+
+signature sMain {
+	ER	main( void );
+};
+
+celltype tClient {
+	call	sSignature	cCall;
+	call	sSignature	cCall2[2];
+	entry	 sMain		eMain;
+};
+
+composite tClientComposite{
+	call	sSignature	cCall;
+	call	sSignature	cCall2[2];
+	entry	sMain		eMain;
+
+	cell tClient Cell {
+		cCall  => composite.cCall;
+		cCall2 => composite.cCall2;
+	};
+	composite.eMain => Cell.eMain;
+};
+
+celltype tServer {
+	entry	sSignature	eEntry;
+};
+
+[allocator(
+		   eEntry.func6.buf=Alloc.eA,
+		   eEntry.func7.buf=Alloc.eA
+		   )]
+cell tServer server {
+};
+
+/*
+ * ・through の指定により、plugin により生成されるセルを call port と entry port の間に挿入する
+ * ・through の第一引数は プラグイン名を指定
+ * ・through の第二引数は その引数を指定
+ * ・ジェネレータは through が見つかった場合、plugin を呼出し CDL を生成させる
+ * ・ジェネレータは through を含むセルを読み込んだところで、生成された CDL を読み込む（別のパーサを使用）
+ * ・この際 typedef, signature, celltype は、まったく同じであれば重複定義でも無視する
+ * ・through は複数指定でき、ジェネレータは指定された順にセルを生成する
+ * ・plugin モジュールは、テンプレートコードに換えて celltype コードを生成する．
+ *   (generate.rb の gen_template_ep_fun に相当するメソッドを記述する)
+ */
+
+cell tClientComposite Client {
+//cell tClient Client {
+	[ through( Plugin1, "" ),
+	  through( Plugin2, "" ),
+	  through( TracePlugin, "maxArrayDisplay=256" ) ]
+		cCall = server.eEntry;
+
+	[ through( Plugin1, "" ),
+	  through( Plugin2, "" ),
+	  through( TracePlugin, "maxArrayDisplay=64" ) ]
+		cCall2[0] =  server.eEntry;
+	cCall2[1] =  server.eEntry; 
+ };
+
+celltype tMain {
+	call sMain cMain;
+};
+
+cell tMain Main {
+	cMain = Client.eMain;
+};

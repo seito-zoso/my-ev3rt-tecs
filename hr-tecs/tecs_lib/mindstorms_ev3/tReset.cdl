@@ -1,0 +1,17 @@
+signature sReset {
+    void reset( void );
+};
+
+celltype tReset {
+    //call sBalancer cBalancer[];
+    //call sColorSensor cColorSensor[];
+    //call sGyroSensor cGyroSensor[];
+    //call sLCD cLCD[];
+    //call sLED cLED[];
+    call sMotor cMotor[];
+    //call sSpeaker cSpeaker[];
+    //call sTouchSensor cTouchSensor[];
+    //call sUltrasonicSensor cUltrasonicSensor[];
+
+    entry sReset eReset;
+};

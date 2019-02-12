@@ -1,0 +1,164 @@
+import_C( "cygwin_tecs.h" );
+
+// typedef int32_t ER_ID;
+// typedef int32_t ER;
+// typedef int32_t ID;
+
+const int32_t constVal = 200;
+
+
+namespace nAlloc {
+
+	typedef int32_t  INT32_T;
+
+	signature sAlloc {
+		ER   alloc( [in]int32_t len , [out]void **buf );
+		ER   dealloc( [in]const void *buf );
+	};
+	celltype tAlloc {
+		entry sAlloc eAlloc;
+	};
+};
+
+[in_through()]
+region rAlloc {
+    cell nAlloc::tAlloc Alloc {
+    };
+};
+
+signature sSyscall {
+    ER_ID cre_sem(void);
+    ER    wai_sem([in]ID id);
+    ER    rel_sem([in]ID id);
+    ER    del_sem([in]ID id);
+	ER    sendData( [send(nAlloc::sAlloc),size_is(sz)]int8_t *data, [in]int32_t sz );
+};
+
+
+/************   TOPPERS version **************/
+namespace TOPPERS {
+
+	const int32_t  constVal = 32;
+
+	signature sSyscall {
+		ER_ID cre_sem(void);
+		ER    wai_sem([in]ID id);
+		ER    rel_sem([in]ID id);
+		ER    del_sem([in]ID id);
+		ER    sendData( [send(nAlloc::sAlloc),size_is(sz)]int8_t *data, [in]int32_t sz );
+	};
+
+	celltype tKernel {
+		entry sSyscall ka;    /* kernel API */
+		attr {
+			int32_t  a;
+		};
+		var {
+			int16_t  b;
+		};
+	};
+
+	celltype tAppl {
+		call sSyscall ka;
+		attr {
+			int32_t a = constVal;
+		};
+		var {
+			int16_t  b = a;
+		};
+	};
+
+}; /* end namespce TOPPERS */
+
+cell TOPPERS::tAppl Appl2 {
+    ka = TOPPERSKernel.ka;
+};
+
+[allocator(ka.sendData.data=rAlloc::Alloc.eAlloc)]
+cell TOPPERS::tKernel TOPPERSKernel{
+    a = 10;
+};
+
+////////////////////////////
+
+celltype tKernel {
+    entry sSyscall ka;    /* kernel API */
+    attr {
+		int32_t  a;
+    };
+    var {
+		int16_t  b;
+    };
+};
+
+[allocator(ka.sendData.data=rAlloc::Alloc.eAlloc)]
+cell tKernel kernel{
+    a = 0;
+};
+
+celltype tAppl {
+	call sSyscall ka;
+	attr {
+		int32_t a;
+	};
+	var {
+		int16_t  b = a;
+	};
+};
+
+cell tAppl appl1
+{
+	ka = kernel.ka;
+	a = 50;
+};
+
+cell tAppl appl2
+{
+	/* ka = TOPPERS::kernel.ka; */
+	ka = kernel.ka;
+	a = 100;
+};
+
+/************   OSEK version **************/
+namespace OSEK {
+
+	const int32_t  constVal = 99;
+
+	signature sSyscall {
+		ER_ID cre_sem(void);
+		ER    wai_sem([in]ID id);
+		ER    rel_sem([in]ID id);
+		ER    del_sem([in]ID id);
+	};
+
+	celltype tKernel {
+		entry sSyscall ka;    /* kernel API */
+		attr {
+			int32_t  a;
+		};
+		var {
+			int16_t  b;
+		};
+	};
+
+};
+
+cell OSEK::tKernel OSEKkernel{
+    a = 20;
+};
+
+celltype tOSEKAppl {
+	call OSEK::sSyscall ka;
+	attr {
+		int32_t a = TOPPERS::constVal;
+	};
+	var {
+		int16_t  b = OSEK::constVal;
+	};
+};
+
+cell tOSEKAppl appl3
+{
+	ka = OSEKkernel.ka;
+};
+

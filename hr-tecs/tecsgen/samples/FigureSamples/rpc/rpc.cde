@@ -1,0 +1,245 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T09:03:20+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/rpc"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin",
+        "../../../tecsgen/tecs/rpc"
+    ],
+    "direct_import" : [
+        "rpc_sample.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "SysLog",
+            "location" : [ 181.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eSysLog",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell2",
+            "location" : [ 118.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 2 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell1",
+            "location" : [ 65.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 3 ] **/
+            "type"     : "cell_location",
+            "name"     : "RPCPlugin__0_Channel",
+            "location" : [ 192.0, 59.0, 32.0, 16.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eTDR",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 3.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eDataqueue",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 8.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEventflag",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 13.0
+                }
+            ]
+        },
+        {       /** cell_list[ 4 ] **/
+            "type"     : "cell_location",
+            "name"     : "RPCPlugin__0",
+            "location" : [ 72.0, 53.0, 72.0, 24.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cTDR",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 9.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cEventflag",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 19.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 3.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eThroughEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell1",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "Cell2",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 100.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 14.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 108.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 14.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 118.0
+                }
+            ]
+        },
+        {       /** join_list[ 1 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RPCPlugin__0",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "Cell2",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 154.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 30.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 112.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 14.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 118.0
+                }
+            ]
+        },
+        {       /** join_list[ 2 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RPCPlugin__0",
+            "call_region" : "::",
+            "call_port"   : "cTDR",
+            "entry_cell"  : "RPCPlugin__0_Channel",
+            "entry_region": "::",
+            "entry_port"  : "eTDR",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 153.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 62.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 177.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 62.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 192.0
+                }
+            ]
+        },
+        {       /** join_list[ 3 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RPCPlugin__0",
+            "call_region" : "::",
+            "call_port"   : "cEventflag",
+            "entry_cell"  : "RPCPlugin__0_Channel",
+            "entry_region": "::",
+            "entry_port"  : "eEventflag",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 154.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 72.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 182.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 72.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 192.0
+                }
+            ]
+        }
+    ]
+}

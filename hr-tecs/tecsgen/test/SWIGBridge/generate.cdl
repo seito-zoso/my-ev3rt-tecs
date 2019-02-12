@@ -1,0 +1,29 @@
+import_C( "cygwin_tecs.h" );
+
+////////////////////////////////
+
+typedef struct tagSt {
+	int32_t		m;
+} ST;
+
+signature sTest {
+	void		test( [in]int input );
+	//	int32_t		test2( [in]int_t input,				[out]int32_t *ret );
+	//	int32_t		test3( [in]const char_t *input,		[out]int32_t *ret );
+	int32_t		test4( [in,string(len)]const char *input, [in]int32_t len );
+	// int32_t		test5( [in]const ST *input );
+};
+
+celltype tTECSTest {
+	entry sTest eTest;
+};
+
+cell tTECSTest TECSTest {
+};
+
+generate( SWIGBridgePlugin, sTest, "" );
+
+cell tSWIGsTestBridge RubyTest {
+	cTECS = TECSTest.eTest;
+};
+

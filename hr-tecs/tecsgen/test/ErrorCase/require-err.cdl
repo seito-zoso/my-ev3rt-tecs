@@ -1,0 +1,36 @@
+typedef int32_t ER;
+
+signature sSyscall{
+	ER func( void );
+};
+
+signature sSyscall2{
+	ER func( void );
+};
+
+[singleton]
+celltype tKernel {
+	entry sSyscall eSc;
+	entry sSyscall2 eSc2;
+};
+cell tKernel Kernel {
+};
+
+/* require でセル名を指定 */
+celltype tRequire{
+	require Kernel.eSc;
+	require Kernel.eSc2;
+};
+
+cell tRequire Require {
+};
+
+
+/* require でセルタイプ名を指定 */
+celltype tRequire2{
+	require tKernel.eSc;
+	require tKernel.eSc;
+};
+
+cell tRequire2 Require2 {
+};

@@ -1,0 +1,41 @@
+import_C( "tecs.h" );
+
+typedef struct A {
+	int8_t           a;
+	unsigned int16_t b;
+	signed int16_t   c[2];
+} structA;
+
+typedef struct B {
+	structA        a;
+	int8_t         b;
+} structB;
+
+
+celltype tA {
+	attr {
+		struct A a1 = {  127, 32767, {1,2} };
+		struct A a2 = { -128, 32767, {3,4} };
+		struct B a3;
+		int32_t  a4[2] = { 1, 2 };
+		int32_t  a5 = 10;
+	};
+	var {
+		int32_t    v1 = a5;
+		struct A   v2 = { -128,  32767 };
+		struct A   v3 = {  127,  32768 };
+		int32_t    v4[2] = { 1, 2 };
+/*    struct A   v5 = a1; */
+	};
+};
+
+cell tA a {
+	a1 = {  127,     0, {105,106} };
+	a2 = { -128, 32767, {100,9101} };
+	a3 = { { 0, 1, { -2, -5 } }, -9 };
+};
+
+cell tA b {
+	a3 = { { 127, 0, {16, 17} }, 100 };
+};
+

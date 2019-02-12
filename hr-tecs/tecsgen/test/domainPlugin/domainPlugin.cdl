@@ -1,0 +1,92 @@
+import( "cygwin_kernel.cdl" );
+import( "tSysLog.cdl" );
+
+signature sSimple {
+	void helloWorld(void);
+};
+
+
+celltype tSimple {
+	entry sTaskBody eMain;
+	call sSimple cSimple;
+    attr {
+        int32_t buf_len = 32;
+    };
+    var {
+        [size_is(buf_len)]
+            char_t *buf;
+    };
+};
+
+// [singleton]
+celltype tSample {
+	entry sSimple eSample;
+};
+
+cell tSysLog SysLog{};
+cell tKernel Kernel{};
+
+// /*
+// [domain(MyDomain,"trusted")]
+[to_through(rSample),out_through()]
+region rSimple {
+	[domain(MyDomain,"trusted")]
+	region rSimple0 {
+		cell tTask Task {
+			cBody = Simple.eMain;
+			priority  = 17;
+			stackSize = 2016;
+			taskAttribute = C_EXP("TA_ACT");
+		};
+		cell tSimple Simple {
+			cSimple = rSample::rSample1::Sample.eSample;
+		};
+	};
+};
+// */
+
+[domain(MyDomain,"nontrusted")]
+region rSample {
+///*
+	cell tTask Task {
+		cBody = Simple.eMain;
+		priority  = 17;
+		stackSize = 2016;
+		taskAttribute = C_EXP("TA_ACT");
+	};
+	cell tSimple Simple {    // 最後の in_through は、共用されるため TracePlugin が生成されない
+		cSimple = rSample1::Sample.eSample;
+	};
+//*/
+	[domain(MyDomain,"nontrusted")]
+	region rSample1 {
+		cell tSample Sample {};
+	};
+};
+
+
+[out_through()]
+region rTEST2 {
+	//	[domain(YourDomain,"nontrusted"),
+	[domain(MyDomain,"nontrusted"),
+	 out_through()]
+		region rSimple2 {
+		cell tTask Task {
+			cBody = Simple2.eMain;
+			priority  = 17;
+			stackSize = 2016;
+			taskAttribute = C_EXP("TA_ACT");
+		};
+		cell tSimple Simple2 {
+			cSimple = rSample2::Sample2.eSample;
+		};
+	};
+	//	[domain(YourDomain,"nontrusted"),
+	[domain(MyDomain,"nontrusted"),
+	 out_through()]
+	 region rSample2 {
+		cell tSample Sample2 {};
+	};
+};
+
+

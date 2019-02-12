@@ -1,0 +1,18 @@
+typedef   bool BOOL;
+const bool true  = 1;  /* 妙な初期化 */
+const bool false = 1;
+
+celltype tBool {
+  attr {
+    BOOL  v  = 0;
+    BOOL  v2 = {1};     /* 意味的エラーにならない（生成時エラー） */
+  };
+};
+
+cell tBool b {
+};
+
+/*
+ * NULL が展開されてしまう
+ * #define NULL ((const int)0)     const が邪魔, NULL がコンフリクト
+ */

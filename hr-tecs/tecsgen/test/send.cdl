@@ -1,0 +1,35 @@
+typedef int32 ER;
+
+/*typedef struct {
+   int32  a;
+   int32  b;
+} data_t;
+*/
+
+typedef void data_t;
+
+
+signature sAlloc{
+  ER alloc( [in]int32 size, [out] void **p );
+  ER dealloc( [in]const void *p );
+};
+
+signature sSendReceive {
+   ER  sender(   [send(sAlloc)]    data_t  *a );
+   ER  receiver( [receive(sAlloc)] data_t **a );
+   ER  send( [receive(sAlloc)] data_t **a );
+   ER  receive( [receive(sAlloc)] data_t **a );
+};
+
+celltype tSendReceive {
+   entry  sSendReceive sr;
+   attr {
+     int32 a;
+   };
+};
+
+cell tSendReceive sr {
+  a = 0;
+};
+
+

@@ -1,0 +1,329 @@
+#include "jsp_def.h"
+
+
+
+ENUM APPL_TASK_PRIORITY { 
+	MAIN_PRIORITY=5 , 
+	HIGH_PRIORITY = 9, 
+	MID_PRIORITY=   10, 
+	LOW_PRIORITY   =11 
+};
+
+#define MAIN_PRIORITY (5) 
+#define HIGH_PRIORITY (9)
+#define MID_PRIORITY  (10)
+#define LOW_PRIORITY  (11)
+
+ENUM APPL_STACK_SIZE { 
+#ifdef M68K
+	STACK_SIZE     = 512 
+#elif defined(SH3)
+	STACK_SIZE     = 512 
+#elif defined(SH1)
+#ifdef TOKIWA_SH1
+	STACK_SIZE     = 512		/* タスクのスタックサイズ */
+#else
+	STACK_SIZE     = 512 
+#endif /* TOKIWA_SH1 */
+#elif defined(ARMV4)
+	STACK_SIZE     = 512 
+#elif defined(V850)
+	STACK_SIZE     = 512 
+#elif defined(H8)
+	STACK_SIZE     = 512 
+#elif defined(H8S)
+	STACK_SIZE     = 512 
+#elif defined(MICROBLAZE)
+	STACK_SIZE =	2048		/* タスクのスタックサイズ */
+#elif defined(IA32)
+	STACK_SIZE =     512 
+#elif defined(TMS320C54X)
+	STACK_SIZE =	 320		/* タスクのスタックサイズ */
+#elif defined(XSTORMY16)
+	STACK_SIZE =	 256		/* タスクのスタックサイズ */
+#elif defined(MIPS3) || defined(MIPS64)
+	STACK_SIZE =     512 
+#elif defined(M16C) && defined(OAKS16)
+	STACK_SIZE =     512     /* タスクのスタックサイズ */
+#elif defined(M16C) && defined(OAKS16_MINI)
+	STACK_SIZE =     384     /* タスクのスタックサイズ */
+#elif defined(LINUX)
+	STACK_SIZE =     512 
+#elif defined(NIOS2)
+	STACK_SIZE =     512 
+#elif defined(M32C)
+	STACK_SIZE =     512 /* タスクのスタックサイズ */
+#else
+	STACK_SIZE =    8192 /* タスクのスタックサイズ */
+#endif
+};
+
+
+/*
+ *  ターゲット依存の定義（CPU例外ハンドラの起動方法など）
+ */
+
+#ifdef USE_CPU_EXCEPTION
+
+ENUM CPU_EXCEPTION {
+
+#ifdef M68K
+	CPUEXC1	= 5
+#elif defined(SH3)
+	CPUEXC1 = 224		/* ロードエラー例外 */
+#elif defined(SH1)
+	CPUEXC1 = 9		/* CPUアドレスエラー例外 */
+#elif defined(ARMV4)
+	CPUEXC1	= 4		/* ロードエラー例外 */
+#elif defined(IA32)
+	CPUEXC1 = 0		/* ゼロ除算例外 */
+#elif defined(XSTORMY16)
+
+	CPUEXC1	= 0		/* 無効命令例外 */
+#elif defined(MIPS3) || defined(MIPS64)
+	CPUEXC1 =    9    /* Bp mips3.hで定義 */  /* ブレークポイント例外（ゼロ除算時に発生） */
+#elif defined(M16C) && defined(OAKS16)
+	CPUEXC1 =    32      /* CPU例外ハンドラ番号 */
+#elif defined(M16C) && defined(OAKS16_MINI)
+	CPUEXC1 =    32      /* CPU例外ハンドラ番号 */
+#elif defined(NIOS2)
+	CPUEXC1	= 0		  /* 未実装命令例外 */
+#elif defined(M32C)
+	CPUEXC1 =32 /* CPU例外ハンドラ番号 */
+#endif
+};
+
+#endif /* USE_CPU_EXCEPTION */
+
+
+ENUM SERIAL_PORT_NUMBER {
+
+#ifdef M68K
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(SH3)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(SH1)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(ARMV4)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(V850)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(H8)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(H8S)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(MICROBLAZE)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(IA32)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(TMS320C54X)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(XSTORMY16)
+	TASK_PORTID =	2		/* SIOはポート2を用いる */
+#elif defined(MIPS3) || defined(MIPS64)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(M16C) && defined(OAKS16)
+	TASK_PORTID =	2		/* 文字入力するシリアルポートID */
+#elif defined(M16C) && defined(OAKS16_MINI)
+	TASK_PORTID =	2		/* 文字入力するシリアルポートID */
+#elif defined(LINUX)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(NIOS2)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#elif defined(M32C)
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#else
+	TASK_PORTID =	1		/* 文字入力するシリアルポートID */
+#endif /* TASK_PORTID */
+
+};
+
+
+ENUM APPL_CONSTANT {
+
+#ifdef M68K
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(SH3)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+
+#elif defined(SH1)
+#ifdef TOKIWA_SH1
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#endif /* TOKIWA_SH1 */
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(ARMV4)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(V850)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(H8)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(H8S)
+/*	LOOP_REF =	4000L*/		/* 速度計測用のループ回数 */
+	LOOP_REF =	4000
+#elif defined(MICROBLAZE)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(IA32)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#elif defined(TMS320C54X)
+/*	LOOP_REF =	500000L*/		/* 速度計測用のループ回数 */
+	LOOP_REF =	500000L
+#elif defined(XSTORMY16)
+/*	LOOP_REF =	4000L*/
+	LOOP_REF =	4000		/* 速度計測用のループ回数 */
+
+#elif defined(MIPS3) || defined(MIPS64)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+
+#elif defined(M16C) && defined(OAKS16)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+
+#elif defined(M16C) && defined(OAKS16_MINI)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+
+#elif defined(LINUX)
+
+	LOOP_REF =	4000000		/* 速度計測用のループ回数 */
+
+#elif defined(NIOS2)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+
+#elif defined(M32C)
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#else
+	LOOP_REF =	1000000		/* 速度計測用のループ回数 */
+#endif
+
+};
+
+
+#ifdef USE_CPU_EXCEPTION
+
+/* RAISE_CPU_EXCEPTION */
+#ifdef M68K
+#define RAISE_CPU_EXCEPTION	syslog(LOG_NOTICE, "zerodiv = %d", 10 / 0)
+#elif defined(SH3)
+#define RAISE_CPU_EXCEPTION	(*((volatile int *) 0xFFFFFEC1))
+#elif defined(SH1)
+#define RAISE_CPU_EXCEPTION	(*((volatile int *) 0xFFFFFEC1))
+#ifdef TOKIWA_SH1
+#endif /* TOKIWA_SH1 */
+#elif defined(ARMV4)
+#define RAISE_CPU_EXCEPTION	(*((volatile int *) 0xFFFFFEC1))
+#elif defined(V850)
+#elif defined(H8)
+#elif defined(H8S)
+#elif defined(MICROBLAZE)
+#elif defined(IA32)
+#define RAISE_CPU_EXCEPTION   syslog(LOG_NOTICE, "zerodiv = %d", 10 / 0)
+#define OMIT_VGET_TIM
+#elif defined(TMS320C54X)
+#define LOOP_REF	500000L		/* 速度計測用のループ回数 */
+#elif defined(XSTORMY16)
+#define RAISE_CPU_EXCEPTION	__asm__( ".hword 0x0006" )
+#define OMIT_VGET_TIM			/* vxget_tim()は非サポート */
+#define LOOP_REF 	4000L		/* 速度計測用のループ回数 */
+#elif defined(MIPS3) || defined(MIPS64)
+#define RAISE_CPU_EXCEPTION   syslog(LOG_NOTICE, "zerodiv = %d", 10 / 0)
+#elif defined(M16C) && defined(OAKS16)
+#define RAISE_CPU_EXCEPTION asm("   int #32") /* ソフトウェア割込み発生 */
+#elif defined(M16C) && defined(OAKS16_MINI)
+#define RAISE_CPU_EXCEPTION asm("   int #32") /* ソフトウェア割込み発生 */
+#elif defined(LINUX)
+#elif defined(NIOS2)
+#elif defined(M32C)
+#endif
+
+#endif
+
+
+/* ここまで */
+
+cell tTexHdrMain xTexhdrMain {
+	x = 0;
+};
+
+cell tTexHdr Texhdr {
+	cTexhdrfunc = TexhdrMain.eTexhdrfun;
+};
+
+cell tTaskMain MaintaskMain {
+/* cell{}内にまったく記述がないとエラーになる */
+
+/*　存在しない属性、ポートへの代入があると例外が発生する
+	x = 0;
+*/
+	x = 0;
+
+};
+
+cell tTask Maintask {
+	cTaskmain = MaintaskMain.eTaskmain;
+	cTexhdr = Texhdr.eTexhdr;
+
+	tskattr = TA_HLNG;
+	itskpri = MAIN_PRIORITY;
+	stksz = STACK_SIZE;
+/*	stk = NULL; */
+};
+
+cell tTaskMain Task0Main {
+/*　存在しない属性、ポートへの代入があると例外が発生する
+	x = 0;
+*/
+	x = 0;
+};
+
+
+cell tTask Task1 {
+	cTaskmain = Task0Main.eTaskmain;
+	cTexhdr = Texhdr.eTexhdr;
+	tskattr = TA_HLNG;
+/*	exinf = (VP_INT)1;*/
+	exinf = 1;
+	itskpri = MID_PRIORITY;
+	stksz = STACK_SIZE;
+/*	stk = NULL;*/
+	stk = 0;
+};
+
+cell tTask Task2 {
+	cTaskmain = Task0Main.eTaskmain;
+	cTexhdr = Texhdr.eTexhdr;
+	tskattr = TA_HLNG;
+/*	exinf = (VP_INT)2;*/
+	exinf = 2;
+	itskpri = MID_PRIORITY;
+	stksz = STACK_SIZE;
+/*	stk = NULL;*/
+	stk = 0;
+};
+
+cell tTask Task3 {
+	cTaskmain = task0Main.taskmain;
+	cTexhdr = Texhdr.eTexhdr;
+	tskattr = TA_HLNG;
+/*	exinf = (VP_INT)3;*/
+	exinf = 3;
+	itskpri = MID_PRIORITY;
+	stksz = STACK_SIZE;
+/*	stk = NULL;*/
+	stk = 0;
+};
+
+cell tCycHdrMain CychdrMain {
+
+	x = 0;
+};
+
+cell tCycHdr Cychdr {
+	cCychdrfunc = CychdrMain.eCynchdrfunc;
+};
+
+cell tExcHdrMain ExcHdrMain {
+	x = 0;
+};
+
+cell tExcHdr ExcHdr {
+	cExchdrfunc = eExchdrfunc;
+};
+

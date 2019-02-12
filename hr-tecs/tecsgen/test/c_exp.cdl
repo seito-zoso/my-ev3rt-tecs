@@ -1,0 +1,41 @@
+const int32_t consVal = C_EXP( "AA" );
+const int32_t consVal2 = consVal;
+
+celltype tC_exp {
+	attr {
+		int32_t id = C_EXP( "ID_$id$" );
+		char_t *cbp = C_EXP( "\"cell: $cell$, ct: $ct$, idx: $idx$, cb_proto: $cb_proto$, cbp: $cbp$, id: $id$\"\n" );
+	};
+	var {
+		int32_t v = C_EXP( "false" );
+	};
+	factory{
+		write( "tecsgen.cfg", "CRE_SEM(SEMID_SERIALPORT_$id$_SND,  { TA_TPRI, 0, 1 })" );
+		write( "tecsgen.cfg", "cbp:: \"%s\"", cbp );
+		write( "tecsgen.cfg", "cbp:: %s", cbp );
+		write( "tecsgen.cfg", "id:: %s\n", id );
+	};
+};
+
+cell tC_exp tc {
+};
+
+// composite の場合
+// $cell$, $id$, $ct$ は、composite セルのものとなる（内部セルのものは使われない）
+// $idx$, $cb_proto$, $cbp$ は実体に対するものなので、内部セルのものとなる
+composite tComp_C_EXP {
+	attr {
+		char_t *cbp = C_EXP( "\"cell: $cell$, ct: $ct$, idx: $idx$, cb_proto: $cb_proto$, cbp: $cbp$, id: $id$\"" );
+	};
+	cell tC_exp tc {
+		cbp = composite .cbp;
+		id = C_EXP( "\"ID_$id$_CELL_$cell$_IDX_$idx$, CB_PROTO $cb_poroto$, CBP $cbp$\"" );
+	};
+};
+
+cell tComp_C_EXP tc2 {
+};
+
+cell tComp_C_EXP tc3 {
+	cbp =  C_EXP( "\"TC3: cell: $cell$, ct: $ct$, idx: $idx$, cb_proto: $cb_proto$, cbp: $cbp$, id: $id$\"" );
+};

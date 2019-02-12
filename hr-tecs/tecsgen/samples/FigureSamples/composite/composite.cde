@@ -1,0 +1,216 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T08:59:56+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/composite",
+        "C:/cygwin64/home/oyama/TECS/tecsgen/test/samples/composite"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin",
+        "../../cygwin/"
+    ],
+    "direct_import" : [
+        "composite.cdl"
+    ]
+}
+
+cell ::tCell1 Cell1 {
+
+    /*** call ports ***/
+};
+cell ::tCell2 Cell2 {
+
+    /*** call ports ***/
+    cCall = Cell1.eEntry;
+};
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "cell_serv",
+            "location" : [ 130.0, 18.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "compcell1",
+            "location" : [ 76.0, 18.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall1",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 2 ] **/
+            "type"     : "cell_location",
+            "name"     : "cell_clnt",
+            "location" : [ 24.0, 19.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 3.0
+                }
+            ]
+        },
+        {       /** cell_list[ 3 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell1",
+            "location" : [ 100.0, 57.0, 20.0, 13.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 4 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell2",
+            "location" : [ 53.0, 57.0, 20.0, 13.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "compcell1",
+            "call_region" : "::",
+            "call_port"   : "cCall1",
+            "entry_cell"  : "cell_serv",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 114.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 117.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 130.0
+                }
+            ]
+        },
+        {       /** join_list[ 1 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "cell_clnt",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "compcell1",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 59.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 66.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 76.0
+                }
+            ]
+        },
+        {       /** join_list[ 2 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell2",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "Cell1",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 83.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 90.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 100.0
+                }
+            ]
+        }
+    ]
+}

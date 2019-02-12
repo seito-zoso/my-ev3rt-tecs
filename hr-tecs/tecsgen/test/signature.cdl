@@ -1,0 +1,9 @@
+signature sSig {
+  int32_t  send( [out]int32_t *out, [inout]int32_t *inout );
+  int32_t  func( [out]int32_t *out, [inout]int32_t *inout );
+  int32_t  func2( [in]const int32_t *in, [inout]int32_t *inout );
+  int32_t  func3( [in]const int32_t *in, [inout]int32_t *inout );
+};
+
+signature sNull {
+};

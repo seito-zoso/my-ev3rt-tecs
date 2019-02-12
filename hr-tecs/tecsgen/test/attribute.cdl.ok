@@ -1,0 +1,45 @@
+celltype tAttribute {
+  attribute {
+
+    int32  size;
+
+    [size_is(size)]
+    int32  *size_array;
+  };
+
+};
+
+cell tAttribute attr1 {
+};
+
+cell tAttribute attr2 {
+   size = 10;
+};
+
+cell tAttribute attr3 {
+   size = 10;
+   size_array = { 0, 1, 2 };
+};
+
+
+struct tTag {
+  int32  a;
+};
+
+celltype tAttributeSt {
+  attribute {
+    int32  size;
+    [size_is(size)]
+    struct tTag *st_array;
+  };
+};
+
+cell tAttributeSt tst {
+  size = 2;
+  st_array = { { 1 }, { 2 } };
+};
+
+cell tAttributeSt tst2 {
+  size = 3;
+  st_array = { { 100} };
+};

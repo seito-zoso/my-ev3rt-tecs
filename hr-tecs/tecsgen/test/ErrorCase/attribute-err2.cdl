@@ -1,0 +1,32 @@
+
+celltype tAttribute6 {
+  attr {
+    int	  *a = { 0, 1 };
+    char  *buf0[2] = { {0,0,0,0}, {0,0,0,0,0,0,0} };     // 
+  };
+  var {
+    int	*c = a;          /* 初期値が { ... } */
+  };
+};
+
+celltype tAttribute5 {
+  attr {
+    //		int		a = { 0, 1 };
+    int	   a = C_EXP( "a" );
+    int	   b = "abc";
+  };
+  var {
+    [size_is(a)]          /* size_is の引数が C_EXP */
+      int  *c;
+    [size_is(b)]          /* size_is の引数が 文字列 */
+      int  *d = a * 2;   /* C_EXP の値を2倍しようとしている */
+  };
+};
+
+cell tAttribute5 Attribute5_1 {
+  a = 2;
+  b = 3;
+};
+
+cell tAttribute5 Attribute5_2 {
+};

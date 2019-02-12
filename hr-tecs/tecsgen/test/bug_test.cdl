@@ -1,0 +1,81 @@
+
+/*
+ * 1. tecs_bool型のセルの変数に初期値を設定しない場合、CBの初期化子に{}と出力される(例:gen/tSerialPort_tecsge.c) 
+ *
+ *   var の初期値未指定の出力コードの誤り
+ *
+ * 2. char型の配列であるセルの変数に初期値を設定しない場合、CBの初期化子に{}と出力される(例:gen/tSerialPort_tecsge.c) 
+ *
+ *   配列ではなくポインタ？
+ *   それは var の初期値未指定の出力コードの誤り
+ *
+ * 3. 構造体の配列をセルの変数にして、初期値を設定しない場合、CBの初期化子に{}と出力される(例:gen/tSyslog_tecsge.c) 
+ *
+ *   これは不具合？
+ *
+ * 4. エラーメッセージの間違い(？)　前方参照用のセルの宣言が存在しても、セルの定義自体が存在しない場合、「refereced but defined」というエラーメッセージが表示される。（この項の*.cdlは登録していません） 
+ *
+ *    "reference undefined cell" に変更
+ *
+ * 5. 構造体の型定義で、メンバに配列を指定（要素数はconst変数で指定)しても、global_tecsgen.hには配列ではなく、単一の変数として出力される(例:gen/global_tecsgen.h) 
+ *
+ *    タグのない構造体の typedef のメンバの出力コードの誤り
+ *    構造体タグがある場合 struct と typedef が定義されたことになるが、ない場合は typedef のみ定義されたことになる
+ *    前者は generate.rb の StructType の gen_gh で出力される
+ *    後者は types.rb の get_type_str, get_type_str_post により出力される（こちらが対応できていなかった）
+ *
+ * 6. シングルトンでないセルの属性、変数を表すマクロに余分な&が付いている(IDXがポインタの場合）(例:gen/tSerialPort_tecsgen.h) 
+ *
+ *    仕様と思います
+ *    2006.8.17 のミーティングで attribute のアクセスマクロがポインタを返すようになりました
+ *    http://www.toppers.jp/MEMBERS/wiki/com-wg/?2006%C7%AF8%B7%EE17%C6%FC%A5%DF%A1%BC%A5%C6%A5%A3%A5%F3%A5%B0
+ *
+ * 7. シングルトンでないセルの属性、変数を表すマクロが出力されない 
+ *
+ *    シングルトンセルの場合？
+ *    属性、変数は出力されていました
+ *    指摘事項がわかりませんでした。
+ *
+ * 8. signatureでsigned charと明示しても、ジェネレータがtecs_char(ランタイムでunsigned charとtypdefされている）を出力する。tecs_schar(ランタイムでsigned charとtypdefされている）を出力して欲しい。
+ *
+ *    整数型の扱いについて、もう一度練り直してから決定したいです
+ *
+ */
+
+const int32_t TMAX_LOGINFO = 10;
+
+typedef struct tag_syslog_t  {
+	int32_t	logtype;		/* ログ情報の種別 */
+	int32_t	logtim;			/* ログ時刻 */
+	int32_t	loginfo[TMAX_LOGINFO];	/* その他のログ情報 */  /* Bug 5 */
+} syslog_t;
+
+celltype tBugTest {
+  attr {
+    bool_t a = false;
+    char_t *path1 = "A";
+    syslog_t  sys1[ 1 ] = { {  0  }}; 	/* Bug 3 */
+  };
+  var {
+    bool_t b;			/* Bug 1 */
+    char_t *path2;		/* Bug 2 */
+    syslog_t  sys2[ 2 ];	/* Bug 3 */
+  };
+};
+
+cell tBugTest boolTest {
+  
+};
+
+[singleton]
+celltype tSingle {
+  attr {
+    int32_t a = 0;
+  };
+  var {
+    int32_t b;
+  };
+};
+
+cell tSingle single {
+};

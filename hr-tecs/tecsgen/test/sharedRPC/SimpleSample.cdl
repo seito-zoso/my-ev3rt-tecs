@@ -1,0 +1,71 @@
+/*
+ * Simple な Sample
+ *
+ */
+
+// cygwin 用の簡易な型定義
+  //import_C( "tecs-types.h" );
+  // TOPPERS/ASP 用ならば import_C( "kernel.h" ); でよい
+  // TECS 対応 TOPPERS/ASP ならば import( "kernel.cdl" ); でよい
+
+signature sSample {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+	ER  giftToYou( [send(sAlloc),size_is(len)]char_t *buf, [in]int32_t len );
+	ER  returnGiftFromYou( [receive(sAlloc),size_is(*len)]int16_t **buf, [out]int32_t *len );
+    [oneway]
+		ER oneway( [in,size_is(len)]const int8_t *buf, [in]int16_t len );
+    [oneway]
+		void shutdown(void);          /* サーバータスクを停止させる */
+};
+
+celltype tSample {
+	entry sSample    eEnt;
+};
+
+celltype tSimple {
+	entry sTaskBody eBody;
+	call  sSample cCall;
+	[optional]
+		call  sDataqueue cDataqueue;   /* 一つの tSimple インスタンスだけ結合する */
+};
+
+region rRegion {
+
+[allocator(eEnt.giftToYou.buf=Allocator.eAlloc,
+           eEnt.returnGiftFromYou.buf=Allocator.eAlloc)]
+cell tSample Sample {
+};
+
+cell tSimple Simple {
+    [through(SharedRPCPlugin,"channelCell=RPCSharedChannel,PPAllocatorSize=64," )]
+		cCall = Sample.eEnt;
+	cDataqueue = RPCSharedChannel.eDataqueue;
+};
+
+cell tTask SimpleTask {
+	cBody = Simple.eBody;
+	priority = 0;
+	stackSize = 4096;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+
+/* ####  2nd #### */
+[allocator(eEnt.giftToYou.buf=Allocator.eAlloc,
+           eEnt.returnGiftFromYou.buf=Allocator.eAlloc)]
+cell tSample Sample2 {
+};
+
+cell tSimple Simple2 {
+    [through(SharedRPCPlugin,"channelCell=RPCSharedChannel,PPAllocatorSize=64")]
+		cCall = Sample2.eEnt;
+};
+
+cell tTask SimpleTask2 {
+	cBody = Simple2.eBody;
+	priority = 0;
+	stackSize = 4096;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+
+}; /* rRegion */

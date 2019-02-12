@@ -1,0 +1,115 @@
+/* import_C( "tecs.h" ); */
+
+typedef int32_t ER;
+typedef int32_t TMO;
+
+signature sAlloc {
+	ER  alloc( [in]int32_t size, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sAllocTMO {
+	ER  alloc( [in]int32_t size, [out]void *p, [in]TMO tmo );
+	ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+	attr {
+		int32_t  size = 8192;
+	};
+	var {
+		[size_is(size)]
+			int8_t  *buffer;
+	};
+};
+
+cell tAlloc alloc {
+};
+
+signature sSendRecv {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+celltype tTestComponent {
+	entry  sSendRecv eS;
+	entry  sSendRecv eA[2];
+};
+
+[allocator(
+	eS.snd.buf=alloc.eA,
+/* 	eS.rcv.buf=alloc.eA, */
+	eA[0].snd.buf=alloc.eA,
+	eA[1].snd.buf=alloc.eA,
+	eA[0].rcv.buf=alloc.eA/* ,
+	eA[1].rcv.buf=alloc.eA */
+)]
+cell tTestComponent comp{
+};
+
+[singleton, active]
+celltype tTestClient {
+	call   sSendRecv cS;
+	call   sSendRecv cA[2];
+};
+
+cell tTestClient cl {
+	cS = comp.eS;
+	cA[0] = comp.eA[0];
+	cA[1] = comp.eA[1];
+};
+
+/**** アロケータシグニチャエラー ****/
+
+signature sAllocErr1 {
+	ER  alloc( [in]int32_t size, [out]void *p );   // 一重ポインタ
+	ER  dealloc( [in]const int p );                // ポインタでない
+};
+
+signature sSendRecvErr1 {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAllocErr1),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAllocErr1),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+/**** アロケータシグニチャエラー ****/
+
+signature sAllocErr2 {
+	ER  alloc( [in]const int32_t **size );   // out でない
+	ER  dealloc( [out]const int *p );   // in でない
+};
+
+signature sSendRecvErr2 {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAllocErr2),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAllocErr2),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+/**** アロケータシグニチャエラー ****/
+
+signature sAllocErr3 {
+	ER  alloc( [out]int32_t ***size );   // 三重ポインタ
+	ER  dealloc( [in]const int **p );   // 二重ポインタ
+};
+
+signature sSendRecvErr3 {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAllocErr3),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAllocErr3),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+/**** アロケータシグニチャエラー ****/
+
+signature sAllocErr4 {
+	ER  alloc( [in]int32_t sz, [out]int32_t ***size );   // 三重ポインタ
+	ER  dealloc( [in]const int **p );   // 二重ポインタ
+};
+
+signature sSendRecvErr4 {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAllocErr4),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAllocErr4),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+

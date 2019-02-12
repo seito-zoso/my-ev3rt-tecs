@@ -1,0 +1,67 @@
+[active]
+celltype tAttr {
+  attr {
+    int	*a = { 1, 2 };
+  };
+  var {
+    int	*b = a;		// Expression#eva_const2 で例外
+    int	*c = ~ a;	// Expression#elements_eval_const で例外
+    int	*d = ! a;	// Expression#elements_eval_const で例外
+    int	*e = - a;	// Expression#elements_eval_const で例外
+    int	*f = + a;	// Expression#elements_eval_const で例外
+    int	*g = & a;	// Expression#elements_eval_const で例外
+    int	*h = * a;	// Expression#elements_eval_const で例外
+    int	*i = a + 2;	// Expression#elements_eval_const で例外
+    int	*j = a - 2;	// Expression#elements_eval_const で例外
+    int	*k = a * 2;	// Expression#elements_eval_const で例外
+    int	*l = a / 2;	// Expression#elements_eval_const で例外
+    int	*m = a % 2;	// Expression#elements_eval_const で例外
+    int	*n = a ^ 2;	// Expression#elements_eval_const で例外
+    int	*o = a && 2;	// Expression#elements_eval_const で例外
+    int	*p = a | 2;	// Expression#elements_eval_const で例外
+    int	*q = a || 2;	// Expression#elements_eval_const で例外
+    int	*r = a > 2;	// Expression#elements_eval_const で例外
+    int	*s = a < 2;	// Expression#elements_eval_const で例外
+    int	*t = a >= 2;	// Expression#elements_eval_const で例外
+    int	*u = a <= 2;	// Expression#elements_eval_const で例外
+    int	*v = a == 2;	// Expression#elements_eval_const で例外
+    int	*w = a != 2;	// Expression#elements_eval_const で例外
+    int	*x = a >> 2;	// Expression#elements_eval_const で例外
+    int	*y = a << 2;	// Expression#elements_eval_const で例外
+  };
+};
+
+[active]
+celltype tAttr2 {
+  attr {
+    int	*a = { 1, 2 };
+  };
+  var {
+    int	*b = a;		// Expression#eva_const2 で例外
+    int	*c = ~ a;	// Expression#elements_eval_const で例外
+    int	*d = ! a;	// Expression#elements_eval_const で例外
+    int	*e = - a;	// Expression#elements_eval_const で例外
+    int	*f = + a;	// Expression#elements_eval_const で例外
+    int	*g = & a;	// Expression#elements_eval_const で例外
+    int	*h = * a;	// Expression#elements_eval_const で例外
+    int	*i = 2 + a;	// Expression#elements_eval_const で例外
+    int	*j = 2 - a;	// Expression#elements_eval_const で例外
+    int	*k = 2 * a;	// Expression#elements_eval_const で例外
+    int	*l = 2 / a;	// Expression#elements_eval_const で例外
+    int	*m = 2 % a;	// Expression#elements_eval_const で例外
+    int	*n = 2 ^ a;	// Expression#elements_eval_const で例外
+    int	*o = 2 && a;	// Expression#elements_eval_const で例外
+    int	*p = 2 | a;	// Expression#elements_eval_const で例外
+    int	*q = 2 || a;	// Expression#elements_eval_const で例外
+    int	*r = 2 > a;	// Expression#elements_eval_const で例外
+    int	*s = 2 < a;	// Expression#elements_eval_const で例外
+    int	*t = 2 >= a;	// Expression#elements_eval_const で例外
+    int	*u = 2 <= a;	// Expression#elements_eval_const で例外
+    int	*v = 2 == a;	// Expression#elements_eval_const で例外
+    int	*w = 2 != a;	// Expression#elements_eval_const で例外
+    int	*x = 2 >> a;	// Expression#elements_eval_const で例外
+    int	*y = 2 << a;	// Expression#elements_eval_const で例外
+  };
+};
+
+

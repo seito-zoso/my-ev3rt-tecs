@@ -1,0 +1,20 @@
+typedef  int32 ER;
+
+signature sSig {
+  ER func( void );
+};
+
+celltype tEntry {
+  entry sSig eEntry;
+};
+
+celltype tCall {
+  call sSig cCall;
+};
+
+cell tEntry entry_cell {
+};
+
+cell tCall call_cell {
+  cCall = entry_cell.eEntry;
+};

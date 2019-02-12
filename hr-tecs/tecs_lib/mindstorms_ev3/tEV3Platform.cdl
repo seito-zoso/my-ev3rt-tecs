@@ -1,0 +1,11 @@
+import_C("tEV3Platform.h");
+
+signature sRiteVM {
+    void reset( void );
+};
+
+celltype tEV3Platform{
+	entry sTaskBody eTaskBody;
+    [optional] call sRiteVM cRiteVM[];
+    [optional] call sTask cTask[];
+};

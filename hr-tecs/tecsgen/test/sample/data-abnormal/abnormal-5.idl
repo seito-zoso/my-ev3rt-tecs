@@ -1,0 +1,45 @@
+typedef unsigned int32	UINT;
+typedef	UINT		ATR;		/* オブジェクトの属性 */
+typedef	void		*VP;		/* 型が定まらないものへのポインタ */
+typedef int32 EXCNO;
+typedef	void		(*FP)();	/* プログラムの起動番地（ポインタ） */
+
+signature sExcHdrFunc {
+	void exchdr( [in]VP exinf);
+};
+
+signature sExcHdrFunc2 {
+	void exchdr( [in]VP exinf);
+};
+
+celltype   tExcHdr {
+    call sExcHdrFunc cExchdrfunc;
+
+    attr {
+    	EXCNO excno = 0;
+		ATR   excatr = 0;
+		FP    exchdrfunc = NULL;
+    };	
+
+};
+
+celltype   tExcHdrMain {
+	/* syntax error　が出た後例外発生
+	 */
+    entry sExcHdrFunc  /*eExcHdrFunc*/;
+    entry sExcHdrFunc2 eExchdrfunc2;
+
+    attr {
+		int32 x = 0;	
+    };	
+    var {
+		int16 y = 0;	
+    };	
+
+};
+
+celltype   tExcHdrMain ExcHdrMain {
+/* 右辺にキャストを指定すると例外発生 */
+	x = (int32)y;
+};
+

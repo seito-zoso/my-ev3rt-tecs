@@ -1,0 +1,73 @@
+typedef int32 ER;
+
+signature sSig1 {
+  ER func1( [in]int32 arg1, [out]int32 *res );
+};
+
+signature sSig2 {
+  ER func1( [in]int32 arg1, [out]int32 *res );
+};
+
+signature sSig3 {
+  ER func1( [in]int32 arg1, [out]int32 *res );
+};
+
+celltype tCtR1 {
+  entry sSig3 eEnt;
+};
+
+celltype tCtR2 {
+  call sSig2 cCall2;
+  call sSig3 cCall3;
+  entry sSig1 eEnt;
+};
+
+celltype tCtOuter {
+  call sSig1 cCall;
+  entry sSig2 eEnt;
+};
+
+/* rRegion2 初出現で specifier を指定 */
+[to_through(rRegion1, TracePlugin, ""),
+out_through(/*TracePlugin,""*/),
+in_through()]
+region rRegion2 {
+  /* プロトタイプ宣言 */
+  cell tCtR2 r2cell;
+};
+
+/* rRegion1 初出現で specifier を指定 */
+[in_through(/*TracePlugin, ""*/)]
+region rRegion1{
+  /* プロトタイプ宣言 */
+  cell tCtR1 r1cell;
+};
+
+cell tCtOuter outer {
+  cCall = r2cell.eEnt;
+};
+
+/* ここ（再出現）では specifier を指定できない */
+region rRegion1 {
+  cell tCtR1 r1cell {
+  };
+};
+
+/* ここ（再出現）では specifier を指定できない */
+region rRegion2 {
+  cell tCtR2 r2cell {
+   cCall2 = outer.eEnt;
+   cCall3 = r1cell.eEnt;
+  };
+
+  [out_through()]
+  region rRegionInner {
+    cell tCtR2 r2cellInner {
+      cCall2 = outer.eEnt;
+      cCall3 = r1cell.eEnt;
+    };
+  };
+
+};
+
+

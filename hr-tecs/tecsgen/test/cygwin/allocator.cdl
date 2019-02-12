@@ -1,0 +1,54 @@
+/******* 普通のアロケータ *******/
+[deviate]
+signature sAlloc {
+  ER  alloc( [in]int32_t size, [out]void **p );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+  entry sAlloc eA;
+  attr {
+    int32_t  size = 8192;
+  };
+  var {
+    [size_is(size)]
+        int8_t  *buffer;
+  };
+};
+
+/******* タイムアウト付アロケータ  *******/
+[deviate]
+signature sAllocTMO {
+  ER  alloc( [in]int32_t size, [out]void **p, [in]TMO tmo );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAllocTMO {
+  entry sAllocTMO eA;
+  attr {
+    int32_t  size = 8192;
+  };
+  var {
+    [size_is(size)]
+        int8_t  *buffer;
+  };
+};
+
+/***** 固定長アロケータ *****/
+[deviate]
+signature sAllocFixedSize {
+  ER  alloc( [out]void **p, [in]TMO tmo );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAllocFixedSize {
+  entry sAllocFixedSize eA;
+  attr {
+      int32_t  fixed_size = 64;
+      int32_t  size = 8192;
+  };
+  var {
+    [size_is(size)]
+        int8_t  *buffer;
+  };
+};

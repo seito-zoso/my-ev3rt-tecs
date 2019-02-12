@@ -1,0 +1,7 @@
+import(<sZmodemToppers.cdl>);
+
+celltype tZmodemToppers {
+	call  sTask cZmodemTask;
+	entry sTaskBody eBody;
+	entry sZmodemToppers eZmodemToppers;
+};

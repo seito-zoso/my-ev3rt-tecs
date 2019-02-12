@@ -1,0 +1,10 @@
+import_C( "cygwin_tecs.h" );
+import("tSysLog.cdl" );
+import("cygwin_kernel.cdl" );
+
+/*
+ * import したなかから plugin を呼んでもよいかのテスト
+ * nest したジェネレータで region の through が誤って出力されたり、されなかったりをテスト
+ */
+
+import( "region-body.cdl" );

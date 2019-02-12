@@ -1,0 +1,25 @@
+signature sSig1 {
+  int32_t func1( [in]int32_t arg );
+};
+
+
+celltype tCell1 {
+   call sSig1 cCall;
+};
+
+celltype tOnlyProtoCell2 {
+   entry sSig1 eEnt;
+};
+
+
+cell tOnlyProtoCell2 cell2 ;       /* プロトタイプ宣言のみ、実体が無い */
+cell tCell1 cellx;                 /* プロトタイプ宣言のみ、参照されない */
+
+cell tCell1 cell1 {
+   cCall = cell2.eEnt;
+};
+
+/* cell2 はプロトタイプ宣言のみで、実体定義がない
+cell tOnlyProtoCell2 cell2 {
+};
+ */

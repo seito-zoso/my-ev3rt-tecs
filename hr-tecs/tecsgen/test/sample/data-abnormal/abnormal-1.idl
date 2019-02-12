@@ -1,0 +1,41 @@
+typedef unsigned int32	UINT;
+typedef	UINT		ATR;		/* オブジェクトの属性 */
+typedef	void		*VP;		/* 型が定まらないものへのポインタ */
+typedef int32 EXCNO;
+typedef	void		(*FP)();	/* プログラムの起動番地（ポインタ） */
+
+signature sExcHdrFunc {
+	void exchdr( [in]VP exinf);
+};
+
+signature sExcHdrFunc2 {
+	void exchdr( [in]VP exinf);
+};
+
+celltype   tExcHdr {
+    call sExcHdrFunc cExchdrfunc;
+
+    attr {
+    	EXCNO excno = 0;
+		ATR   excatr = 0;
+		FP    exchdrfunc = NULL;
+    };	
+
+};
+
+celltype   tExcHdrMain {
+    entry sExcHdrFunc eExchdrfunc;
+    entry sExcHdrFunc2 eExchdrfunc2;
+
+    attr {
+	int x = 0;	
+
+    };	
+
+};
+
+cell tExcHdr ExcHdr {
+
+  excno0 = eExchdrfunc2;
+
+};

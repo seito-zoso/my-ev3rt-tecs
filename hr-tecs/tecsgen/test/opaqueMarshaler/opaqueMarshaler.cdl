@@ -1,0 +1,234 @@
+/*
+ * Sample of the simple usage of OpaqueMashalerPlugin
+ */
+
+
+/* TECS component diagram is shown at the bottom of this file */
+
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+import( <rpc.cdl> );
+import( <tSocketChannel.cdl> );
+
+
+///// Signature used in RPC Service /////
+signature sSig{
+	void	func(void);
+	void	func2([in,size_is(sz)]const int8_t *buf, [in]int32_t sz);
+};
+
+///// Server Side celltypes /////
+
+// Server Celltype
+celltype tServer{
+	entry sSig eEnt;
+};
+
+// Server Side Error Recovery Handler
+celltype tServerErrorHandler {
+	entry	sRPCErrorHandler		eErrorHandler;
+	call	sServerChannelOpener	cOpener;
+};
+
+///// Client Side celltypes /////
+
+// Client Celltype
+[singleton]
+celltype tClient{
+	call 	sSig cCall;
+	entry	sTaskBody eMain;
+};
+
+import_C( "my_setjmp.h" );
+
+// Client Side RPC Adaptor (place between task and task main)
+// RPCAdaptor calls task main and supports channel opener and error recovery handler.
+celltype tRPCAdaptor {
+	entry   sTaskBody eMain;
+	entry   sRPCErrorHandler eErrorHandler;
+		// Note: 
+		//	Calling this results in top level return by longjmp().
+		//	Take care of resources to avoid resource leak.
+	call    sTaskBody cCall;
+	call	sSocketClientOpener	cOpener;
+
+	var {
+		jmp_buf  jbuf;
+	};
+};
+
+////// invocation of OpaqueMarshalerPlugin /////
+// generate, from signature sSig, marshaler and unmarshaler celltypes named tOpaqueMarshaler_sSig and tOpaqueUnarshaler_sSig.
+// marshaler and marshaler vary with signature. you have to call OpaqueMarshalerPlugin for each signature placing RPC service.
+generate( OpaqueMarshalerPlugin, sSig, "" );
+
+///// Client Side Link Unit /////
+[linkunit]
+region rClient{
+	cell tSysLog SysLog{
+	};
+	cell tSocketClient SocketClient {
+	};
+
+	// Network Byte Order type TDR
+	// TDR: TECS Data Representaion: Serialize Basic Types
+	cell tNBOTDR TDR {
+		cChannel = SocketClient.eC0;
+	};
+
+	// Semaphore (This cell is necessary if the channel is shared by plural tasks)
+	cell tSemaphore Sema {
+		attribute = 0;
+		count = 1;
+	};
+
+	// Marshaler
+	cell tOpaqueMarshaler_sSig Marshaler {
+		cTDR = TDR.eTDR;
+		cLockChannel = Sema.eSemaphore;
+		cErrorHandler = RPCAdaptor.eErrorHandler;
+	};
+
+	// Client Cell
+	cell tClient Client {
+		cCall = Marshaler.eClientEntry;
+		   // Logically this call port is joined to Server.eEnt.
+	};
+
+	// Main task & Error Handler.
+	//   When communication error is occurred, this component
+	//   discontinues the procedure and restart from main of Client.
+	//   While recovering error, longjump is used.
+	//   This means resource release code is necessary preparing for global jump.
+	cell tRPCAdaptor RPCAdaptor {
+		cCall = Client.eMain;
+		cOpener = SocketClient.eOpener;
+	};
+	cell tTask ClientTask {
+		cBody = RPCAdaptor.eMain;
+		stackSize = 512;
+		priority = 10;
+		taskAttribute = C_EXP( "TA_ACT" );
+	};
+};
+
+///// Server Side Link Unit /////
+[linkunit]
+region rServer{
+	// heap for in, inout, out parameters
+	cell tPPAllocator PPAllocator{
+		heapSize = 128;
+	};
+	cell tSysLog SysLog{
+	};
+	cell tKernel Kernel{
+	};
+	cell tSocketServer Socket {
+	};
+
+	// Network Byte Order type TDR (The type of TDR has to match both client side and server side)
+	cell tNBOTDR ServerTDR {
+		cChannel = Socket.eC1;
+	};
+
+	// ErrorHandler: close the channel then reopen it when communication error is occurred.
+	cell tServerErrorHandler ErrorHandler {
+		cOpener = Socket.eOpener;
+	};
+
+	// Unmarshaler
+	cell tOpaqueUnmarshaler_sSig Unmarshaler {
+		cTDR = ServerTDR.eTDR;
+		cPPAllocator   = PPAllocator.ePPAllocator;
+		cServerCall   = Server.eEnt;
+		cErrorHandler = ErrorHandler.eErrorHandler;
+	};
+
+	// Taget(Server) Cell
+	cell tServer Server {
+	};
+	cell tRPCDedicatedTaskMainWithOpener Main {
+		cMain = Unmarshaler.eService;
+		cOpener = Socket.eOpener;
+		initialDelay = 1000;
+		reopenDelay = 2000;
+	};
+	cell tTask Task {
+		cBody = Main.eMain;
+		stackSize = 512;
+		priority = 10;
+		taskAttribute = C_EXP( "TA_ACT" );
+	};
+};
+
+/*
+ * [Client Side]
+ *
+ * +---------------+
+ * |               |
+ * | tTask         |
+ * |     Task      |
+ * |               |
+ * +---------------+
+ *        |sTaskBody
+ * +---------------+
+ * |      V        |             sSocketClientOpener
+ * | tRPCAdaptor   |-----------------------------------------------------------+
+ * |   RPCAdaptor  |                                                           |
+ * |              <|----------------+sRPCErrorHandler                          |
+ * +---------------+                |                                          |
+ *        |            + - - - - - -|- - - - - - - -  - - - - - - - - - - - - -|- - - - -  +
+ *        |sTaskBody                |                                          |
+ * +---------------+     +--------------------+   +---------------+    +----------------+
+ * |      V        |   | |                    |   |               |    |       V        |  |
+ * | tClient       |     |tOpaqueMarhaler_sSig|   | tNBOTDR       |    | tSocketClient  |
+ * |               |-----|>                   |---|>              |----|>               |  |
+ * |     Client    |  s  |      Marshaler     | s |      TDR      |  s |  SocketClient  |
+ * |               |  S| |                    | T |               |  C |                |  |
+ * +---------------+  i  +--------------------+ D +---------------+  h +----------------+
+ *                    g|            |           R                    a                     |
+ *                          +---------------+                        n
+ *                     |    |       V       |                        n                     |
+ *                          |tSemaphore     |                        e
+ *                     |    |               |                        l                     |
+ *                          |      Sema     |
+ *                     |    +---------------+                                              |
+ *
+ *                     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ *
+ * [Server Side]
+ *
+ * + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ *
+ * |                                               +---------------+           |
+ *                                                 |tTask          |
+ * |                                               |               |           |
+ *            sServerChannelOpener                 |      Task     |
+ * |          +-------------------------------+    +---------------+           |
+ *            |                               |            |sTaskBody
+ * |          |   +-------------------+     +-------------------------------+  |
+ *            |   |                   |     |              V                |
+ * |          |   |tServerErrorHandler|     |tRPCDedicatedTaskMainWithOpener|  |
+ *            |   |    ErrorHandler   |     |                               |
+ * |          |   |            A      |     |            Main               |  |
+ *            |   +-------------------+     +-------------------------------+
+ * |          |         |      |     sRPCErrorHandler      |                   |
+ *            +---------+      +---------------------+     |sUnmarshalerMain
+ * |          |                                      |     |                   |
+ *    +---------------+    +---------------+    +----------------------+            +---------------+
+ * |  |       V       |    |               |    |          V           |       |    |               |
+ *    | tSocketServer |    | tNBOTDR       |    |tOpaqueUnmarhaler_sSig|    sSig    | tServer       |
+ * |  |              <|----|              <|----|                      |------------|>              |
+ *    |  SocketServer |  s |      TDR      |  s |      Unmarshaler     |            |     Server    |
+ * |  |               |  C |               |  T |                      |       |    |               |
+ *    +---------------+  h +---------------+  D +----------------------+            +---------------+
+ * |                     a                    R            | sPPAllocator      |
+ *                       n                         +---------------+
+ * |                     n                         |       V       |           |
+ *                       e                         |tPPAllocator   |
+ * |                     l                         |               |           |
+ *                                                 |  PPAllocator  |
+ * |                                               +---------------+           |
+ *
+ * + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+ */

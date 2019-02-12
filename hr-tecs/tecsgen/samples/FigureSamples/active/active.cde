@@ -1,0 +1,103 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-03T10:18:50+09:00",
+    "base_dir" : [
+        "c:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/active"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin"
+    ],
+    "direct_import" : [
+        "active.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell1",
+            "location" : [ 121.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eBody",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Task",
+            "location" : [ 61.0, 10.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cBody",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cExceptionBody",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 12.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eTask",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Task",
+            "call_region" : "::",
+            "call_port"   : "cBody",
+            "entry_cell"  : "Cell1",
+            "entry_region": "::",
+            "entry_port"  : "eBody",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 96.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 14.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 111.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 14.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 121.0
+                }
+            ]
+        }
+    ]
+}

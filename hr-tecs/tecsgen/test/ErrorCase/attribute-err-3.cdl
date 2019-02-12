@@ -1,0 +1,49 @@
+import_C( "cygwin_tecs.h" );
+
+namespace nNS2{
+  [active]
+    celltype tCelltype {
+    attr {
+      [size_is(2)]				// size_is があれば問題ない
+        int     *a = { 1, 2 };
+      char	*b = "abc";
+    };
+    var {
+      [size_is(2)]				// size_is があれば問題ない
+        int     *c = { 1, 2 };
+    };
+  };
+};
+
+region rR2 {
+  cell nNS2::tCelltype Cell1 {
+  };
+  cell nNS2::tCelltype Cell2 {
+    a = { 3, 4 };
+  };
+};
+
+
+//  /*
+namespace nNS1{
+  [active]
+    celltype tCelltype {
+    attr {
+      int       *a = { 1, 2 };   	// tCelltype_tecsgen.c に出力されない
+      char      *b = "abc";
+    };
+    var {
+      int       *c = { 1, 2 };  	// -R 指定されていないと、初期値が出力されない
+    };
+  };
+};
+
+region rR1 {
+  cell nNS1::tCelltype Cell1 {
+  };
+  cell nNS1::tCelltype Cell2 {
+    a = { 3, 4 };
+  };
+};
+//  */
+

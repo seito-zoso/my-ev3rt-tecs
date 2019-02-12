@@ -1,0 +1,95 @@
+import_C( "tecs.h" );
+import( <cygwin_kernel.cdl> );
+
+signature sSig1 {
+	ER		func1( [in]int32_t a );
+	int32_t	func2( [in]int32_t a );
+};
+
+signature sSig2 {
+	ER		func1( [in]int32_t a );
+	int32_t	func2( [in]int32_t a );
+};
+
+signature sSig3 {
+	ER		func1( [in]int32_t a );
+	int32_t	func2( [in]int32_t a );
+};
+
+celltype tCell1 {
+	call sSig1 cCall;
+	entry sSig2 eEntry;
+	attr {
+		int32_t a = C_EXP( "VAL_$id$" );
+	};
+	var {
+		int32_t b = a;
+	};
+};
+
+celltype tCell2 {
+	call sSig2 cCall;
+	entry sSig3 eEntry;
+	attr {
+		int32_t a;
+		int32_t b = 10;
+	};
+	var {
+		int32_t c[2] = { 1, 2 };
+	};
+};
+
+composite tComposite {
+
+	call	sSig1	cCall1;
+	entry	sSig3	eEntry;
+	attr {
+		int32_t a = 100;
+		int32_t b = C_EXP( "VAL_$id$" );
+	};
+
+	cell tCell1 cell1 {
+		a = composite.a;
+		cCall => composite.cCall1;
+	};
+
+	cell tCell2 cell2 {
+		a = composite.a;
+		b = composite.b;
+		cCall = cell1.eEntry;
+	};
+	composite.eEntry => cell2.eEntry;
+};
+
+celltype tCell_serv{
+	entry	sSig1	eEntry;
+	attr {
+		int32_t a;
+	};
+};
+
+[singleton,active]
+celltype tCell_clnt {
+	call	sSig3	cCall;
+	attr {
+		int32_t a;
+	};
+};
+
+cell tCell_serv cell_serv{
+	a = 5;
+};
+
+cell tComposite compcell1 {
+	// a=10;
+	a = C_EXP( "VAL_$id$" );
+	cCall1 = cell_serv.eEntry;
+};
+
+cell tCell_clnt cell_clnt {
+	a = 30;
+	cCall = compcell1.eEntry;
+};
+
+
+

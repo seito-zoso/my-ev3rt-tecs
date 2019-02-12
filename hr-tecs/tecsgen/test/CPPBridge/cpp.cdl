@@ -1,0 +1,25 @@
+import_C( "tecs.h" );
+
+
+signature sSig {
+	void func( void );
+	ER   func1( void );
+};
+
+celltype tCelltype{
+  entry sSig eEnt;
+};
+
+cell tCelltype Cell {
+};
+
+generate( CPP2TECSBridgePlugin, sSig, "" );
+
+cell nCPP::tsSig CPP2TECSsSigBridge {
+	cTECS = Cell.eEnt;
+};
+
+cell nCPP::tsSig CPP2TECSsSigBridge2 {
+	cTECS = Cell.eEnt;
+};
+

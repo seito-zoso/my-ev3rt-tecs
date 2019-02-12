@@ -1,0 +1,91 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T07:57:15+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/basic"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin"
+    ],
+    "direct_import" : [
+        "SimpleSample.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "Sample",
+            "location" : [ 126.0, 15.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEnt",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 7.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Simple",
+            "location" : [ 77.0, 15.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 7.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Simple",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "Sample",
+            "entry_region": "::",
+            "entry_port"  : "eEnt",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 112.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 116.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 22.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 126.0
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,60 @@
+import( <cygwin_kernel.cdl> );
+import_C( "tecs.h" );
+
+/* typedef int32_t ER; */
+
+//[generate( MrubyBridgePlugin, "" )]
+signature sSimpleA {
+	ER  func1( [in]int32_t inval );
+	ER  func2( [out,string(buf_len)]char_t *str, [in]int32_t buf_len );
+};
+//generate( MrubyBridgePlugin, sSimple, "" );
+signature sSimpleB {
+	ER  func3( [in]int32_t inval );
+	ER  func4( [out,string(buf_len)]char_t *str, [in]int32_t buf_len );
+	ER  func5( void );
+};
+
+/*---------  CELLTYPEs   ------------*/
+celltype tSimpleServer {
+	entry sSimpleA eEntA;
+	entry sSimpleB eEntB;
+};
+
+celltype tSimpleClient {
+	call sSimpleA cCallA;
+	call sSimpleB cCallB;
+};
+generate( MrubyBridgeCelltypePlugin, tSimpleClient, "" );
+
+/*---------  CELLs   ------------*/
+//[generate( MrubyBridgeCellPlugin, "" )]
+cell tSimpleServer SimpleServer {
+};
+// generate( MrubyBridgeCellPlugin, SimpleServer, "" );
+generate( MrubyBridgePlugin, SimpleServer,
+          "exclude_port=eEntA,"
+          "include_port_func=eEntB.func3,"
+          "include_port_func=eEntB.func4" );
+//generate( MrubyBridgePlugin, SimpleServer, "" );
+
+cell tSimpleClient SimpleClient {
+	cCallA = SimpleServer.eEntA;
+	cCallB = SimpleServer.eEntB;
+};
+
+[generate( MrubyBridgeCellPlugin, "" )]
+cell tSimpleServer SimpleServer2 {
+};
+
+//generate( MrubyBridgePlugin, tTask, "" );
+
+cell tSimpleClient SimpleClient2 {
+	cCallA = SimpleServer2.eEntA;
+	cCallB = SimpleServer2.eEntB;
+};
+
+// region 扱えるか？
+// mruby のコードの自動生成
+// 名前置換
+

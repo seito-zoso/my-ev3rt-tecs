@@ -1,0 +1,118 @@
+/*
+ * リレーアロケータのテスト
+ */
+
+import_C( "tecs.h" );
+
+/* typedef int32_t ER;
+typedef int32_t TMO; */
+
+signature sAlloc {
+	ER	alloc( [in]int32_t size, [out]void **p );
+	ER	dealloc( [in]const void *p );
+};
+
+signature sAllocTMO {
+	ER	alloc( [in]int32_t size, [out]void *p, [in]TMO tmo );
+	ER	dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+	attr {
+		int32_t  size = 8192;
+	};
+	var {
+		[size_is(size)]
+			int8_t	*buffer;
+		int32_t	n_alloc;
+		int32_t	n_dealloc;
+	};
+};
+
+cell tAlloc Alloc {
+};
+
+signature sSendRecv {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER	snd( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER	rcv( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+/*
+ * リレーアロケータを設置
+ */
+celltype tRelayComponent {
+	/* [allocator(
+	   snd.buf <= cSR.snd.buf
+	   )] */   /* 受け口配列のリレーアロケータは未サポート */
+	entry  sSendRecv eA[2];
+
+	// リレーアロケータの指定
+	[allocator(
+			   snd.buf <= cSR.snd.buf,  /* 前方参照可能 */
+			   rcv.buf <= cSR.rcv.buf
+			   )]
+		entry  sSendRecv eS;
+	call   sSendRecv cSR;
+
+	attr {
+		char_t	*name = C_EXP( "\"$id$\"" );
+	};
+};
+
+celltype tTargetComponent {
+	entry	sSendRecv eS;
+};
+
+[allocator(
+		   eS.snd.buf=Alloc.eA,
+		   eS.rcv.buf=Alloc.eA
+)]
+cell tTargetComponent TargetCell {
+};
+
+[allocator(
+		   // eS.snd.buf=Alloc.eA,  // リレーアロケータで指定される
+		   // eS.rcv.buf=Alloc.eA,  // これらを有効にすると、重複エラーになる
+		   eA[0].snd.buf=Alloc.eA,
+		   eA[1].snd.buf=Alloc.eA,
+		   eA[0].rcv.buf=Alloc.eA,
+		   eA[1].rcv.buf=Alloc.eA
+		   )]
+cell tRelayComponent RelayCell{
+	cSR = TargetCell.eS;
+};
+
+[allocator(
+		   // eS.snd.buf=Alloc.eA,  // リレーアロケータで指定される
+		   // eS.rcv.buf=Alloc.eA,  // これらを有効にすると、重複エラーになる
+		   eA[0].snd.buf=Alloc.eA,
+		   eA[1].snd.buf=Alloc.eA,
+		   eA[0].rcv.buf=Alloc.eA,
+		   eA[1].rcv.buf=Alloc.eA
+		   )]
+cell tRelayComponent RelayCell2{
+	cSR = RelayCell.eS;
+};
+
+
+[singleton]
+celltype tTestClient {
+	call   sSendRecv cS;
+	call   sSendRecv cA[2];
+};
+
+cell tTestClient Client {
+	cS    = RelayCell2.eS;
+	cA[0] = RelayCell.eA[0];
+	cA[1] = RelayCell.eA[1];
+};
+
+[singleton]
+celltype tTestOptional {
+	[optional]
+		call   sSendRecv cS;
+};
+
+cell tTestOptional TestOptional {};

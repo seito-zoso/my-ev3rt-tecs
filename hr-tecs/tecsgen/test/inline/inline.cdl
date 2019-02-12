@@ -1,0 +1,81 @@
+signature sTest{
+    void test(void);
+};
+signature sInline1{
+    void inline1(void);
+};
+signature sInline2{
+    void inline2(void);
+};
+signature sNonInline{
+    void nonInline(void);
+};
+
+
+
+[active]
+celltype tTest{
+    call sInline1 cInline1;
+};
+
+celltype tInline{
+    call sNonInline cNonInline;
+    [inline]entry sInline1 eInline1;
+    [inline]entry sInline2 eInline2;
+};
+
+celltype tNonInline{
+    call sInline2 cInline2;
+    entry sNonInline eNonInline;
+};
+
+// cell tNonInline NonInline;
+
+cell tInline Inline{
+    cNonInline = NonInline.eNonInline;
+};
+
+cell tNonInline NonInline{
+    cInline2 = Inline.eInline2;
+};
+
+cell tTest Test{
+    cInline1 = Inline.eInline1;
+};
+
+/////////////////////////////////////////////////
+namespace nInline {
+    [active]
+        celltype tTest{
+        call sInline1 cInline1;
+    };
+
+    celltype tInline{
+        call sNonInline cNonInline;
+        [inline]entry sInline1 eInline1;
+    //    [inline]entry sInline2 eInline2;
+        entry sInline2 eInline2;    // differ from root namespace in [inline]
+    };
+
+    celltype tNonInline{
+        call sInline2 cInline2;
+        entry sNonInline eNonInline;
+    };
+};
+
+region rRegion {
+// cell tNonInline NonInline;
+
+    cell nInline::tInline Inline{
+        cNonInline = NonInline.eNonInline;
+    };
+
+    cell nInline::tNonInline NonInline{
+        cInline2 = Inline.eInline2;
+    };
+
+    cell nInline::tTest Test{
+        cInline1 = Inline.eInline1;
+    };
+};
+

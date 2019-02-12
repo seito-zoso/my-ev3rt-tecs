@@ -1,0 +1,72 @@
+
+import( "toppers_jsp.cdl" );
+
+cell tSem sem {
+	sematr = 0;
+};
+
+cell tFlg flg {
+	atr = 0;
+	iflgptn = 0;
+};
+
+cell tDtq dtq {
+	dtqatr = 0;
+};
+
+cell tMbx mbx {
+	mbxatr = 0;
+};
+
+celltype tMyMain {
+	entry sMain eM;
+	attr {
+    int32_t  main_no;
+  };
+};
+
+cell tMyMain cychdlr {
+	main_no = 0;
+};
+
+cell tCyc my_cyc {
+	cHdlr = cychdlr.eM;
+	cycatr = 0;
+	exinf = 0;
+};
+
+
+cell tMyMain my_main {
+	main_no = 0;
+};
+
+cell tTask my_task0 {
+	cMain = my_main.eM;
+	exinf = 0;
+	tskatr = 0;
+	itskpri = 0;
+   /* stack = {0}; */
+};
+
+
+celltype tMyMainEx {
+	entry sMain eM;
+	entry sTex  eT;
+	attr {
+		int32_t  main_no;
+	};
+};
+
+cell tMyMainEx my_main_ex{
+	main_no = 1;
+};
+
+cell tTaskEx my_task_ex {
+	cMain = my_main_ex.eM;
+	cTex  = my_main_ex.eT;
+	exinf = 0;
+	tskatr = 0;
+	itskpri = 0;
+   /* stack = {0}; */
+};
+

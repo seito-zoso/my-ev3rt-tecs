@@ -1,0 +1,79 @@
+/*
+ *                           +-------------------------------------------+
+ *                           |                                           |
+ * +-----------------+       |      +----------------------------+       |       +------------------+
+ * |                 | sSig0 |eEnt0 |                            |  cCal0| sSig1 |                  |
+ * |   tCell1   cCal0|-------|>-----|>eEnt[0]  tInner     cCal[0]|-------|-------|>eEnt0  tCell2    |
+ * |                 | sSig0 |eEnt1 |                            |  cCal1| sSig1 |                  |
+ * |    cell1   cCal1|-------|>-----|>eEnt[1]   inner     cCal[1]|-------|-------|>eEnt1   cell2    |
+ * |                 |       |      |                            |       |       |                  |
+ * +-----------------+       |      +----------------------------+       |       +------------------+
+ *                           |                 tComp                     |
+ *                           |                  comp                     |
+ *                           +-------------------------------------------+
+ *
+ */
+
+import_C( "tecs.h" );
+
+signature sSig0 {
+   ER func0( [in]int32_t a );
+   ER func1( [in]int32_t a );
+};
+
+signature sSig1 {
+   ER func0( [in]int32_t a );
+   ER func1( [in]int32_t a );
+};
+
+celltype tCell1 {
+   call sSig0 cCal0;
+   call sSig0 cCal1;
+};
+
+celltype tCell2 {
+   entry sSig1 eEnt0;
+   entry sSig1 eEnt1;
+
+   attr {
+     int32_t a;
+   };
+};
+
+celltype tInner {
+  [optional]
+   call  sSig1 cCal[2];
+   entry sSig0 eEnt[2];
+
+   attr {
+     int32_t a;
+   };
+};
+
+composite tComp {
+  entry sSig0 eEnt[2];
+  [optional]
+    call  sSig1 cCal[2];
+
+  cell tInner inner {
+    a = 10;
+    cCal => composite.cCal;
+  };
+  eEnt => inner.eEnt;
+};
+
+cell tCell2 cell2 {
+  a = 30;
+};
+
+cell tComp comp {
+   cCal[0] = cell2.eEnt0;
+   cCal[1] = cell2.eEnt1;
+};
+
+cell tCell1 cell1 {
+   cCal0 = comp.eEnt[0];
+   cCal1 = comp.eEnt[1];
+};
+
+

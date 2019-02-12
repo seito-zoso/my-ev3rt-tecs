@@ -1,0 +1,54 @@
+typedef int ptrdiff_t;
+typedef unsigned int size_t;
+/* typedef short unsigned int wchar_t; */
+typedef unsigned short wchar_t;
+typedef signed char B;
+typedef unsigned char UB;
+typedef char VB;
+
+
+
+typedef signed short H;
+typedef unsigned short UH;
+typedef short VH;
+
+
+typedef signed int W;
+typedef unsigned int UW;
+typedef int VW;
+
+
+/* typedef signed long long D; */
+typedef int64 D;
+/* typedef unsigned long long UD; */
+typedef unsigned int64 UD;
+/* typedef long long VD; */
+typedef int64 VD;
+
+
+typedef void *VP;
+typedef void (*FP)();
+
+typedef signed int INT;
+typedef unsigned int UINT;
+
+typedef int BOOL;
+
+typedef INT FN;
+typedef INT ER;
+typedef INT ID;
+typedef UINT ATR;
+typedef UINT STAT;
+typedef UINT MODE;
+typedef INT PRI;
+typedef size_t SIZE;
+
+typedef INT TMO;
+typedef UINT RELTIM;
+typedef UW SYSTIM;
+
+typedef VP VP_INT;
+
+typedef INT ER_BOOL;
+typedef INT ER_ID;
+typedef INT ER_UINT;

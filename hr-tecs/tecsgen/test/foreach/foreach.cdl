@@ -1,0 +1,58 @@
+import_C( "t_stddef.h" );
+
+signature sSig{
+  ER  func( [in]int8_t  a );
+};
+
+[idx_is_id]
+celltype tCt2 {
+  entry sSig eE;
+  attr{
+    int32_t  c = 100;
+  };
+};
+
+celltype tCt1 {
+  call sSig cC;
+  attr {
+    char_t   *name = "";  /* 必ず何かに初期化される */
+    int32_t  a;
+    int_t    b;
+  };
+  var {
+    int32_t  a0;
+    int16_t  b0;
+  };
+};
+
+cell tCt2 c21 {
+  c = 1;
+};
+cell tCt2 c22 {
+  c = 2;
+};
+cell tCt2 c23 {
+  c = 3;
+};
+
+cell tCt1 c1 {
+  cC = c21.eE;
+  name = "c1";
+  a = 11;
+  b = 21;
+};
+
+cell tCt1 c2 {
+  cC = c22.eE;
+  name = "c2";
+  a = 12;
+  b = 22;
+};
+
+cell tCt1 c3 {
+  cC = c23.eE;
+  name = "c3";
+  a = 13;
+  b = 23;
+};
+

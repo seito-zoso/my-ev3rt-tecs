@@ -1,0 +1,50 @@
+﻿/*
+ * Simple な Sample
+ *
+ *  +-------------+           +-------------+          +-------------+
+ *  |             |           |             |          |             |
+ *  |   tTask     | sTaskBody |   tSimple   |  sSample |   tSample   |
+ *  |   Task      |-----------|>  Simple    |----------|>  Sample    |
+ *  |             |cTask eBody|             |cCall eEnt|             |
+ *  |             |Body       |             |          |             |
+ *  +-------------+           +-------------+          +-------------+
+ */
+
+
+// cygwin 用の簡易な型定義
+import( <cygwin_kernel.cdl> );
+  // TECS 対応 TOPPERS/ASP ならば import( <kernel.cdl> ); でよい
+import( <tSysLog.cdl> );
+
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+signature sSample {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+};
+
+celltype tSample {
+	entry sSample eEnt;
+};
+
+[singleton,active]
+celltype tSimple {
+	call sSample cCall;
+	entry sTaskBody eBody;
+};
+
+cell tSample Sample {
+};
+
+cell tSimple Simple {
+	[through(TracePlugin,"")]
+		cCall = Sample.eEnt;
+};
+
+cell tTask Task {
+	cBody = Simple.eBody;
+	priority = 11;
+	stackSize = 1024;
+	taskAttribute = C_EXP( "TA_ACT" );
+};

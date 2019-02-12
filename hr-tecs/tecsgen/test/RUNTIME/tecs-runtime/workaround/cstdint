@@ -1,0 +1,4 @@
+/* cstdint */
+#define TOPPERS_USE_CNAME_
+#include <stdint.h>
+#undef TOPPERS_USE_CNAME_

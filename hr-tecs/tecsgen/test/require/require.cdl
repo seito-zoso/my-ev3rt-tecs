@@ -1,0 +1,63 @@
+import_C( "tecs.h" );
+
+signature sSyscall{
+	ER func( void );
+};
+
+signature sSyscall2{
+	ER func2( void );
+};
+
+[singleton,active]
+celltype tKernel {
+	entry sSyscall  eSc;
+	entry sSyscall2 eSc2;
+};
+cell tKernel Kernel {
+};
+
+/* require でセル名を指定 */
+[active]
+celltype tRequire{
+	require Kernel.eSc;
+	require Kernel.eSc2;
+};
+
+cell tRequire Require {
+};
+
+
+/* require でセルタイプ名を指定 */
+[active]
+celltype tRequire2{
+	require tKernel.eSc;
+	require tKernel.eSc2;
+};
+
+cell tRequire2 Require2 {
+};
+
+
+/* require でセル名を指定 */
+[active]
+celltype tNamedRequire{
+	call sSyscall cCall;
+	require cReqCall = Kernel.eSc;
+	require Kernel.eSc;
+	entry sSyscall eSc;
+};
+
+cell tNamedRequire NamedRequire {
+	cCall = Kernel.eSc;
+	cReqCall = Kernel.eSc;
+};
+
+[active,singleton]
+celltype tMain {
+	call sSyscall cCall[];
+};
+
+cell tMain Cell {
+	cCall[] = Kernel.eSc;
+	cCall[] = NamedRequire.eSc;
+};

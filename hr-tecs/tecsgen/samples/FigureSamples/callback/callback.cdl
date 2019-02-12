@@ -1,0 +1,29 @@
+import( "cygwin_kernel.cdl" );
+
+signature sSignature {
+	void  func(void);
+};
+
+[callback]
+signature sCallback {
+    void  func(void);
+};
+
+celltype tCelltype {
+    call  sSignature cCall;
+    entry sCallback  eCallback;
+};
+
+celltype tTarget {
+    entry sSignature eEntry;
+    call  sCallback  cCallback;
+};
+
+cell tTarget Target {
+};
+
+cell tCelltype Cell {
+    cCall      = Target.eEntry;
+    eCallback <= Target.cCallback;
+};
+

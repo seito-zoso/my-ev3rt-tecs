@@ -1,0 +1,23 @@
+[deviate]
+signature sAlloc {
+	ER	alloc( [in]int32_t size, [out]void **ptr );
+	ER	dealloc( [in]const void *ptr );
+	ER	printStatistics(void);
+};
+
+celltype tAlloc {
+	entry	sAlloc	eAlloc;
+	attr {
+		int32_t		max_n_alloc = 1024;
+	};
+	var {
+		int32_t		n_alloc;
+		int32_t		n_dealloc;
+		int32_t		byte_alloc;
+		int32_t		byte_dealloc;
+
+		uint32_t	id_next;
+		[size_is(max_n_alloc)]
+			uint32_t	*id_map;
+	};
+};

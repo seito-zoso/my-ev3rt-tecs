@@ -1,0 +1,38 @@
+﻿import( <cygwin_kernel.cdl> );
+
+signature sSignature {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+};
+
+celltype tCelltype3 {
+	entry sSignature eEntry;
+};
+
+celltype tCelltype2 {
+	entry sSignature eEntry;
+};
+
+celltype tCelltype1 {
+	call sSignature cCall[2];
+};
+
+cell tCelltype3 Cell3 {
+};
+
+cell tCelltype2 Cell2{
+};
+
+cell tCelltype1 Cell1 {
+	cCall[] = Cell2.eEntry;
+	cCall[] = Cell3.eEntry;
+};
+
+/*
+cell tTask Task {
+	cBody = Simple.eBody;
+	priority = 11;
+	stackSize = 1024;
+	taskAttribute = C_EXP( "TA_ACT" );
+};
+*/

@@ -1,0 +1,11 @@
+/*
+ *  tEV3Sample.cdl
+ *
+ *  VMの個数に応じてCDLファイルを選択する
+ *  (VMを２つ使う場合，VM2.cdlをインポートする）
+ *
+ */
+const int32_t MRUBY_VM_STACK_SIZE = 81920;
+
+// import("VM1.cdl");
+import("VM2.cdl");

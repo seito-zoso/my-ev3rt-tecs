@@ -1,0 +1,36 @@
+
+const float32_t F_val = 100.0;
+//const int32_t I_val = 100.0;
+const int32_t I_val = (int32_t)100.0;
+
+signature sFloat {
+	float32_t  func( [in]double64_t a, [out]double64_t *b );
+};
+
+celltype tFloat {
+	attr {
+		float32_t   f;
+		double64_t  d;
+	};
+	entry sFloat eFloat;
+};
+
+celltype tFloat2 {
+	attr {
+		float32_t   f;
+		double64_t  d;
+	};
+	call sFloat cFloat;
+};
+
+cell tFloat Float{
+	f = 1.0;
+	d = 2.0;
+};
+
+cell tFloat2 Float2{
+	f = 4.0;
+	d = 5.0;
+	cFloat = Float.eFloat;
+};
+

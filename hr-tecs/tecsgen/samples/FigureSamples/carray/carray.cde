@@ -1,0 +1,144 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T07:59:49+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/carray",
+        "C:/cygwin64/home/oyama/TECS/tecsgen/test/samples/carray"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin",
+        "../../cygwin"
+    ],
+    "direct_import" : [
+        "carray.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell3",
+            "location" : [ 133.0, 43.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell2",
+            "location" : [ 133.0, 16.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 2 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell1",
+            "location" : [ 75.0, 27.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "subscript" : 0,
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "subscript" : 1,
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 8.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell1",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "call_port_subscript" : 0,
+            "entry_cell"  : "Cell2",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 110.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 20.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 123.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 20.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 133.0
+                }
+            ]
+        },
+        {       /** join_list[ 1 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell1",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "call_port_subscript" : 1,
+            "entry_cell"  : "Cell3",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 110.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 47.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 123.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 47.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 133.0
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,67 @@
+typedef int32 ER;
+typedef int32 INT;
+typedef int32 *PINT;
+
+typedef struct _st {
+  int32 a;
+} st;
+
+signature sTestIn {
+  ER   size_is_0( [in,size_is(-10)]char *array );
+  ER   size_is_1( [in,size_is(size)]char *array,
+		  [in]int32 *size );
+  ER   size_is_2( [in,size_is(*size)]char *array,
+		  [out]int32 *size );
+  ER   size_is_3( [in,size_is(*size*3)]char *array,
+		  [in]int32 *size );
+  ER   size_is_4( [in,size_is(*size)]char *array,
+		  [in]PINT *size );
+  ER   size_is_5( [in,size_is(*size)]PINT *array,
+		  [in]PINT size );
+  ER   size_is_6( [in,size_is(*size)]st s,
+		  [inout]PINT size );
+  ER   size_is_7( [in,size_is(*size)]st **s,
+		  [inout]PINT size );
+  ER   size_is_8( [in,size_is(*size)]int32 a,
+		  [inout]PINT size );
+
+  ER   string_0( [in,string(-10)]char *array );
+  ER   string_1( [in,string(length)]char *array,
+		 [in]int32 *length );
+  ER   string_2( [in,string(*length)]char *array,
+		 [out]int32 *length );
+  ER   string_3( [in,string(length)]char *array,
+		 [out]int32 length );
+
+  ER   count_is_0( [in,count_is(-10)]char *array );
+  ER   count_is_1( [in,count_is(count)]char *array,
+		   [in]int32 *count );
+  ER   count_is_2( [in,count_is(*count)]char *array,
+		   [out]int32 *count );
+
+};
+
+
+signature sTestOut {
+  ER   size_is_0( [out,size_is(-10)]char *array );
+  ER   size_is_1( [out,size_is(size)]char *array,
+		  [out]int32 *size );
+  ER   size_is_2( [out,size_is(*size)]char *array,
+		  [out]int32 *size );
+
+  ER   string_0( [out,string(-10)]char *array );
+  ER   string_1( [out,string(length)]char *array,
+		 [in]int32 *length );
+  ER   string_2( [out,string(*length)]char *array,
+		 [out]int32 *length );
+
+  ER   count_is_0( [out,count_is(10)]char *array );
+  ER   count_is_1( [out,count_is(*count)]char *array,
+		   [out]int32 *count );
+  ER   count_is_2( [out,count_is(*count)]char *array,
+		   [inout]int32 *count );
+
+};
+
+
+

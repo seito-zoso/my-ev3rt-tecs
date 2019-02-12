@@ -1,0 +1,35 @@
+
+/* 1 => 2
+ * 受け口および関数の追加
+ */
+import_C( "cygwin_tecs.h" );
+
+signature sSig {
+	void func( void );
+	void func2( void );
+	void func3( void );
+};
+
+
+signature sSig2 {
+	void func( void );
+	void func2( void );
+	void func3( void );
+};
+
+celltype tCelltype {
+	entry sSig eEnt;
+	entry sSig2 eEnt2;
+};
+
+[active]
+celltype tCelltype2 {
+	call sSig  cCall;
+};
+
+cell tCelltype Cell {
+};
+
+cell tCelltype2 Cell2 {
+	cCall = Cell.eEnt;
+};

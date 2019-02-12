@@ -1,0 +1,78 @@
+import_C( "cygwin_tecs.h" );
+
+////////////////////////////////
+
+signature sTest {
+	void 	  test( [in]int_t input );
+	int32_t   test2( [in]int_t input, [out]int32_t *ret );
+};
+
+celltype tTECSTest {
+	entry sTest eTest;
+};
+
+cell tTECSTest TECSTest {
+};
+
+generate( RTMBridgePlugin, sTest, "" );
+
+cell tRTMsTestBridge RTMTest {
+	cTECS = TECSTest.eTest;
+};
+
+////////////////////////////////
+
+signature sTaskBody {
+  void main( void );
+};
+
+[generate(ATK1TaskPlugin,"")]
+celltype tTask {
+	call sTaskBody cBody;
+	attr {
+		[omit]
+			char_t  *attrib[];
+        [omit]
+			bool_t  autoStart = false;
+		int		i = (int)( 0 && 1 );
+	};
+	var {
+		char_t   *a = (autoStart == true ? "Enable" : "");
+		char_t   *b = (i == 1 ? "Enable" : "");
+	};
+	factory {
+		write( "$ct$_tecsgen.c", "TASK($cell$)" );
+		write( "$ct$_tecsgen.c", "{" );
+		write( "$ct$_tecsgen.c", "	CELLCB *p_cellcb = $cbp$;" );
+		write( "$ct$_tecsgen.c", "	cBody_main();" );
+		write( "$ct$_tecsgen.c", "}" );
+		write( "$ct$_tecsgen.c", "%s", attrib );
+	};
+};
+
+celltype tTaskBody {
+	entry sTaskBody eBody;
+	attr {
+		int32_t  dummy = 0;			/* これがないと最適化で消える */
+	};
+};
+
+cell tTaskBody TaskBody {
+};
+
+cell tTask Task {
+	cBody = TaskBody.eBody;
+	attrib = { "RESOURCE1", "RESOURCE2" };
+	i = (int)(0 || 1);
+};
+
+cell tTaskBody TaskBody2 {
+};
+
+cell tTask Task2 {
+	cBody = TaskBody2.eBody;
+	attrib = { "RESOURCE3", "RESOURCE4" };
+	autoStart = true;
+	i = (int)( 0 && 1 );
+};
+

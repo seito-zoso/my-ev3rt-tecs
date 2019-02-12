@@ -1,0 +1,119 @@
+/* composite 内のアロケータのテストコード */
+/* composite のアロケータには、この他にリレーアロケータ(composite_alloc2)、セルフアロケータ(composite_alloc3)がある */
+
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+/*
+  1) Composite call, entry の signature に send/receive がある場合、アロケータ呼び口（外部公開用）を内部生成
+  2) CompositeCelltypeJoin を生成する際に port で send/receive を持つ場合内部セルに呼び口の export 結合を内部生成
+
+  080307文法の場合の手順（途中）
+  この文法では allocator 指定子が冗長（上記処理に対し矛盾をチェックするだけ）
+  composite の中で allocator セルを作れる必要があるの？
+  (むしろ作れないほうがよいのではないか)
+  1) composite_statement_specifier_list を設ける bnf.y.rb
+     => を処置する必要あり
+  2) Composite call, entry の signature に send/receive がある場合、アロケータ呼び口（外部公開用）を内部生成
+  3) allocator が => の場合 CompositecelltypeJoin を生成
+  
+ */
+
+signature sAlloc {
+	ER  alloc( [in]int32_t size, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sAllocTMO {
+	ER  alloc( [in]int32_t size, [out]void *p, [in]TMO tmo );
+	ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+	attr {
+		int32_t  size = 8192;
+	};
+	var {
+		[size_is(size)]
+			int8_t  *buffer;
+	};
+};
+
+cell tAlloc alloc {
+};
+
+signature sSendRecv {
+	/* この関数名に send, receive を使ってしまうと allocator 指定できない */
+	ER snd( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+	ER rcv( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+celltype tTestComponent {
+	entry  sSendRecv eS;
+	call   sSendRecv cS;
+};
+
+celltype tTestServ {
+	entry  sSendRecv eS;
+};
+
+[allocator(
+	eS.snd.buf=alloc.eA,
+	eS.rcv.buf=alloc.eA
+	)]
+cell tTestServ TestServ{
+};
+
+[allocator(
+	eS.snd.buf=alloc.eA,
+	eS.rcv.buf=alloc.eA
+	)]
+cell tTestComponent comp{
+	cS = TestServ.eS;
+};
+
+celltype tTestClient {
+	call   sSendRecv cS;
+	entry  sTaskBody eBody;
+};
+
+cell tTestClient Client1 {
+	cS = comp.eS;
+};
+
+composite tComp {
+	entry sSendRecv eSe;
+	call  sSendRecv cS;
+
+	cell tTestComponent comp{
+		cS => composite.cS;
+	};
+	composite.eSe => comp.eS;
+};
+
+[allocator(
+	eSe.snd.buf=alloc.eA,
+	eSe.rcv.buf=alloc.eA
+	)]
+cell tComp Comp2{
+	cS = TestServ.eS;
+};
+
+cell tTestClient Client2 {
+	cS = Comp2.eSe;
+};
+
+cell tTask Task1 {
+	cBody = Client1.eBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};
+
+cell tTask Task2 {
+	cBody = Client2.eBody;
+	priority = 1;
+	stackSize = 4096;
+	taskAttribute = C_EXP("TA_ACT");
+};

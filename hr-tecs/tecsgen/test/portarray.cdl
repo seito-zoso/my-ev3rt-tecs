@@ -1,0 +1,37 @@
+import_C( "tecs.h" );
+
+signature sArray {
+	int32_t func( [in]int32_t a );
+};
+
+signature sArrayBack {
+	int32_t func( [in]int32_t a );
+};
+
+celltype tCallArray {
+	call  sArray     carray[2];
+	call  sArray     carray2[];
+	entry sArrayBack callback[2];
+};
+
+celltype tEntryArray {
+	call  sArrayBack callback[2];
+//	entry sArray     earray[2];
+	entry sArray     earray[];
+};
+
+/* プロトタイプ宣言 */
+// cell tEntryArray Entryarray;
+
+cell tCallArray Callarray {
+	carray[] = Entryarray.earray[0];
+	carray[] = Entryarray.earray[1];     /* これをコメントアウトして実行すると SEGV 060830 */
+	carray2[1] = Entryarray.earray[1];
+	carray2[0] = Entryarray.earray[0];
+};
+
+cell tEntryArray Entryarray {
+	callback[0] = Callarray.callback[0];
+	/* callback[1] = Callarray[0].callback[1];  mikan 異常パターン： error にならない */
+	callback[1] = Callarray.callback[1];
+};

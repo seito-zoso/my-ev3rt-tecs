@@ -1,0 +1,284 @@
+__tool_info__ ("tecsgen") {
+    "tecscde_version"     : "1.D.1.0",
+    "cde_format_version"  : "0.5.0.0",
+    "save_date"           : "2016-05-04T09:02:37+01:00",
+    "base_dir" : [
+        "C:/cygwin64/home/oyama/TECS/tecsgen/samples/FigureSamples/relay"
+    ],
+    "define_macro" : [
+
+    ],
+   "import_path" : [
+        ".",
+        "../../../test/cygwin"
+    ],
+    "direct_import" : [
+        "relay.cdl"
+    ]
+}
+
+
+/*************************************************
+ *         TOOL INFORMATION FOR TECSCDE          *
+ *     This  information is used by tecscde      *
+ *  please don't touch if you are not familiar   *
+ ************************************************/
+__tool_info__ ("tecscde") {
+    "paper" : {
+       "type" : "paper",
+       "size" :  "A3",
+       "orientation" :  "LANDSCAPE"
+    },
+    "cell_list" : [
+        {       /** cell_list[ 0 ] **/
+            "type"     : "cell_location",
+            "name"     : "Alloc",
+            "location" : [ 183.0, 57.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eAlloc",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 1 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell2",
+            "location" : [ 183.0, 9.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry_snd_buf",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eEntry",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 2 ] **/
+            "type"     : "cell_location",
+            "name"     : "RelayCell",
+            "location" : [ 112.0, 9.0, 25.0, 16.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cSR",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eS_snd_buf",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 8.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cSR_snd_buf",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 12.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "eS",
+                    "edge"      : "EDGE_LEFT",
+                    "offset"    : 4.0
+                }
+            ]
+        },
+        {       /** cell_list[ 3 ] **/
+            "type"     : "cell_location",
+            "name"     : "Cell1",
+            "location" : [ 38.0, 9.0, 25.0, 15.0 ],
+            "region"   : "::",
+            "port_location" : [
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 4.0
+                },
+                {
+                    "type"      : "port_location",
+                    "port_name" : "cCall_snd_buf",
+                    "edge"      : "EDGE_RIGHT",
+                    "offset"    : 8.0
+                }
+            ]
+        }
+    ],
+    "join_list" : [
+        {       /** join_list[ 0 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell2",
+            "call_region" : "::",
+            "call_port"   : "eEntry_snd_buf",
+            "entry_cell"  : "Alloc",
+            "entry_region": "::",
+            "entry_port"  : "eAlloc",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 218.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 52.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 173.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 183.0
+                }
+            ]
+        },
+        {       /** join_list[ 1 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RelayCell",
+            "call_region" : "::",
+            "call_port"   : "cSR",
+            "entry_cell"  : "Cell2",
+            "entry_region": "::",
+            "entry_port"  : "eEntry",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 154.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 173.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 183.0
+                }
+            ]
+        },
+        {       /** join_list[ 2 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RelayCell",
+            "call_region" : "::",
+            "call_port"   : "cSR_snd_buf",
+            "entry_cell"  : "Alloc",
+            "entry_region": "::",
+            "entry_port"  : "eAlloc",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 156.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 173.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 183.0
+                }
+            ]
+        },
+        {       /** join_list[ 3 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "RelayCell",
+            "call_region" : "::",
+            "call_port"   : "eS_snd_buf",
+            "entry_cell"  : "Alloc",
+            "entry_region": "::",
+            "entry_port"  : "eAlloc",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 156.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 173.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 183.0
+                }
+            ]
+        },
+        {       /** join_list[ 4 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell1",
+            "call_region" : "::",
+            "call_port"   : "cCall",
+            "entry_cell"  : "RelayCell",
+            "entry_region": "::",
+            "entry_port"  : "eS",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 81.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 102.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 13.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 112.0
+                }
+            ]
+        },
+        {       /** join_list[ 5 ] **/
+            "type"        : "join_location",
+            "call_cell"   : "Cell1",
+            "call_region" : "::",
+            "call_port"   : "cCall_snd_buf",
+            "entry_cell"  : "Alloc",
+            "entry_region": "::",
+            "entry_port"  : "eAlloc",
+            "bar_list"    : [
+                {
+                     "type"     : "HBar",
+                     "position" : 73.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 173.0
+                },                {
+                     "type"     : "VBar",
+                     "position" : 61.0
+                },                {
+                     "type"     : "HBar",
+                     "position" : 183.0
+                }
+            ]
+        }
+    ]
+}

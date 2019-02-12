@@ -1,0 +1,87 @@
+import_C( "cygwin_tecs.h" );
+
+const int32_t  RepeatCount = 4;
+const int	A_000 = 0;
+const int	A_001 = 2;
+const int	A_002 = 4;
+const int	A_003 = 8;
+
+signature sSig {
+	void func(void);
+};
+
+[singleton, active]
+celltype tCelltype {
+  call sSig cCall[];
+  call sSig cCallX[];
+  call sSig cCall2;
+};
+
+celltype tCelltype2 {
+  entry sSig eEnt;
+  call  sSig cCall;
+  attr {
+    int	a;
+	};
+};
+
+celltype tCelltype3 {
+  entry sSig eEnt[];
+  entry sSig eEnt2;
+};
+
+[generate(RepeatJoinPlugin,"count=RepeatCount")]
+cell tCelltype Cell {
+  cCall[0] = CellA0_000.eEnt;
+  cCallX[0] = CellX.eEnt[0];
+  cCall2   = CellX.eEnt2;
+};
+
+[generate(RepeatCellPlugin,"count=RepeatCount")]
+cell tCelltype2 CellA0_000 {
+  a = A_000;
+  cCall = CellB0_001.eEnt;
+};
+
+[generate(RepeatCellPlugin,"count=RepeatCount")]
+cell tCelltype2 CellB0_001 {
+  a = 200;
+  cCall = CellX.eEnt[2];
+};
+
+cell tCelltype3 CellX{
+};
+
+
+/*
+ *                            +---------------+        +---------------+
+ *                            |   tCelltype2  |        |   tCelltype2  |
+ *                      +-----|>  CellA0_000  |--------|>  CellB0_001  |-----+
+ *                      |     |               |        |               |     |
+ *                      |     +---------------+        +---------------+     |
+ * +----------------+   |                                                    |   +-----------------+
+ * |             [0]|---+     +---------------+        +---------------+     +---|>[2] tCelltype3  |
+ * |  tCelltype  [1]|-------+ |   tCelltype2  |        |   tCelltype2  | +-------|>[3]  CellX      |
+ * |   Cell      [2]|-----+ +-|>  CellA0_001  |--------|>  CellB0_002  |-+ +-----|>[4]             |
+ * |             [3]|---+ |   |               |        |               |   | +---|>[5]             |
+ * |             [4]|-+ | |   +---------------+        +---------------+   | | +-|>[6]             |
+ * +----------------+ | | |                                                | | | +-----------------+
+ *                    | | |   +---------------+        +---------------+   | | |
+ *                    | | |   |   tCelltype2  |        |   tCelltype2  |   | | |
+ *                    | | +---|>  CellA0_002  |--------|>  CellB0_003  |---+ | |
+ *                    | |     |               |        |               |     | |
+ *                    | |     +---------------+        +---------------+     | |
+ *                    | |                                                    | |
+ *                    | |     +---------------+        +---------------+     | |
+ *                    | |     |   tCelltype2  |        |   tCelltype2  |     | |
+ *                    | +-----|>  CellA0_003  |--------|>  CellB0_004  |-----+ |
+ *                    |       |               |        |               |       |
+ *                    |       +---------------+        +---------------+       |
+ *                    |       +---------------+        +---------------+       |
+ *                    |       |   tCelltype2  |        |   tCelltype2  |       |
+ *                    +-------|>  CellA0_004  |--------|>  CellB0_005  |-------+
+ *                            |               |        |               |
+ *                            +---------------+        +---------------+
+ *
+ * Cell の cCallX の線は省略
+ */

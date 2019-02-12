@@ -1,0 +1,362 @@
+import_C( "kernel.h" );
+
+/* signature: メイン関数 */
+/* タスク、 周期ハンドラのメイン関数 */
+signature sMain {
+	ER main([in]const void *exinf);
+};
+
+signature sTask {
+	/*  タスク管理機能  */
+	ER	act_tsk(void);
+	ER_UINT can_act(void);
+	ER	ter_tsk(void);
+	ER	chg_pri([in] PRI tskpri);
+	ER	get_pri([out]PRI *p_tskpri);
+
+	/*  タスク付属同期機能  */
+	ER	wup_tsk(void);
+	ER_UINT can_wup(void);
+	ER	rel_wai(void);
+	ER	sus_tsk(void);
+	ER	rsm_tsk(void);
+	ER	frsm_tsk(void);
+
+  /*  タスク例外処理機能  */
+	ER	ras_tex([in] TEXPTN rasptn);
+};
+
+/* [context="non-task"] */
+signature siTask{
+	ER	iact_tsk(void);
+	ER	iwup_tsk(void);
+	ER	irel_wai(void);
+	ER	iras_tex([in] TEXPTN rasptn);
+};
+
+/* celltype: タスク */
+celltype tTask {
+	entry sTask    eT;     /* タスク受け口 */
+	entry siTask   eiT;    /* 非タスクコンテキスト用タスク受け口 */
+
+	call  sMain    cMain;  /* メイン関数呼び口 */
+
+	attr {
+		ID             id = C_EXP( "TASKID_$id$" );
+		VP_INT         exinf;
+		[omit]ATR      tskatr;
+		[omit]PRI      itskpri;
+		[omit]SIZE     stksize = 4096;
+	};
+
+	FACTORY{
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tTask_tecsgen.h\\\"\" );" );
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tTask_CB_list.h\\\"\" );" );
+		write( "tTask_CB_list.h", "void  tTask_start_task( VP_INT exinf );" );
+	};
+
+	factory{
+		write( "tTask_CB_list.h", "tTask_CB $id$;" );
+		write( "tecsgen.cfg",
+			   "CRE_TSK(%s,{%d,&$id$,tTask_start_task,%d,%d,NULL});",
+			   id, tskatr, itskpri, stksize );
+	};
+};
+
+
+signature sTex {
+	ER   tex(void);
+};
+
+/* celltype: 例外処理付きタスク */
+celltype tTaskEx {
+	entry sTask    eT;     /* タスク受け口 */
+	entry siTask   eiT;    /* 非タスクコンテキスト用タスク受け口 */
+
+	call  sMain    cMain;  /* メイン関数呼び口 */
+	call  sTex     cTex;   /* タスク例外呼び口 */
+
+	attr {
+		ID                   id = C_EXP( "TASKID_$id$" );
+		VP_INT               exinf;
+		[omit]ATR            tskatr;
+		[omit]PRI            itskpri;
+		[omit]SIZE           stksize = 1024;
+	};
+
+	FACTORY{
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tTask_tecsgen.h\\\"\" );" );
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tTask_CB_list.h\\\"\" );" );
+		write( "tTask_CB_list.h", "void  tTask_start_task( VP_INT exinf );" );
+	};
+
+	factory{
+		write( "tTask_CB_list.h", "tTask_CB $id$;" );
+		write( "tecsgen.cfg",
+			   "CRE_TSK(%s,{%d,&$id$,tTask_start_task,%d,%d,NULL});",
+			   id, tskatr, itskpri, stksize );
+	};
+};
+
+
+/*  同期・通信機能 */
+
+/*************/
+/*  セマフォ */
+/*************/
+signature sSem {
+	ER	sig_sem(void);
+	ER	isig_sem(void);
+	ER	wai_sem(void);
+	ER	pol_sem(void);
+	ER	twai_sem([in] TMO tmout);
+};
+
+celltype tSem {
+	entry sSem  eS;
+
+	attr {
+		ID   id  = C_EXP( "SEMID_$id$" );
+		[omit]ATR  sematr;
+		[omit]UINT isemcnt = 0;
+		[omit]UINT maxsem  = 1;
+	};
+
+	factory {
+		write( "tecsgen.cfg", "CRE_SEM(%s, { %d, %d, %d });", id, sematr, isemcnt, maxsem );
+	};
+};
+
+/************/
+/*  フラグ  */
+/************/
+signature  sFlg {
+	ER	set_flg([in] FLGPTN setptn);
+	ER	clr_flg([in] FLGPTN clrptn);
+	ER	wai_flg([in] FLGPTN waiptn,
+				[in]MODE wfmode, [out]FLGPTN *p_flgptn);
+	ER	pol_flg([in] FLGPTN waiptn,
+				[in]MODE wfmode, [out]FLGPTN *p_flgptn);
+	ER	twai_flg([in] FLGPTN waiptn,
+				 [in]MODE wfmode, [out]FLGPTN *p_flgptn, [in]TMO tmout);
+};
+
+/* [context="non-task"] */
+signature siFlg {
+	ER	iset_flg([in]FLGPTN setptn);
+};
+
+celltype tFlg {
+	entry sFlg  eF;
+	entry siFlg eiF;
+
+	attr {
+		ID            id = C_EXP( "FLGID_$id$" );
+		[omit]ATR     atr;
+		[omit]FLGPTN  iflgptn;
+	};
+
+	factory {
+		write( "tecsgen.cfg", "CRE_FLG( %s, {%d, %d} );", id, atr, iflgptn );
+	};
+};
+
+/********************/
+/*  データ・キュー  */
+/********************/
+signature sDtq {
+	ER	snd_dtq([in] const void* /* VP_INT */ data);
+	ER	psnd_dtq([in] const void* /* VP_INT */ data);
+	ER	tsnd_dtq([in] const void* /* VP_INT */ data, [in]TMO tmout);
+	ER	fsnd_dtq([in] const void* /* VP_INT */ data);
+	ER	rcv_dtq([out] VP_INT *p_data);
+	ER	prcv_dtq([out] VP_INT *p_data);
+	ER	trcv_dtq([out] VP_INT *p_data, [in]TMO tmout);
+};
+
+/* [context="non-task"] */
+signature siDtq {
+	ER	ipsnd_dtq([in]const void* /* VP_INT */ data);
+	ER	ifsnd_dtq([in]const void* /* VP_INT */ data);
+};
+
+celltype tDtq {
+	entry  sDtq   eD;
+	entry  siDtq  eiD;
+
+	attr {
+		ID      id = C_EXP( "DTQID_$id$" );
+		[omit] ATR     dtqatr;
+		[omit] UINT    dtqcnt = 16;
+/*    [size_is(dtqcnt)]
+           INT     *dtq = C_EXP( "NULL" );		/* mikan: 実際と異なる定義 */
+	};
+
+	factory {
+		write( "tecsgen.cfg", "CRE_DTQ( %s, { %d, %d, NULL } );", id, dtqatr, dtqcnt );
+	};
+};
+
+/* メールボックス */
+signature sMbx {
+	ER	snd_mbx([in]const T_MSG *pk_msg);
+	ER	rcv_mbx([out] T_MSG **ppk_msg);
+	ER	prcv_mbx([out] T_MSG **ppk_msg);
+	ER	trcv_mbx([out] T_MSG **ppk_msg, [in]TMO tmout);
+};
+
+celltype tMbx {
+	entry sMbx eM;
+
+	attr{
+		ID             id = C_EXP( "MBXID_$id$" );
+		[omit] ATR     mbxatr;
+		[omit] PRI     maxmpri = C_EXP( "TMAX_MPRI" );
+		INT            dtqcnt = 16;
+/*    [size_is(dtqcnt)]
+           INT     *dtq = { 0 };		/* mikan: 実際と異なる定義 */
+	};
+
+	factory {
+		write( "tecsgen.cfg", "CRE_MBX( %s, {%d, %s, NULL } );", id, mbxatr, maxmpri );
+	};
+};
+
+/*  メモリプール管理機能 */
+signature sMpf {
+	ER	get_mpf([out] VP *p_blk);
+	ER	pget_mpf([out] VP *p_blk);
+	ER	tget_mpf([out] VP *p_blk, [in]TMO tmout);
+	ER	rel_mpf([in]const void * /* VP */ blk);
+};
+
+celltype tMpf {
+	entry sMpf  eM;
+
+	attr {
+		ID           id = C_EXP( "MPFID_$id$" );
+		[omit] ATR   mpfatr;
+		[omit] UINT  blkcnt;
+		[omit] UINT  blksz;
+		[omit] VP    mpf;
+	};
+
+	factory {
+		write( "tecsgen.cfg", "CRE_MPF( %s, { %d, %d, %d, %s } );", id, mpfatr, blkcnt, blksz, mpf );
+	};
+};
+
+/* 周期ハンドラ */
+signature sCyc {
+	ER	sta_cyc(void);
+	ER	stp_cyc(void);
+};
+
+celltype tCyc {
+	entry sCyc  eCyc;
+	call  sMain cHdlr;
+
+	attr {
+		ID            id = C_EXP( "CYCHDLRID_$id$" );
+		[omit] ATR    cycatr;
+		VP_INT exinf;
+		[omit] RELTIM cyctim = 10;
+		[omit] RELTIM cycphs = 0;
+	};
+
+
+	FACTORY{
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tCyc_tecsgen.h\\\"\" );" );
+		write( "tecsgen.cfg", "INCLUDE( \"\\\"tCyc_CB_list.h\\\"\" );" );
+		write( "tCyc_CB_list.h", "void  tCyc_start_hdlr( VP_INT exinf );" );
+	};
+
+	factory{
+		write( "tCyc_CB_list.h", "tCyc_CB $id$;" );
+		write( "tecsgen.cfg",
+			   "CRE_CYC( %s, { %d, &$id$, tCyc_start_hdlr, %d, %d } );",
+			   id, cycatr, cyctim, cycphs );
+	};
+};
+
+/*  時間管理機能  */
+signature sTim {
+	ER	set_tim([in]const SYSTIM *p_systim);
+	ER	get_tim([out]SYSTIM *p_systim);
+	ER	isig_tim(void);
+};
+
+signature sSystem {
+	/*  タスク関係（タスクセルを直接操作しないもの）  */
+	ER		dis_tex(void);
+	ER		ena_tex(void);
+	BOOL	sns_tex(void);
+
+	void	ext_tsk(void);
+	ER		slp_tsk(void);
+	ER		tslp_tsk([in]TMO tmout);
+	ER		dly_tsk([in]RELTIM dlytim);
+
+	/*  システム状態管理機能  */
+	ER		rot_rdq([in]PRI tskpri);
+	ER		get_tid([out]ID *p_tskid);
+	ER		loc_cpu(void);
+	ER		unl_cpu(void);
+	ER		dis_dsp(void);
+	ER		ena_dsp(void);
+	BOOL	sns_ctx(void);
+	BOOL	sns_loc(void);
+	BOOL	sns_dsp(void);
+	BOOL	sns_dpn(void);
+};
+
+/* [context="non-task"] */
+signature siSystem {
+	ER		irot_rdq([in]PRI tskpri);
+	ER		iget_tid([out]ID *p_tskid);
+	ER		iloc_cpu(void);
+	ER		iunl_cpu(void);
+};
+
+/*  実装独自サービスコール  */
+/* [context="non-task"] */
+signature sVxsns {
+	BOOL	vxsns_ctx([out]VP p_excinf);
+	BOOL	vxsns_loc([out]VP p_excinf);
+	BOOL	vxsns_dsp([out]VP p_excinf);
+	BOOL	vxsns_dpn([out]VP p_excinf);
+	BOOL	vxsns_tex([out]VP p_excinf);
+};
+
+/* [context="any"] */
+signature sVsns {
+	BOOL	vsns_ini(void);
+};
+
+
+[singleton]
+celltype tKernel {
+	entry sTim eTim;
+	entry sSystem eSystem;
+	entry siSystem eiSystem;
+	entry sVxsns  eVxsns;
+	entry sVsns   eVsns;
+
+	var {
+		int32_t  dummy;   /* attribute, var, call が何もない（空）の CB が定義できない不具合暫定対策のため */
+	};
+
+	FACTORY {
+		write( "tecsgen.cfg", "#define _MACRO_ONLY\n" );
+		write( "tecsgen.cfg", "#include \"../systask/timer.cfg\"" );
+		write( "tecsgen.cfg", "#include \"../systask/serial.cfg\"" );
+		write( "tecsgen.cfg", "#include \"../systask/logtask.cfg\"" );
+    /* 下のは、無限ループに陥る 末尾の " がない（「文字列」とのパターンマッチングの問題か？）
+     *  bnf.y.rb の修正で今は直っている
+     * write( "tecsgen.cfg", "#include \"../systask/timer.cfg\"\n#include \"../systask/serial.cfg\"\n#include \"../systask/logtask.cfg\" );
+     */
+	};
+};
+
+cell tKernel toppers_jsp {
+};

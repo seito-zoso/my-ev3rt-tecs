@@ -1,0 +1,150 @@
+/**
+*   Bridge_VM2.cdl
+*   ブリッジセルの組上げ記述
+*/
+//[domain(HRP2, "trusted")]
+//[domain(HRP2, "nontrusted")]
+region rDomainEV3 {
+	cell nMruby::tsKernel BridgeKernel {
+		cTECS = HRP2Kernel.eKernel;
+	};
+
+    cell nMruby::tsMotor BridgeMotorA {
+        cTECS = MotorA.eMotor;
+    };
+    cell nMruby::tsMotor BridgeMotorB {
+        cTECS = MotorB.eMotor;
+    };
+    cell nMruby::tsMotor BridgeMotorC {
+        cTECS = MotorC.eMotor;
+    };
+    cell nMruby::tsMotor BridgeMotorD {
+        cTECS = MotorD.eMotor;
+    };
+
+    cell nMruby::tsLCD BridgeLCD {
+        cTECS = LCD.eLCD;
+    };
+
+	cell nMruby::tsLED BridgeLED {
+		cTECS = LED.eLED;
+	};
+
+	cell nMruby::tsButton BridgeButton {
+		cTECS = Button.eButton;
+	};
+
+	cell nMruby::tsBattery BridgeBattery {
+		cTECS = Battery.eBattery;
+	};
+
+	cell nMruby::tsSpeaker BridgeSpeaker {
+		cTECS = Speaker.eSpeaker;
+	};
+
+	cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor1 {
+		cTECS = UltrasonicSensor1.eUltrasonicSensor;
+	};
+	cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor2 {
+		cTECS = UltrasonicSensor2.eUltrasonicSensor;
+	};
+	cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor3 {
+		cTECS = UltrasonicSensor3.eUltrasonicSensor;
+	};
+	cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor4 {
+		cTECS = UltrasonicSensor4.eUltrasonicSensor;
+	};
+	//GyroSensor ブリッジセル
+	cell nMruby::tsGyroSensor BridgeGyroSensor1 {
+		cTECS = GyroSensor1.eGyroSensor;
+	};
+	cell nMruby::tsGyroSensor BridgeGyroSensor2 {
+		cTECS = GyroSensor2.eGyroSensor;
+	};
+	cell nMruby::tsGyroSensor BridgeGyroSensor3 {
+		cTECS = GyroSensor3.eGyroSensor;
+	};
+	cell nMruby::tsGyroSensor BridgeGyroSensor4 {
+		cTECS = GyroSensor4.eGyroSensor;
+	};
+	// ColorSensor ブリッジセル
+	cell nMruby::tsColorSensor BridgeColorSensor1 {
+		cTECS = ColorSensor1.eColorSensor;
+	};
+	cell nMruby::tsColorSensor BridgeColorSensor2 {
+		cTECS = ColorSensor2.eColorSensor;
+	};
+	cell nMruby::tsColorSensor BridgeColorSensor3 {
+		cTECS = ColorSensor3.eColorSensor;
+	};
+	cell nMruby::tsColorSensor BridgeColorSensor4 {
+		cTECS = ColorSensor4.eColorSensor;
+	};
+	// TouchSensor ブリッジセル
+	cell nMruby::tsTouchSensor BridgeTouchSensor1 {
+		cTECS = TouchSensor1.eTouchSensor;
+	};
+	cell nMruby::tsTouchSensor BridgeTouchSensor2 {
+		cTECS = TouchSensor2.eTouchSensor;
+	};
+	cell nMruby::tsTouchSensor BridgeTouchSensor3 {
+		cTECS = TouchSensor3.eTouchSensor;
+	};
+	cell nMruby::tsTouchSensor BridgeTouchSensor4 {
+		cTECS = TouchSensor4.eTouchSensor;
+	};
+	// Balancer ブリッジセル
+	cell nMruby::tsBalancer BridgeBalancer {
+		cTECS = Balancer.eBalancer;
+	};
+	// SharedMemory ブリッジセル
+	cell nMruby::tsSharedMemory BridgeSharedMemory {
+		cTECS = SharedMemory.eSharedMemory;
+	};
+
+    //EventFlag
+    cell tEventflag Eventflag_begin{
+        attribute = C_EXP("TA_WMUL");
+        flagPattern = 0x00;
+    };
+    cell tEventflag Eventflag_end{
+        attribute = C_EXP("TA_WMUL");
+        flagPattern = 0x00;
+    };
+    //Semaphore
+    cell tSemaphore Semaphore{
+        attribute = C_EXP("TA_NULL");
+        count = 1;
+    };
+
+    //RiteVMScheduler
+    cell tRiteVMScheduler RiteVMScheduler{
+        cyclicAttribute = C_EXP("TA_STA");
+        cyclicTime = 1;
+        cyclicPhase = 1;
+    };
+
+	cell tEV3Platform EV3Platform{
+        cRiteVM[] = RiteVMBluetooth.eRiteVM;
+        cRiteVM[] = RiteVMBluetooth2.eRiteVM;
+        cRiteVM[] = RiteVMBluetooth3.eRiteVM;
+        cTask[] = MrubyTask1.eTask;
+        cTask[] = MrubyTask2.eTask;
+        cTask[] = MrubyTask3.eTask;
+	};
+	cell tTask EV3Task {
+		// 呼び口の結合 
+		cBody = EV3Platform.eTaskBody;
+		//* 属性の設定
+		taskAttribute = C_EXP("TA_ACT");
+		priority = C_EXP("EV3_PLATFORM_PRIORITY");
+		systemStackSize = C_EXP("STACK_SIZE");
+	};
+
+    cell tReset Reset {
+        cMotor[] = MotorA.eMotor;
+        cMotor[] = MotorB.eMotor;
+        cMotor[] = MotorC.eMotor;
+        cMotor[] = MotorD.eMotor;
+    };
+};

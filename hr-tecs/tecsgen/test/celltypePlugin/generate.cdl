@@ -1,0 +1,398 @@
+/*
+ * $Id: $
+ */
+
+import_C( "cygwin_tecs.h" );
+
+/*
+ *  フック本体を呼び出すためのシグニチャ
+ */
+signature sHookBody {
+	void main(void);
+};
+
+/*
+ *  ステータス指定フック本体を呼び出すシグニチャ
+ */
+signature sStatusTypeHookBody {
+	void main([in] uint8_t ercd);
+};
+
+/*
+ *  カーネル本体を呼び出すシグニチャ
+ */
+signature sKernel {
+	uint8_t	schedule(void);
+
+	void enableAllInterrupts(void);
+	void disableAllInterrupts(void);
+	void resumeAllInterrupts(void);
+	void suspendAllInterrupts(void);
+	void resumeOsInterrupts(void);
+	void suspendOsinterrupts(void);
+
+	uint8_t getActiveApplicationMode(void);
+};
+
+/*
+ *  カーネル起動シグニチャ
+ */
+signature sPreKernel {
+	void startOs([in] uint8_t mode);
+};
+
+const bool_t FALSE = 0;
+const bool_t TRUE = 1;
+
+[singleton, generate(ATK1KernelPlugin,"")]
+celltype tKernel {
+	[inline]   entry sKernel eKernel;
+	[inline]   entry sPreKernel ePreKernel;
+	[optional] call  sHookBody	cPreTaskHookBody;
+	[optional] call  sHookBody	cPostTaskHookBody;
+	[optional] call  sHookBody cStartupHookBody;
+	[optional] call  sStatusTypeHookBody cErrorHookBody;
+	[optional] call  sStatusTypeHookBody cShutdownHookBody;
+
+	attr {
+		[omit] char_t *name = C_EXP("$cell$");
+		[omit] char_t *status = "EXTENDED";
+		[omit] bool_t useStartupHook = FALSE;
+		[omit] bool_t useErrorHook = FALSE;
+		[omit] bool_t useShutdownHook = FALSE;
+		[omit] bool_t usePreTaskHook = FALSE;
+		[omit] bool_t usePostTaskHook = FALSE;
+		[omit] bool_t useGetServiceId = FALSE;
+		[omit] bool_t useParameterAccess = FALSE;
+		[omit] bool_t useResourceScheduler = FALSE;
+	};
+
+	FACTORY{
+		write( "$ct$_factory.h", "#include \"kernel_id.h\"" );
+		write( "CPU_tecsgen.oil", "	#include \"TASK_tecsgen.oil\"" );
+		write( "CPU_tecsgen.oil", "" );
+	};
+};
+
+celltype tKernelBody {
+	entry sHookBody eBody;
+	call sKernel cKernel;
+	attr {
+		int32_t  dummy = 0;
+	};
+};
+
+cell tKernel ATK1Kernel;
+
+cell tKernelBody KernelBody {
+	cKernel = ATK1Kernel.eKernel;
+};
+
+cell tKernel ATK1Kernel{
+	cStartupHookBody = KernelBody.eBody;
+	status = C_EXP("EXTENDED");
+	useStartupHook = TRUE;
+	useGetServiceId = TRUE;
+	useParameterAccess = TRUE;
+	useResourceScheduler = TRUE;
+};
+
+/*
+ *  本体を呼び出すためのシグニチャ
+ */
+[context("task")]
+signature sTaskBody {
+	void main(void);
+};
+
+/*
+ *  タスクを操作するためのシグニチャ（タスクコンテキスト用）
+ */
+signature sTask {
+	uint8_t	activate(void);
+	uint8_t	terminate(void);
+	uint8_t	chain([in] uint8_t tskid);
+	uint8_t	getId([out] uint8_t *p_tskid);
+	uint8_t	getState([out] uint8_t *p_state);
+};
+
+/*
+ *  タスク
+ */
+[active, generate(ATK1TaskPlugin,"")]
+celltype tTask {
+	[inline]   entry sTask	eTask;	/* タスク操作（タスクコンテキスト用）*/
+			   call  sTaskBody	cBody;  /* タスク本体 */
+
+	/*
+	 *  タスク定義
+	 */
+	attr{
+		uint8_t			id = C_EXP("$ID$");
+		[omit] char_t	*name = C_EXP("$cell$");
+		[omit] bool_t	autoStart;
+		[omit] char_t	*appMode[] = { "OMISSIBLE" };
+		[omit] uint32_t	priority;
+		[omit] uint32_t	activation;
+		[omit] char_t	*schedule;
+		[omit] char_t	*event[] = { "OMISSIBLE" };
+		[omit] char_t	*resource[] = { "OMISSIBLE" };
+		[omit] char_t	*message[] = { "OMISSIBLE" };
+		[omit] uint32_t	stackSize;
+	};
+	factory {
+		write( "$ct$_factory.h", "DeclareTask( $cell$ );" );
+	};
+	FACTORY{
+		write( "$ct$_factory.h", "#include \"kernel_id.h\"" );
+		write( "CPU_tecsgen.oil", "	#include \"CPU_tecsgen.oil\"" );
+		write( "CPU_tecsgen.oil", "" );
+	};
+};
+
+/*
+ * auth : okuma-top preliminary
+
+signature sTaskBody {
+  void main( void );
+};
+
+[generate(ATK1TaskPlugin,"")]
+celltype tTask {
+	call sTaskBody cBody;
+	attr {
+		[omit]
+			char_t  *resource[];
+        [omit]
+			bool_t  autoStart = FALSE;
+
+		int		i = (int)( 0 && 1 );
+	};
+	var {
+		char_t   *a = (autoStart == TRUE ? "Enable" : "");
+		char_t   *b = (i == 1 ? "Enable" : "");
+	};
+	factory {
+		write( "CPU_tecsgen.oil", "TASK($cell$)" );
+		write( "CPU_tecsgen.oil", "{" );
+		write( "CPU_tecsgen.oil", "	CELLCB *p_cellcb = $cbp$;" );
+		write( "CPU_tecsgen.oil", "	cBody_main();" );
+		write( "CPU_tecsgen.oil", "}" );
+		write( "CPU_tecsgen.oil", "%s", resource );
+	};
+};
+*/
+
+celltype tTaskBody {
+	entry sTaskBody eBody;
+	attr {
+		int32_t  dummy = 0;
+	};
+};
+
+cell tTaskBody TaskBody {
+};
+
+cell tTask Task {
+	cBody = TaskBody.eBody;
+/*	autoStart = FALSE; */
+	autoStart = TRUE;
+	appMode = { "APPMODE1", "APPMODE2" };
+	priority = 4;
+	activation = 2;
+	schedule = "FULL";
+	event = { "Event1", "Event2" };
+	resource = { "Resource1", "Resource2" };
+	message = { "Message1", "Message2" };
+	stackSize = 0x400;
+/*	i = (int)(0 || 1); */
+/*	i = (int)( 0 && 1 ); */
+};
+
+cell tTaskBody TaskBody2 {
+};
+
+cell tTask Task2 {
+	cBody = TaskBody2.eBody;
+/*	autoStart = FALSE; */
+	autoStart = TRUE;
+	appMode = { "APPMODE1", "APPMODE2" };
+	priority = 4;
+	activation = 2;
+	schedule = "FULL";
+	event = { "Event1", "Event2" };
+	resource = { "Resource1", "Resource2" };
+	message = { "Message1", "Message2" };
+	stackSize = 0x400;
+/*	i = (int)(0 || 1); */
+/*	i = (int)( 0 && 1 ); */
+};
+
+signature sResource {
+	uint8_t get(void);
+	uint8_t release(void);
+};
+
+[generate(ATK1ResourcePlugin,"")]
+celltype tResource {
+	[inline] entry  sResource eResource;
+
+	attr {
+		uint8_t id = C_EXP("$ID$");
+		[omit] char_t *name = C_EXP("$cell$");
+		[omit] char_t *property;
+		[omit] char_t *linkedResource = "OMISSIBLE";
+	};
+
+	factory {
+		write( "$ct$_factory.h", "DeclareResource( $cell$ );" );
+	};
+	FACTORY{
+		write( "$ct$_factory.h", "#include \"kernel_id.h\"" );
+		write( "CPU_tecsgen.oil", "	#include \"RESOURCE_tecsgen.oil\"" );
+		write( "CPU_tecsgen.oil", "" );
+	};
+};
+
+cell tResource Resource1 {
+	property = "LINKED";
+/*	property = "STANDARD"; */
+	linkedResource = "Resource2";
+};
+
+/*
+ *  コールバックを呼び出すためのシグニチャ
+ */
+[context("non-task")]
+signature sCallbackBody {
+	void   main(void);
+};
+
+/*
+ *  アラームを操作するためのシグニチャ
+ */
+signature sAlarm{
+	uint8_t getBase([out] uint8_t *p_info);
+	uint8_t get([out] uint8_t *p_tick);
+	uint8_t setRelative([in] uint8_t incr, [in] uint8_t cycle);
+	uint8_t setAbsolute([in] uint8_t start, [in] uint8_t cycle);
+	uint8_t cancel(void);
+};
+
+/*
+ *  アラーム
+ */
+[active, generate(ATK1AlarmPlugin,"")]
+celltype tAlarm {
+	[inline] entry  sAlarm eAlarm;  /* アラーム操作 */
+	[optional] call sCallbackBody cBody;   /* アラームハンドラ本体 */
+	attr {
+		uint8_t			id = C_EXP("$ID$");
+		[omit] char_t	*name = C_EXP("$cell$");
+		[omit] char_t	*counter;
+		[omit] char_t	*action;
+		[omit] char_t	*task = "OMISSIBLE";
+		[omit] char_t	*event = "OMISSIBLE";
+		[omit] char_t	*callbackName = "OMISSIBLE";
+		[omit] bool_t	autoStart;
+		[omit] uint32_t	alarmTime = 0;
+		[omit] uint32_t	cycleTime = 0;
+		[omit] char_t	*appMode[] = { "OMISSIBLE" };
+	};
+
+	factory {
+		write( "$ct$_factory.h", "DeclareAlarm( $cell$ );" );
+	};
+	FACTORY{
+		write( "$ct$_factory.h", "#include \"kernel_id.h\"" );
+		write( "CPU_tecsgen.oil", "	#include \"ALARM_tecsgen.oil\"" );
+		write( "CPU_tecsgen.oil", "" );
+	};
+};
+
+celltype tAlarmBody {
+	entry sCallbackBody eBody;
+	attr {
+		int32_t  dummy = 0;
+	};
+};
+
+cell tAlarmBody AlarmBody {
+};
+
+cell tAlarm Alarm1 {
+	cBody = AlarmBody.eBody;
+	counter = "SysCounter";
+/*	action = "ACTIVATETASK"; */
+	action = "ALARMCALLBACK";
+	callbackName = "SampleCallback";
+	task = "HogeTask";
+/*	autoStart = FALSE; */
+	autoStart = TRUE;
+	alarmTime = 20;
+	cycleTime = 20;
+	appMode = { "APPMODE1", "APPMODE2" };
+};
+
+/*
+ *  ハンドラを呼び出すためのシグニチャ
+ */
+[context("non-task")]
+signature sHandlerBody {
+	void   main(void);
+};
+
+/*
+ *  割込みサービスルーチン
+ */
+[active, generate(ATK1ISRPlugin,"")]
+celltype tISR{
+	call  sHandlerBody  cBody;
+
+	attr {
+		[omit] uint8_t	*name = C_EXP("$cell$");
+		[omit] uint32_t	category;
+		[omit] uint32_t	priority;
+		[omit] uint32_t	entryNumber;
+		[omit] char_t	*resource[] = { "OMISSIBLE" } ;
+		[omit] char_t	*message[] = { "OMISSIBLE" } ;
+	};
+
+	FACTORY{
+		write( "$ct$_factory.h", "#include \"kernel_id.h\"" );
+		write( "CPU_tecsgen.oil", "	#include \"ISR_tecsgen.oil\"" );
+		write( "CPU_tecsgen.oil", "" );
+	};
+
+};
+
+celltype tISRBody {
+	entry sHandlerBody eBody;
+	attr {
+		int32_t  dummy = 0;
+	};
+};
+
+cell tISRBody ISRBody {
+};
+
+cell tISR ISR1 {
+	cBody = ISRBody.eBody;
+	category = 1;
+	priority = 4;
+	entryNumber = 16;
+	resource = { "Resource1", "Resource2" };
+	message = { "message1", "message2" };
+};
+
+cell tISRBody ISRBody2 {
+};
+
+cell tISR ISR2 {
+	cBody = ISRBody2.eBody;
+	category = 2;
+	priority = 4;
+	entryNumber = 16;
+	resource = { "Resource1", "Resource2" };
+	message = { "message1", "message2" };
+};

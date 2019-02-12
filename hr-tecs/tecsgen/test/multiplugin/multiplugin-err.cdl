@@ -1,0 +1,51 @@
+
+import( <cygwin_kernel.cdl> );
+import_C( "tecs.h" );
+
+/* typedef int32_t ER; */
+
+//[generate( MrubyBridgePlugin, "" )]
+signature sSimpleA {
+	ER  func1( [in]int32_t inval );
+	ER  func2( [out,string(buf_len)]char_t *str, [in]int32_t buf_len );
+};
+//generate( MrubyBridgePlugin, sSimple, "" );
+signature sSimpleB {
+	ER  func3( [in]int32_t inval );
+	ER  func4( [out,string(buf_len)]char_t *str, [in]int32_t buf_len );
+};
+
+/*---------  CELLTYPEs   ------------*/
+celltype tSimpleServerA {
+	entry sSimpleA eEntA;
+	entry sSimpleB eEntB;
+};
+
+celltype tSimpleClientA {
+	call sSimpleA cCallA;
+	call sSimpleB cCallB;
+};
+generate( MrubyBridgeCelltypePlugin, tSimpleClientA, "" );
+
+/*---------  CELLs   ------------*/
+//[generate( MrubyBridgeCellPlugin, "" )]
+cell tSimpleServerA SimpleServer {
+};
+// generate( MrubyBridgeCellPlugin, SimpleServer, "" );
+generate( MrubyBridgePlugin, SimpleServer, "" );
+
+cell tSimpleClientA SimpleClient {
+	cCallA = SimpleServer.eEntA;
+	cCallB = SimpleServer.eEntB;
+};
+
+[generate( MrubyBridgeCellPlugin, "" )]
+cell tSimpleServerA SimpleServer2 {
+};
+
+//generate( MrubyBridgePlugin, tTask, "" );
+
+cell tSimpleClientA SimpleClient2 {
+	cCallA = SimpleServer2.eEntB;
+	cCallB = SimpleServer2.eEntA;
+};

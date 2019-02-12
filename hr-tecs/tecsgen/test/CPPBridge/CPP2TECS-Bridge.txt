@@ -1,0 +1,65 @@
+CPP2TECSBridgePlugin
+														2013年12月23日
+														大山　博司
+
+【概要】
+
+CPP2TECSBridgePlugin は SWIGBridgePlugin の C++ インタフェースを生成す
+する部分を抜き出したものである。
+ただし、セルが見つからなかった場合には NULL を返すように変更している。
+
+【CDL の書き方】
+
+  --- 部分コード ---
+  /*
+   * 呼出す対象となるセル TargetCell および、その受け口のシグニチャ
+   * sSig は定義されているものとする。
+   */
+
+  /* CPP2TECSBridgePlugin の呼出し */
+  generate( CPP2TECSBridgePlugin, sSig, "" );             // (1.1)
+
+  /* プラグイン生成された nCPP::tsSig のセルを定義する */
+  cell nCPP::tsSig CPP2TECSsSigBridge {                   // (1.2)
+    cTECS = TargetCell.eEnt;
+  };
+  ----
+
+(1.1) CPP2TECSBridgePlugin が呼出されると namespace nCPP の下に、シグニ
+チャ sSig をブリッジするためのセルタイプ tsSig を生成する。セルタイプ名
+は、シグニチャ名に接頭文字 't' を付加したものである。
+
+(1.2) 生成されたセルタイプ nCPP::tsSig のセル CPP2TECSsSigBridge を生成
+し、その呼び口 cTECS を C++ から参照したいセル TargetCell の受け口
+eEnt に結合する。
+
+【C++ の書き方】
+
+  --- 部分コード ---
+  typedef int ID;          /* ID は、重複する可能性が高いため、hpp には含めていない */
+  #include "CsSig.hpp"                                     // (2.1)
+
+  main()
+  {
+    /* ブリッジセルを bridge に割り付ける */
+    CsSig  *bridge = CsSig::join( "CPP2TECSsSigBridge" );  // (2.2)
+	if( bridge == NULL )
+	   exit(1);
+
+    /* 受け口関数 func (シグニチャ sSig の関数) を呼出す */
+    bridge->func();                                        // (2.3)
+  }
+  ----
+
+(2.1) C++ のクラス名は、シグニチャ名 sSig に接頭文字 'C' を付加したもの
+となる。クラスを定義するヘッダファイルは、クラス名に拡張子 .hpp を付加
+したものである。
+
+(2.2) CsSig クラスのインスタンスを生成し、結合する。
+
+
+【暫定】
+
+・t_stddef.h を include する必要がある (E_ID を参照)
+・join でセルが見つからなかった場合 NULL を返す（例外を返す方法もあったハズ）
+

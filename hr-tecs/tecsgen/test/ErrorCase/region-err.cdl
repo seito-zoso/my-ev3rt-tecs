@@ -1,0 +1,37 @@
+signature sSig {
+  int32_t   func( void );
+};
+
+celltype tClient {
+  call sSig cCall;
+};
+celltype tServer {
+  entry sSig eEnt;
+};
+
+// [in_through()]
+region rServer{
+  cell tServer Server {
+  };
+};
+
+/* in_through できないケース */
+cell tClient Client {
+	cCall = rServer::Server.eEnt;
+};
+
+// [out_through(), to_through(rNoOut,TracePlugin,"")]
+// [out_through()]
+region rClient{
+  /* to_through できないケース */
+  cell tClient Client {
+     cCall = rServer::Server.eEnt;
+  };
+  /* out_through できないケース */
+  cell tClient Client2 {
+     cCall = Server.eEnt;
+  };
+};
+
+cell tServer Server {
+};

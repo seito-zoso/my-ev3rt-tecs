@@ -1,0 +1,43 @@
+
+celltype tSerialTaskBody {
+    entry sTaskBody eTaskBody;
+    call  sTaskBody cBodyArray[];
+    [optional]
+        call sTaskExceptionBody cTaskExceptionBodyArray[];
+    attr {
+		char_t *name = C_EXP( "\"$id$\"" );
+    };
+};
+
+[active]
+composite tSerialTask {
+    entry sTask eTask;
+    call  sTaskBody cBodyArray[];
+    [optional]
+        call sTaskExceptionBody cTaskExceptionBodyArray[];
+    attr {
+		ATR		taskAttribute = C_EXP("TA_NULL");
+		/*
+		 * タスク例外処理ルーチンに指定できる属性はないため
+		 * TA_NULLを指定する
+		 */
+		ATR		exceptionAttribute = C_EXP("TA_NULL");
+		PRI		priority;
+		SIZE	stackSize;
+		char_t *name = C_EXP( "\"$id$\"" );
+	};
+    cell tTask Task {
+        cBody = SerialTaskBody.eTaskBody;
+		taskAttribute = composite.taskAttribute;
+		exceptionAttribute = composite.exceptionAttribute;
+		priority = composite.priority;
+		stackSize = composite.stackSize;
+        
+    };
+    cell tSerialTaskBody SerialTaskBody{
+        cBodyArray => composite.cBodyArray;
+        cTaskExceptionBodyArray => composite.cTaskExceptionBodyArray;
+		name = composite.name;
+    };
+    composite.eTask => Task.eTask;
+};

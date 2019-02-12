@@ -1,0 +1,39 @@
+import( "../cygwin/cygwin_kernel.cdl" );
+
+signature sSimple {
+	void helloWorld(void);
+};
+
+
+celltype tSimple {
+	entry sTaskBody eMain;
+	call sSimple cSimple;
+};
+
+celltype tSample {
+	entry sSimple eSample;
+};
+
+
+[domain(MyDomain,"trusted")]
+region rSimple {
+	[domain(MyDomain,"trusted")]
+	region rSimple {
+		cell tTask Task {
+			cBody = Simple.eMain;
+			priority  = 17;
+			stackSize = 2016;
+		};
+		cell tSimple Simple {
+			cSimple = rSample::rSample::Sample.eSample;
+		};
+	};
+};
+
+[domain(MyDomain,"nontrusted")]
+region rSample {
+	[domain(MyDomain,"nontrusted")]
+		region rSample {
+		cell tSample Sample {};
+	};
+};

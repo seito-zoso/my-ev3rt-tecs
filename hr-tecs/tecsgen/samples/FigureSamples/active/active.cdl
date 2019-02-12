@@ -1,0 +1,20 @@
+﻿import( <cygwin_kernel.cdl> );
+
+signature sSignature {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+};
+
+celltype tCelltype1 {
+	entry sTaskBody eBody;
+};
+
+cell tCelltype1 Cell1 {
+};
+
+cell tTask Task {
+	cBody = Cell1.eBody;
+	priority = 11;
+	stackSize = 1024;
+	taskAttribute = C_EXP( "TA_ACT" );
+};

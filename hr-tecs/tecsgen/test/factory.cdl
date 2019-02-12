@@ -1,0 +1,68 @@
+typedef int32_t ER;
+
+signature sSig {
+  ER func1( [in]int32_t arg1 );
+  ER func2( [in]int32_t arg1 );
+};
+namespace nNS {
+
+celltype tLedout {
+/*  call sSig c; */
+  attr {
+    int32_t a = 100;
+    int32_t ab;
+    char_t *s;
+  };
+  var {
+    int32_t b;
+  };
+  FACTORY {
+    write( "tecs.cfg", "/* Celltype Object */" );
+    write( "tecs.cfg", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+    write( "$ct$.cfg", "$id$" );
+    write( "tecs.cfg", "/* \
+ * Celltype Object\
+ */" );
+
+    /* 不具合指摘 080612 $ct$ の前の space が消える */
+    write( "tLedout_CB_list.h",
+	   "extern void $ct$_init(intptr_t exinf);");
+	write( "tecs.cfg", "GLOABL FACTORY ct:$ct$ ct_global:$ct_global$" );
+  };
+
+  factory {
+    write( "tecs.cfg", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+    write( "tecs.cfg", "a = %d, %d, %s; ", a, ab, s );
+/*
+ * exerb では /dev/null がエラーとなるので外す
+ *   write( "/dev/null", "ATR_INI(TA_HLG, 0, tSyslog_initialize);" );
+ *   write( "/dev/null", "a = %d, %d, %s; ", a, ab, s );
+ */
+    write( "tecs.cfg", "a = %s, %s, %s; ", "-$id$", "-$$id$", "-$$id$" );
+    write( "$ct$_CB_list.h", "a = %s, %s, %s; ", "-$id$", "-$$id$", "-$$id$" );
+    write("tLedout_CB_list.h", "extern void $ct$_init(intptr_t exinf);");
+    write( "tecs.cfg", "a = %s, \\\
+			%s, %s;  # break line\n\n", "-$id$", "-$$id$", "-$$id$" );
+
+	write( "tecs.cfg", "GLOABL factory ct:$ct$ ct_global:$ct_global$ cell:$cell$ cell_global:$cell_global$" );
+  };
+};
+
+}; // nNS
+
+region rR {
+  cell nNS::tLedout ce;
+
+  cell nNS::tLedout ce {
+    ab = 99;
+    s = "abc";
+  };
+};
+
+celltype tNoFactoryFunc {
+  factory{
+  };
+};
+
+cell tNoFactoryFunc Cell2 {
+};

@@ -1,0 +1,190 @@
+TECSINFO
+
+■ 使い方
+
+１）tTECSInfo セルの設置
+
+  tTECSInfo セルタイプのセルを設置することで、情報が生成される。
+  シグニチャ、セルタイプに関する情報は、cdl ファイル内で1つ以上セルが生成される場合、含まれる。
+
+  /* TECS 情報を生成する */
+  cell nTECSInfo::tTECSInfo TECSInfo {};
+
+  情報は、tTECSInfo セルタイプに設置されたプラグイン (TECSInfoPlugin) により自動的に生成される。
+  本来、以下のように情報を記憶するセル rTECSInfo::TECSInfoSub.eTECSInfo への結合を行う必要があるが、TECSInfoPlugin が自動的に結合を行うため、省略することができる。
+  cell nTECSInfo::tTECSInfo TECSInfo {
+      cTECSInfo = rTECSInfo::TECSInfoSub.eTECSInfo;
+  };
+
+  あるセルタイプについて、そのセルタイプのセルが cdl ファイル内で生成されたとしても、同一のリンクルート内には、一つも存在しない可能性があるが、その場合でも、シグニチャ、セルタイプに関する情報が含まれる。この場合、セルタイプコードは、リンクされない（Makefile.tecsgen 内の変数 CELLTYPE_COBJS に含まれない)。
+
+２）実行時の使用方法
+
+２．１）情報を取得する
+ T.B.W
+
+２．２）CB, INIB の内容を印刷する
+ T.B.W
+
+２．２）セルの受け口関数を呼び出す
+ T.B.W
+  
+■ 仕様変更
+
+〇動的結合の適合性の条件を外す
+   1) ref_desc, dynamic を指定された呼び口に対応付いたシグニチャは、引数にディスクリプタ型を含んではいけない
+   2) Descriptor を含むシグニチャを Descriptor の引数に指定することはできない
+   3) Descriptor の引数が、自身を含むシグニチャの場合
+
+ 2) は、循環する可能性があり、ビルドエラーが起こる可能性があるが、不完全型 (未定義の構造体のポインタ型を引用した Descriptor 型) を予め読み込むこととする。
+
+ -                cdl_error( "S9999 Descriptor argument '$1' is the same signature as this parameter '$2' included", @name, param.get_name )
+ +               # cdl_error( "S9999 Descriptor argument '$1' is the same signature as this parameter '$2' included", @name, param.get_name )
+
+
+ -            cdl_warning( 'W9999 $1 cannot handle Descriptor infromation for port $2', @name, port.get_name )
+ +            cdl_warning( 'W9999 "$1" cannot handle Descriptor "$2" infromation for port "$3"', @name, param.get_name, port.get_name )
+
+
+ -        cdl_error( "S9999 $1 port cannot have Descriptor in its signature", dyn_ref  )
+ +        # cdl_error( "S9999 $1 port '$2' cannot have Descriptor in its signature", dyn_ref, @name )
+
+ types.rb
+ -        cdl_error( "T9999 '$1': has Desicrptor in function parameter", signature_nsp.to_s )
+ +       # cdl_error( "T9999 '$1': has Descriptor in function parameter", signature_nsp.to_s )
+
+〇セルタイププラグインの new_cell の呼出しタイミングを変更
+   意味解析後 ⇒ 構文解釈時
+   ・TECSInfoSub へのプロトタイプ宣言を追加するのに、意味解析後では遅すぎるため
+   ・プラグイン生成されたセルタイプの new_cell は、構文解釈時であり、同じタイミングになる
+   ・ATK*Plugin など、既存のセルタイププラグインでは、new_cell は使用されていないので、影響はない
+
+・signature の相互、循環参照
+
+■ 仕様
+・セルが一つ以上存在するもののセルタイプの情報を出力する
+  ・シグニチャは、定義されたものすべてについて、定義を出力する
+  ・cdl 全体で一つでもセルが生成されるセルタイプの情報は、含む
+    (リンクルートが複数存在し、あるリンクルートではセルが存在しないセルタイプであっても出力する)
+・TECSInfo セルタイプはシングルトンであるのでリンクルートごとに、最大一つまで持つことができる
+
+■ 定義
+☆TECSInfo セル
+   nTECSInfo::tTECSInfo セルタイプのセル．
+   シングルトンであり、一つのリンク単位には、一つだけ生成できる．
+   このセルを設置すると、このセルが置かれたリージョンの下に rTECSInfo リージョンが生成され、このリージョンの下に TECSInfoSub セルが置かれる．
+   TECSInfoSub セルから、情報セルにたどることができる．
+
+☆TECS 情報セル
+  シグニチャ、セルタイプ、セル、型などに関する情報を記憶するセル．
+
+■ tecsgen/tecs/TECSInfo.cdl
+    以下のシグニチャ、セルタイプの定義
+■ plugin/TECSInfoPlugin.rb
+    TECSInfo を生成するきっかけ
+■ tecslib/core/tecsinfo.rb
+    各シグニチャ、セルタイプの情報を持つセルを生成
+
+■ TECSInfo.cdl で定義されるシグニチャ
+    sTypeInfo
+    sVarDeclInfo
+    sParamInfo
+    sFunctionInfo
+    sSignatureInfo
+    sCallInfo
+    sEntryInfo
+    sCelltypeInfo
+    sCellInfo
+    sNamespaceInfo
+    sRegionInfo
+    sTECSInfo
+
+■ TECSInfo.cdl で定義されるセルタイプ
+    tTECSInfo
+    tTECSInfoSub
+    tNamespaceInfo
+    tRegionInfo
+    tCelltypeInfo{
+    tCellInfo
+    tSignatureInfo{
+    tCallInfo
+    tEntryInfo
+    tFunctionInfo
+    tParamInfo
+    tVarDeclInfo
+    tDefinedTypeInfo
+    tVoidTypeInfo
+    tBoolTypeInfo
+    tIntTypeInfo
+    tStructTypeInfo
+    tPtrTypeInfo
+    tArrayTypeInfo
+    tDescriptorTypeInfo
+
+■ 未完了事項
+  〇type_str_post への対応
+  〇struct
+    〇構造体メンバー
+    〇タグなし構造体
+  ・各セルタイプのセルタイプコード
+    ・tTECSInfo
+    ・tTECSInfoSub
+    ・tNamespaceInfo
+    ・tRegionInfo
+    ・tCelltypeInfo
+    ・tCellInfo
+    〇tSignatureInfo
+    ・tCallInfo
+    ・tEntryInfo
+    ・tFunctionInfo
+    ・tParamInfo
+    ・tVarDeclInfo
+    ・tDefinedTypeInfo
+    ・tVoidTypeInfo
+    ・tBoolTypeInfo
+    ・tIntTypeInfo
+    ・tStructTypeInfo
+    ・tPtrTypeInfo
+    ・tArrayTypeInfo
+    ・tDescriptorTypeInfo
+  ・celltype
+     〇attr
+     〇var
+     〇entry
+     〇call
+     ・require <<<< 対応しなくても、リクワイア呼び口が設けられるはず
+     ・factory <<<< 実行時情報を含める必要は、ないはず
+  ・region
+     〇TECSInfo セルの存在するリージョンの下に TECSInfo セルを生成する
+     ・region に存在するセルのセルタイプに関する情報のみ出力する
+  ・size_is, count_is, string の引数
+        逆ポーランド形式
+        *a    ===> $2 ^
+        a * 2 ===> $2 2 *
+        func( [out,size_is(*len),count_is(*len)]int8_t *buf, [in]int32_t *len);
+
+        演算子 ^ (ポインタ参照)
+            + - * / % & |
+            ? 3項演算子
+  ・アロケータ <<<< 対応しなくても、アロケータ呼び口が設けられるはず
+  ・through  <<<< 対応しなくても、通常の結合に置き換えられているはず
+  ・セルの最適化状況の反映
+    ・celltype の has_CB, has_INIB
+    〇cell の attr, var の offset
+       tmp_post_plugin.cdl を生成時には、最適化の前．
+       また、生成ごとに最適化が異なるため、コード生成段階になるまで最適化状況は、わからない。
+  〇TECSInfoSub セルのプロトタイプ宣言
+  〇TECSInfo セルから TECSInfoSub セルへの結合の自動化
+  〇tCallInfo CALL_PLACE の値が最適化状況を正しく反映しているかの確認
+  〇tVarDeclInfo の offset が INIB か CB に対するものか、わからない
+    var の size_is のケースでは INIB にあることが考慮されていない
+  ・受け口情報 (どうしても、受け口ディスクリプタが欲しい)
+
+■番外
+・Transparent RPc のマーシャラで return が正しくない警告が出る (非 void で値無し return)
+
+■実装
+
+・CDL ファイル TECSInfo.cdl
+・セルタイププラグイン TECSInfoPlugin.rb
+・情報生成コード tecsinfo.rb

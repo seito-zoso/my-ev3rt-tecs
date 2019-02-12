@@ -1,0 +1,23 @@
+typedef struct t_in4_ifaddr_ {
+  uint32_t addr; /* IPv4 アドレス */
+  uint32_t mask; /* サブネットマスク */
+} T_IN4_IFADDR_;
+
+signature sIfetherv4 {
+  void func( void );
+};
+
+[singleton]
+celltype tIfetherv4 {
+  attr {
+    T_IN4_IFADDR_ ether_ifnet_a = {0,0};   // 問題なし
+  };
+  var{
+    T_IN4_IFADDR_ ether_ifnet_v = {0,0};   // typedef された型に対応できていない. Ruby 例外
+  };
+  [inline]entry sIfetherv4 eIfetherv4;
+};
+
+cell tIfetherv4 Ifetherv4 {
+	
+};

@@ -1,0 +1,53 @@
+/*
+ * 同じセルタイプのセルを直列に結合するケース
+ *  #647, #716, #733
+ */
+
+import_C( "tecs.h" );
+
+signature sLinkedResource{
+    void main(void);
+};
+
+[active]
+celltype tOSEKResource{
+    [optional]
+		call sLinkedResource cLinkedResource[];  /* 配列 */
+    [optional]
+		call sLinkedResource cLinkedResource2;   /* 非配列 */
+    entry sLinkedResource eLinkedResource[];
+    entry sLinkedResource eLinkedResource_2;
+	attr{
+		char_t *name = C_EXP( "\"$cell$\"" );
+		int16_t	nest_max;
+	};
+	var{
+		int32_t	nest;
+	};
+};
+
+cell tOSEKResource OSEKResource{
+    cLinkedResource[] = OSEKResource_3.eLinkedResource_2;
+    cLinkedResource[] = OSEKResource_2.eLinkedResource_2;
+    cLinkedResource[] = OSEKResource.eLinkedResource[0];
+	nest_max = 5;
+};
+
+cell tOSEKResource OSEKResource_2{
+    cLinkedResource2 = OSEKResource_2.eLinkedResource_2;
+	nest_max = 3;
+};
+
+cell tOSEKResource OSEKResource_3{
+    cLinkedResource2 = OSEKResource_3.eLinkedResource[1];
+	nest_max = 2;
+};
+
+[singleton, active]
+celltype tMain {
+	call sLinkedResource cLinkedResource;
+};
+
+cell tMain Main {
+	cLinkedResource = OSEKResource.eLinkedResource[0];
+};

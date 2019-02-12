@@ -1,0 +1,63 @@
+import_C( "tecs.h" );
+
+signature sSingleCall {
+  /* int32_t  single( [in]int32_t single );    060827   エラーにならない*/
+  int32_t  single( [in]int32_t s );
+};
+
+signature sSingleEntry {
+  int32_t  single( [in]int32_t s );
+};
+
+[singleton]
+celltype tSingle {
+  call  sSingleCall  cCall;
+  entry sSingleEntry eEntry;
+
+  attr {
+
+    int32_t  single = 100;
+  };
+
+  var {
+    int32_t  single_var = 10;
+  };
+
+};
+
+celltype tSingleCall{
+  call sSingleEntry cSingleEntry;
+};
+
+celltype tSingleEntry{
+  entry sSingleCall eSingleCall;
+  attr{
+    int32_t a;
+  };
+};
+
+
+cell tSingleEntry singleentry{
+  a = 0;
+};
+
+cell tSingle single{
+  cCall = singleentry.eSingleCall;
+  single = 0;
+};
+
+cell tSingleCall singlecall{
+  cSingleEntry = single.eEntry;
+};
+
+[singleton]
+composite tCompSingleCall {
+	call sSingleEntry cSingleEntry;
+	cell tSingleCall Single {
+		cSingleEntry => composite.cSingleEntry;
+	};
+};
+
+cell tCompSingleCall Single {
+	cSingleEntry = single.eEntry;
+};

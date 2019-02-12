@@ -1,0 +1,35 @@
+signature sSig {
+	int32_t  func(void);
+};
+
+celltype tCelltype {
+	call  sSig  cCall;
+};
+
+celltype tCelltype2 {
+	entry  sSig  eEntry;
+};
+
+composite tComp {
+	cell tCelltype2 Cell0{
+	};
+	cell tCelltype2 Cell1{
+	};
+	cell tCelltype Cell {
+		cCall[0]=Cell0.eEntry;
+		cCall[1]=Cell1.eEntry;
+	};
+};
+
+cell tComp Cell {
+};
+
+
+cell tCelltype2 Cell0{
+};
+cell tCelltype2 Cell1{
+};
+cell tCelltype CellA {
+	cCall[0]=Cell0.eEntry;
+	cCall[1]=Cell1.eEntry;
+};

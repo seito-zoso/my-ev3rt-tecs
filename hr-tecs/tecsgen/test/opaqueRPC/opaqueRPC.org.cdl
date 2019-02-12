@@ -1,0 +1,94 @@
+/*
+ * simple なサンプル
+ *
+ * このサンプルは tecsgen/test/simple 階層に置いて実行する
+ * Linux, Cygwin 環境で実行できるはず
+ */
+import_C( "cygwin_tecs.h" );
+
+// ログ機能
+import( <tSysLog.cdl> );
+// カーネル機能
+import( <cygwin_kernel.cdl> );
+import( <rpc.cdl> );
+import( <tSocketChannel.cdl> );
+import( "tAlloc.cdl" );
+import( "sSimple.cdl" );
+
+celltype tSimpleServer {
+	require	tSysLog.eSysLog;
+	entry	sSimple			eEnt;
+/*	entry	sServerControl	eServerControl; */
+};
+
+[active]
+celltype tSimpleClient {
+	require	tSysLog.eSysLog;
+	call	sSimple		cCall;
+	/* call	sServerControl	cServerControl;	/* サーバをシャットダウンする */
+	call	sSocketClientOpener	cOpener;	/* チャンネルを開く */
+	entry	sTaskBody	eMain;					/* メイン */
+};
+
+[in_through()]
+region rServer {
+	cell	tSysLog	ServerSysLog {
+	};
+	[in_through(TracePlugin,""),out_through()]
+		// [in_through()]
+	region rSPon {
+		cell tAlloc Alloc {
+		};
+    //      cell tSysLog ServerSysLog {
+    //      };
+		cell tKernel KernelInServer {
+		};
+		[allocator(eEnt.func21.a=Alloc.eAlloc,
+				   eEnt.func22.sta=Alloc.eAlloc,
+				   eEnt.func23.str=Alloc.eAlloc,
+				   eEnt.func24.msg=Alloc.eAlloc,
+				   eEnt.func25.msg=Alloc.eAlloc,
+				   eEnt.func26.sta=Alloc.eAlloc,
+				   eEnt.func27.array2=Alloc.eAlloc,
+				   eEnt.func31.a=Alloc.eAlloc,
+				   eEnt.func32.sta=Alloc.eAlloc,
+				   eEnt.func33.str=Alloc.eAlloc,
+				   eEnt.func34.msg=Alloc.eAlloc,
+				   eEnt.func35.msg=Alloc.eAlloc,
+				   eEnt.func36.sta=Alloc.eAlloc,
+				   eEnt.func37.sta=Alloc.eAlloc,
+				   eEnt.func38.array2=Alloc.eAlloc,
+				   eEnt.func39.arraySt=Alloc.eAlloc)]
+		cell tSimpleServer SimpleServer {
+		};
+	};
+};
+
+[out_through(),
+ to_through(rServer ,OpaqueRPCPlugin,
+		   "taskCelltype=tTask,PPAllocatorSize=1024,\
+		 substituteAllocator=\"Alloc.eAlloc=>CAlloc.eAlloc\",\
+		 clientChannelCell= \"ClientChannel\"")]   // 代替アロケータ指定
+region rClient /*,nNamespace */ {
+	cell tSysLog ClientSysLog {
+	};
+	// [out_through(TracePlugin,"")]
+	[out_through()]
+	region rCPon {
+		cell tAlloc CAlloc {
+		};
+		cell tKernel KernelInClient {
+		};
+		cell tSimpleClient SimpleClient {
+			cCall = SimpleServer.eEnt;
+			cOpener = ClientChannel.eOpener;
+		};
+		cell tTask Task {
+			cBody = SimpleClient.eMain;
+			priority = 1;
+			stackSize = 4096;
+			taskAttribute = C_EXP( "TA_ACT" );
+		};
+	};
+};
+

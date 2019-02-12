@@ -1,0 +1,15 @@
+import( <sMalloc.cdl> );
+import( <kernel.cdl> );
+
+celltype tTLSFMalloc {
+    [inline]
+        entry  sMalloc  eMalloc;
+    attr {
+        /* memory pool size in bytes */
+        size_t  memoryPoolSize;
+    };
+    var {
+        [size_is( memoryPoolSize/ 8 )]
+            uint64_t   *pool;
+    };
+};

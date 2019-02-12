@@ -1,0 +1,113 @@
+import_C( "tecs.h" );
+
+typedef int32_t *INT32P;
+const int32_t	MAX_SZ = 32;
+
+signature sParamsIN {
+	void func10( [in,string]const int16_t *wstr );
+	void func21( [in,size_is(4)]const int32_t  *array );
+	void func22( [in]           const int32_t  array[4] );
+	void func23( [in]           const int32_t  (* array)[4] );
+	void func24( [in]           const int32_t *array[4] );
+	void func30( [in,size_is(sz),string]const int16_t **str, [in]int32_t sz );
+	void func31( [in,size_is(sz,MAX_SZ),string]const int8_t ***str, [in]int32_t sz );  /* 逸脱 */
+	void func41( [in,size_is(4)]const int64_t  (*array2D)[4] );
+	void func42( [in]           const int64_t  (*array2D)[4][4] );
+	// void func50([in,size_is(len)]const INT32P param, [in]int32_t len);
+
+};
+
+/*
+ *【参照実装における制限】構造体のポインタ型メンバ変数は未対応。
+ */
+struct finfo {
+	[size_is(size),string]char **name;
+	size_t       size;
+	int64_t      date;
+};
+
+signature sAllocator {
+	ER alloc( [in]int32_t size, [out]void **m );
+	ER dealloc( [in]const void *m );
+};
+
+[singleton]
+celltype tAllocator {
+	entry sAllocator eAlloc;
+};
+cell tAllocator Allocator{
+};
+
+signature sParamsSEND {
+	void func10( [send(sAllocator),size_is(len),string]char_t **str_array, [in]int32_t len );
+	void func20( [send(sAllocator),size_is(len)]struct finfo *finfo, [in]int32_t len );
+	void func21( [send(sAllocator)]             struct finfo *finfo );
+	void funcA0( [send(sAllocator),size_is(len)]int8_t *buf,  [in]int32_t len );
+//	void funcA1( [send(sAllocator),size_is(len)]int8_t buf[],  [in]int32_t len );    # 実装未対応
+};
+
+signature sParamsOUT {
+	void func00( [out,string]int16_t *wstr );      /* 逸脱 */
+	void func10( [out,string(16)]int16_t *wstr );
+	void func21( [out,size_is(4)]int32_t  *array );
+//	void func22( [out]           int32_t  array[4] );    実装未対応
+	void func23( [out]           int32_t  (*array)[4] );
+//	void func24( [out]           int32_t *array[4] );    実装未対応
+	void func30( [out,size_is(sz),string(64)]int16_t **str, [in]int32_t sz );
+	void func31( [out,size_is(sz),string(96)]int8_t ***str, [in]int32_t sz ); /* 逸脱 */
+	void func41( [out,size_is(4)]int64_t  (*array2D)[4] );
+	void func42( [out]           int64_t  (*array2D)[4][4] );
+};
+
+struct complex_number {
+	double64_t real;
+	double64_t imaginal;
+};
+
+signature sParamsRECEIVE {
+	void func00( [receive(sAllocator)]struct complex_number **dat );
+	void func11( [receive(sAllocator),size_is(4)]struct complex_number **dat );
+	void func20( [receive(sAllocator),size_is(*sz)]int32_t **array, [out]int32_t *sz );
+	void func30( [receive(sAllocator),string]char_t             **str );
+	void func40( [receive(sAllocator),size_is(5),string]char_t  ***str );
+};
+
+celltype tCellCheckParam {
+	entry sParamsIN       eParamsIN;
+	entry sParamsSEND     eParamsSEND;
+	entry sParamsOUT      eParamsOUT;
+	entry sParamsRECEIVE  eParamsRECEIVE;
+};
+
+[allocator(
+	eParamsSEND.func10.str_array=Allocator.eAlloc,
+	eParamsSEND.funcA0.buf      =Allocator.eAlloc,
+	eParamsSEND.func20.finfo    =Allocator.eAlloc,
+	eParamsSEND.func21.finfo    =Allocator.eAlloc,
+	eParamsRECEIVE.func00.dat   =Allocator.eAlloc,
+	eParamsRECEIVE.func11.dat   =Allocator.eAlloc,
+	eParamsRECEIVE.func20.array =Allocator.eAlloc,
+	eParamsRECEIVE.func30.str   =Allocator.eAlloc,
+	eParamsRECEIVE.func40.str   =Allocator.eAlloc
+	)]
+cell tCellCheckParam CheckParam{
+};
+
+[active,singleton]
+celltype tMain {
+	attr {
+		int32_t a = 0;
+	};
+	call sParamsIN       cParamsIN;
+	call sParamsSEND     cParamsSEND;
+	call sParamsOUT      cParamsOUT;
+	call sParamsRECEIVE  cParamsRECEIVE;
+};
+
+cell tMain Main {
+  cParamsIN      = CheckParam.eParamsIN;
+  cParamsSEND    = CheckParam.eParamsSEND;
+  cParamsOUT     = CheckParam.eParamsOUT;
+  cParamsRECEIVE = CheckParam.eParamsRECEIVE;
+  
+};

@@ -1,0 +1,60 @@
+typedef struct stA {
+	int8_t		a;
+	int32_t		b;
+	[size_is(len),count_is(count)]
+		char_t		*msg;
+	int32_t		len, count;
+} STA;
+
+typedef struct stB {
+	int8_t		a;
+	int32_t		b;
+} STB;
+
+const int32_t ArraySize  = 8;
+const int32_t ArraySize2 = 4;
+const int32_t ArraySizeSTA = 2;
+
+signature sSimple {
+	[oneway]
+		void  shutdown( void );    /* サーバを停止させる */
+	ER	func1( [in]int32_t inval );
+	ER	func2( [in,string]const char_t *str );
+	ER	func3( [in,size_is(len)]const char_t *msg, [in]int32_t len );
+	ER	func4( [in,size_is(len),string(16)]const char_t **msg, [in]int32_t len );
+	ER	func5( [in,size_is(len)]const STA **sta, [in]int32_t len );
+	ER	func6( [in]const int8_t array[ArraySize] );
+	ER	func7( [in]const int8_t array2[ArraySize][ArraySize2] );
+	ER	func8( [in]const STA arraySt[ArraySizeSTA] );
+	ER	func9( [in]const STA *arraySt[ArraySizeSTA] );
+
+	ER	func10( [out]int32_t *val );
+	ER	func11( [out,size_is(len)]char_t *msg, [in]int32_t len );
+	ER	func12( [out,size_is(8),string(32)]char_t **msg );
+	ER	func13( [out,size_is(len)]STB *sta, [in]int32_t len );
+	ER	func14( [out,size_is(len)]STB **sta, [in]int32_t len );
+	ER	func15( [out]int8_t (*array1)[ArraySize] );
+
+	ER	func40( [inout]int32_t *val );
+	ER	func41( [inout,size_is(len)]char_t *msg, [in]int32_t len );
+	ER	func42( [inout,size_is(8),string(32)]char_t **msg );
+	ER	func43( [inout,size_is(len)]STA *sta, [in]int32_t len );
+
+	ER	func21( [send(sAlloc)]int32_t *a );
+	ER	func22( [send(sAlloc)]STA     *sta );
+	ER	func23( [send(sAlloc),string]char_t *str );
+	ER	func24( [send(sAlloc),size_is(len)]char_t *msg, [in]int32_t len );
+	ER	func25( [send(sAlloc),size_is(len),string(16)]char_t **msg, [in]int32_t len );
+	ER	func26( [send(sAlloc),size_is(len)]STA     **sta, [in]int32_t len );
+	ER	func27( [send(sAlloc)]int8_t  (*array2)[ArraySize] );
+
+	ER	func31( [receive(sAlloc)]int32_t **a );
+	ER	func32( [receive(sAlloc)]STA     **sta );
+	ER	func33( [receive(sAlloc),string]char_t **str );
+	ER	func34( [receive(sAlloc),size_is(*len)]char_t **msg, [out]int32_t *len );
+	ER	func35( [receive(sAlloc),size_is(*len),string(*msglen)]char_t ***msg, [out]int32_t *len, [out]int32_t *msglen );
+	ER	func36( [receive(sAlloc),size_is(*len)]STA  **sta, [out]int32_t *len );
+	ER	func37( [receive(sAlloc),size_is(*len)]STA  ***sta, [out]int32_t *len );
+	ER	func38( [receive(sAlloc)]int8_t  (**array2)[ArraySize] );
+	ER	func39( [receive(sAlloc)]STA *(**arraySt)[ArraySizeSTA] );
+};

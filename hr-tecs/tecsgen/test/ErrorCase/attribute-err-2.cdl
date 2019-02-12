@@ -1,0 +1,32 @@
+celltype tAttr {
+  attr {
+    int	        *a={ 1, 2 };     // スカラー量なので、最初の成分のみを用いる方法も考えられるがエラーとする
+    [omit]
+      int       b[] = { 1, 2 };  // omit 指定されていればエラーではない
+  };
+  var {
+    // [size_is(*a)]		// 式の例外
+    [size_is(2)]
+      int8_t    *c;
+  };
+  factory {
+    write( "tecsgen.cfg", "%s", b );
+  };
+};
+
+cell tAttr Attr {
+};
+
+celltype tAttr2 {
+  attr {
+    int         a=10;
+  };
+  var {
+    [size_is(a)]
+      int8_t    *b;
+  };
+};
+
+cell tAttr Attr2 {
+};
+

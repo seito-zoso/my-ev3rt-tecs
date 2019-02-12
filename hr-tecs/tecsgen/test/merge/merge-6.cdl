@@ -1,0 +1,35 @@
+
+/*
+ * 関数のリネーム
+ */
+import_C( "cygwin_tecs.h" );
+
+signature sSig {
+	void func( void );
+	void func2( void );
+	void func3( void );
+};
+
+
+signature sSig2 {
+	void func( void );    // funcX  ==> func
+	void func2( void );   // funcX2 ==> func2
+	void func3( void );    // 新規
+};
+
+celltype tCelltype {
+//	entry sSig eEnt;
+	entry sSig2 eEnt2;
+};
+
+[active]
+celltype tCelltype2 {
+	call sSig2  cCall;
+};
+
+cell tCelltype Cell {
+};
+
+cell tCelltype2 Cell2 {
+	cCall = Cell.eEnt2;
+};

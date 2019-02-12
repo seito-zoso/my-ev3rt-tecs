@@ -1,0 +1,115 @@
+
+/*************************************************************
+restrict 機能
+
+【概要】
+
+restrict は、受け口の関数への結合を個別にアクセス制御 (呼出し制限) す
+る目的で用いられる。TOPPERS/HRP3 カーネルのアクセス許可ベクタに相当す
+る機能を、ユーザー定義の関数においても実現可能とするものである。
+
+restrict による呼出し制限は、ドメインプラグインにより生成されて、リー
+ジョン間の結合に挿入されるセルにより実現されるもので、動的な検査を行う
+ことが想定される。
+
+従って TECS ジェネレータ本体では、restrict による呼出し制限を実現しな
+い。保護機能を備えた OS (TOPPERS/HRP3) で用いられることが想定されてい
+る。
+
+   将来的には、TOPPERS/ASP3 のように保護機能がないカーネルでも、呼出し
+   制限が行われても良いと思う。この場合には、例えば、受け口スケルトン
+   関数を結合ごとに分けて、エラーを返す方法が考えられる。
+
+【文法】
+restrict は、セルの指定子として記述する。受け口関数全体を指定する記述
+方法と、受け口関数を個別に指定する記述方法がある。
+
+[restrict{eEntry={rRegion1,rRegion2},   //  受け口全体を指定する
+ restrict{eEntry.func1={rRegion3}]      //  受け口関数を指定する
+cell tCelltype Cell {
+    attrirubte = 1;
+};
+
+受け口または受け口関数に対してアクセス制限がなされている受け口について
+のみ、アクセス制限がなされているものとみなされる。
+受け口または受け口関数のアクセス制限がなされて
+
+'{', '}' に囲んで、リージョンのリストを記述する。リージョンリスト内の
+各リージョンは、、セルの名前有効範囲（スコープ）に含まれていて参照可能
+でなければならない。指定されたリージョンが同じドメインに属する場合、無
+視される（TECS ジェネレータは警告する）。
+
+  名前有効範囲（スコープ）に含まれていて参照可能という仕様により、他の
+  ノードに属するドメインへの参照許可を与えることができない。
+
+呼び元のセルは、上記のリージョンリスト内のリージョン、または、その子リー
+ジョンに属している場合、指定された受け口または受け口関数を呼び出し可能
+と判定する。
+
+なお、リージョン間のアクセス制限も適用されるので、呼出し可能となるため
+には、両方が許可される必要がある。
+
+【プラグイン実装】
+
+呼び元のセルから呼び先のセルの受け口関数を呼び出し可能かどうか
+(restrict による参照制限を受けていないか) は、以下のメソッドで判定でき
+る。
+
+Cell#callable?( cell, entry, func )
+self::Cell: 呼び元のセル
+cell::Cell: 呼び先のセル
+entry::Symbol: 受け口
+func::Symbol: 受け口関数名
+
+
+ ***********************************************************/
+
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+
+
+signature sSig {
+    void func1( void );
+    void func2( void );
+    void func3( void );
+};
+
+celltype tCelltype {
+    entry sSig eEnt;
+};
+
+[active]
+celltype tCelltypeClient {
+    entry sTaskBody eBody;
+    call sSig cCall;
+};
+
+[domain(MyDomain,"trusted")]
+region rRegionDst {
+
+    [restrict(
+            eEnt.func1={rRegionSrc},
+//            eEnt.func1={rRegionSrc},
+            eEnt.func2={rRegionSrc}
+            )        ]
+        cell tCelltype Cell {
+    };
+};
+
+    cell tKernel Kernel{};
+    cell tSysLog SysLog{};
+
+[domain(MyDomain,"nontrusted")]
+region rRegionSrc {
+
+    cell tCelltypeClient Cell {
+        cCall = rRegionDst::Cell.eEnt;
+    };
+    cell tTask Task {
+        priority = 11;
+        stackSize = 1024;
+        taskAttribute = C_EXP( "TA_ACT" );
+        cBody = Cell.eBody;
+    };
+};
+

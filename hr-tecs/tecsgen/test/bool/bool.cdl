@@ -1,0 +1,51 @@
+import_C( "tecs.h" );
+
+import( <cygwin_kernel.cdl> );
+import( <tSysLog.cdl> );
+
+cell tSysLog SysLog {};
+cell tKernel Kernel {};
+
+const bool_t BoolFlag = false;
+
+signature sSigBool_T{
+	bool_t func( [in]bool_t boo, [out]bool_t *boo2 );
+	bool_t *func2( [in,size_is(sz)]const bool_t *boo, [in]int sz );
+};
+
+celltype tCTBool_T {
+	entry sSigBool_T eBooo;
+	attr {
+		bool_t boo;
+		bool_t boo2 = true;
+		bool_t boo3;
+	};
+};
+
+[singleton]
+celltype tCTBool_TClient {
+	call sSigBool_T cBooo[];
+};
+
+cell tCTBool_T Boo {
+	boo = false;
+	boo3 = 0;
+};
+
+cell tCTBool_T Boo2 {
+	boo = 1;
+	boo3 = true;
+};
+
+cell tCTBool_T Boo3 {
+// boo = BoolFlag * 3;      // エラー
+	boo = BoolFlag;
+	boo3 = true;
+};
+
+cell tCTBool_TClient boo_client {
+	[through(TracePlugin,"")]
+		cBooo[0] = Boo.eBooo;
+	[through(TracePlugin,"")]
+		cBooo[1] = Boo2.eBooo;
+};

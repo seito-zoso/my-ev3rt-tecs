@@ -1,0 +1,21 @@
+typedef int32_t ER;
+
+signature sSig1 {
+  ER func0( [in]int8_t input, [out]int32_t *output );
+  ER func1( [in]int8_t input, [out]int32_t *output );
+};
+
+celltype ctCT1 {
+  entry sSig1 eEnt;
+};
+
+celltype ctCT2 {
+  call sSig1 cCall;
+};
+
+cell ctCT1 cell1;
+
+cell ctCT2 cell2{
+  cCall = cell1.eEnt;
+};
+

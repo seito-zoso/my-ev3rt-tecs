@@ -1,0 +1,474 @@
+
+ /* for Linux */
+ typedef signed   int32	INT;
+ typedef signed   int32	SYSTIM;
+ typedef signed   int32	VP_INT;
+ typedef unsigned int32	UINT;
+ typedef unsigned int32	UW;
+ typedef unsigned int8	UB;
+
+ /* for uITRON4.0 */
+
+ typedef INT		ER;
+ typedef INT		ID;
+ typedef INT		ER_UINT;
+ typedef bool		BOOL;
+
+/*
+ *  コールバックルーチンの識別番号
+ */
+const unsigned int SIO_ERDY_SND =   1;      /* 送信可能コールバック */
+const unsigned int SIO_ERDY_RCV =   2;      /* 受信通知コールバック */
+
+/*
+ * SIGIOタスクの設定
+ */
+const int  LINUX_SIGIO_PRIORITY      =2;
+const int  LINUX_SIGIO_STACK_SIZE =8192;
+
+
+/*
+ *  フローコントロール関係の定義
+ */
+const int STOP	= 23;		/* Control-S */
+const int START	= 21;		/* Control-Q */
+
+const int IXOFF_STOP	= 64;	/* buffer area size to send STOP */
+const int IXOFF_START	= 128;	/* buffer area size to send START */
+
+/*
+ *  シリアルインタフェースドライバの動作制御用のための定数
+ *
+ *  以下の定数は，ビット毎に論理和をとって用いる．
+ */
+const unsigned int IOCTL_NULL	=0;		/* 指定なし */
+const unsigned int IOCTL_ECHO	=0x0001;		/* 受信した文字をエコーバック */
+const unsigned int IOCTL_CRLF	=0x0010;		/* LF を送信する前に CR を付加 */
+const unsigned int IOCTL_FCSND	=0x0100;		/* 送信に対してフロー制御を行う */
+const unsigned int IOCTL_FCANY	=0x0200;		/* どのような文字でも送信再開 */
+const unsigned int IOCTL_FCRCV	=0x0400;		/* 受信に対してフロー制御を行う */
+
+/*
+ *  ログ情報の種別の定義
+ *
+ *  LOG_TYPE_CYC，LOG_TYPE_ASSERT 以外は，デバッギングインタフェース仕
+ *  様と合致している．
+ */
+const unsigned int LOG_TYPE_INH	=	0x01;	/* 割込みハンドラ */
+const unsigned int LOG_TYPE_ISR	=	0x02;	/* 割込みサービスルーチン */
+const unsigned int LOG_TYPE_CYC	=	0x03;	/* 周期ハンドラ */
+const unsigned int LOG_TYPE_EXC	=	0x04;	/* CPU例外ハンドラ */
+const unsigned int LOG_TYPE_TEX	=	0x05;	/* タスク例外処理ルーチン */
+const unsigned int LOG_TYPE_TSKSTAT =	0x06;	/* タスク状態変化 */
+const unsigned int LOG_TYPE_DSP	=	0x07;	/* ディスパッチャ */
+const unsigned int LOG_TYPE_SVC	=	0x08;	/* サービスコール */
+const unsigned int LOG_TYPE_COMMENT =	0x09;	/* コメント */
+const unsigned int LOG_TYPE_ASSERT =	0x0a;	/* アサーションの失敗 */
+
+const unsigned int LOG_ENTER	=	0x00;	/* 入口／開始 */
+const unsigned int LOG_LEAVE	=	0x80;	/* 出口／終了 */
+
+/*
+ *  ログ情報の重要度の定義
+ */
+const unsigned int LOG_EMERG	=0;		/* シャットダウンに値するエラー */
+const unsigned int LOG_ALERT	=1;
+const unsigned int LOG_CRIT	=2;
+const unsigned int LOG_ERROR	=3;		/* システムエラー */
+const unsigned int LOG_WARNING	=4;		/* 警告メッセージ */
+const unsigned int LOG_NOTICE	=5;
+const unsigned int LOG_INFO	=6;
+const unsigned int LOG_DEBUG	=7;		/* デバッグ用メッセージ */
+
+
+const int TMAX_LOGINFO	= 6;
+/* #define TMAX_LOGINFO 6 */
+
+ const int NULL = 0;
+ const int FALSE = 0;
+ const int32 SERIAL_BUFSZ = 256;
+ const int32 SERIAL_RCV_SEM1 = 1;
+ const int32 SERIAL_SND_SEM1 = 2;
+ const int32 SERIAL_RCV_SEM2 = 3;
+ const int32 SERIAL_SND_SEM2 = 4;
+
+ /*　
+ 	初期化 
+ 	       factoryで指定する
+ 	       ITRONでは静的APIで初期化ハンドラに指定する
+	       受け口関数ではない
+
+	       初期化はセルタイプに対して行うのか?
+	       それとも個々のセルに対して行うのか?
+
+	       複数のセルの場合、個々のセルを特定する情報を
+	       ジェネレータが与える必要がある
+ */
+
+
+ /*
+	割込みハンドラ
+		factoryで指定する
+		割り込みはセルタイプに対して定義するのか?
+		セルに対して定義するのか?
+				
+		複数のセルの場合、個々のセルを特定する情報を
+		ジェネレータが与える必要がある
+		
+ 	コントロールブロックの初期化
+		シリアルポートセルの属性、変数の初期化で実現する
+
+
+ 	ポートの出力先はセルの接続を指定したときに定まる
+
+ */
+
+
+ /****/
+
+ /*
+  *  シリアルポート初期化ブロック
+  */
+
+ typedef struct serial_port_initialization_block {
+ 	ID	rcv_semid;	/* 受信バッファ管理用セマフォのID */
+ 	ID	snd_semid;	/* 送信バッファ管理用セマフォのID */
+ 	char	rcv_fc_chr;	/* 送るべき START/STOP */
+ } SPINIB;
+
+/*
+ *  シリアルポート管理ブロックの定義
+ */
+ typedef struct serial_port_control_block {
+ 	BOOL	openflag;	/* オープン済みフラグ */
+ 	UINT	ioctl;		/* 動作制御の設定値 */
+
+ 	UINT	rcv_read_ptr;	/* 受信バッファ読出しポインタ */
+ 	UINT	rcv_write_ptr;	/* 受信バッファ書込みポインタ */
+ 	UINT	rcv_count;	/* 受信バッファ中の文字数 */
+ 	BOOL	rcv_stopped;	/* STOP を送った状態か？ */
+
+ 	UINT	snd_read_ptr;	/* 送信バッファ読出しポインタ */
+ 	UINT	snd_write_ptr;	/* 送信バッファ書込みポインタ */
+ 	UINT	snd_count;	/* 送信バッファ中の文字数 */
+ 	BOOL	snd_stopped;	/* STOP を受け取った状態か？ */
+
+ 	char	rcv_buffer[SERIAL_BUFSZ];	/* 受信バッファ */
+ 	char	snd_buffer[SERIAL_BUFSZ];	/* 送信バッファ */
+ } SPCB;
+
+ /*
+  *  シリアルI/Oポート初期化ブロック
+  */
+ typedef struct sio_port_initialization_block {
+     UW reg_base;    /* レジスタのベースアドレス */
+     UB lcr_val;     /* モードレジスタの設定値   */
+     UB dlm_val;     /* ボーレート上位の設定値   */
+     UB dll_val;     /* ボーレート下位の設定値   */
+     UW pinter_val;  /* 割込み許可ビット   */    
+ } SIOPINIB;
+
+ /*
+  *  シリアルI/Oポート管理ブロック
+  */
+ typedef struct {
+     VP_INT  exinf;		/* 拡張情報 */
+     BOOL    openflag;		/* オープン済みフラグ */
+     BOOL    sendflag;		/* 送信割込みイネーブルフラグ */
+     BOOL    getready;		/* 文字を受信した状態 */
+     BOOL    putready;		/* 文字を送信できる状態 */
+ } SIOPCB;
+
+ /*
+  *  Linuxシミュレーション用シリアルポート初期化ブロック
+  */
+typedef struct serial_port_initialization_block_linux {
+	ID	in_semid;	/* 受信バッファ管理用セマフォの ID */
+	ID	out_semid;	/* 送信バッファ管理用セマフォの ID */
+} SPINIBLINUX;
+
+/*
+ *  Linuxシミュレーション用シリアルポート管理ブロックの定義
+ */
+typedef struct serial_port_control_block_linux {
+	BOOL	init_flag;	/* 初期化済か？ */
+	int	in_read_ptr;	/* 受信バッファ読み出しポインタ */
+	int	in_write_ptr;	/* 受信バッファ書き込みポインタ */
+	int	out_read_ptr;	/* 送信バッファ読み出しポインタ */
+	int	out_write_ptr;	/* 送信バッファ書き込みポインタ */
+	UINT	ioctl;		/* ioctl による設定内容 */
+	BOOL	send_enabled;	/* 送信をイネーブルしてあるか？ */
+	BOOL	ixon_stopped;	/* STOP を受け取った状態か？ */
+	BOOL	ixoff_stopped;	/* 相手に STOP を送った状態か？ */
+	char	ixoff_send;	/* 相手に START/STOP を送るか？ */
+
+	char	in_buffer[SERIAL_BUFSZ];	/* 受信バッファエリア */
+	char	out_buffer[SERIAL_BUFSZ];	/* 受信バッファエリア */
+} SPCBLINUX;
+
+/* termiosはダミーの定義 */
+struct termios {
+	int a;
+};
+
+/*
+ *  Linuxシミュレーション用シリアルIOポート管理ブロックの定義
+ */
+typedef struct hardware_serial_port_descripter {
+	char   *path;		        /* UNIX 上でのファイル名 */
+	int	   fd;		        /* ファイルディスクリプタ */
+	struct termios	current_term;	/* 端末制御情報 */
+	struct termios	saved_term;    
+} HWPORT;
+
+/*
+ * シスログ情報
+ */
+typedef struct {
+	UINT	logtype;		/* ログ情報の種別 */
+	SYSTIM	logtim;			/* ログ時刻 */
+	VP_INT	loginfo[TMAX_LOGINFO];	/* その他のログ情報 */
+} SYSLOG;
+
+
+/* ログタスク */
+signature sLogTask {
+	  void main(void);	
+};
+
+
+/* シスログ本体 */
+signature sSysLog {
+	  ER write( [in] UINT prio,  [in] SYSLOG *p_log);
+	  ER_UINT read( [out] SYSLOG *p_log);
+	  ER mask( [in] UINT logmask,  [in] UINT lowmask);
+};
+
+
+
+const int TCNT_SYSLOG_BUFFER = 32;
+
+
+/* (通信用)ポート */
+signature sPort {
+ 	  ER open( void ); /* ポートのオープン */
+ 	  ER close( void ); /* ポートのクローズ */
+ 	  ER_UINT write( [in , size_is(len)] char *buf,  [in] UINT len); /* 文字列送信 */
+ 	  ER_UINT read( [out , size_is(len)] char *buf,  [in] UINT len); /* 文字列受信 */
+ 	  ER ctl( [in] UINT ioctl); /* ポートの制御 */
+};
+
+
+signature sSerialPortCallBackLinux {
+ 	  BOOL snd( [in] VP_INT exinf);/* シリアルポートからの送信可能コールバック */
+ 	  BOOL rcv( [in] VP_INT exinf); /* シリアルポートからの受信通知コールバック */
+};
+
+signature sSIOPort {
+ 	  void open( [in] ID id , [in] VP_INT exinf);
+ 	  void close( [in] ID id);
+ 	  BOOL snd_chr( [in] char c);
+ 	  INT  rcv_chr( [out] char *c);
+ 	  void ena_cbr( [in] UINT cbrtn);
+ 	  void dis_cbr( [in] UINT cbrtn);
+};
+
+
+
+/* セルタイプの定義 */
+[singleton] 
+celltype tLogTask {
+	entry sLogTask eLogTask;
+	call  sSysLog cSysLog;
+	call  sPort cPort;
+};
+
+[singleton] 
+celltype tSysLog {
+	entry sSysLog eSysLog;
+	call  sPort cPort;
+
+	  var {
+	  /*
+	   *  出力すべきログ情報の重要度（ビットマップ）
+	    */
+	    UINT	syslog_logmask;			/* ログバッファに記録すべき重要度 */
+	    UINT	syslog_lowmask;			/* 低レベル出力すべき重要度 */
+	  /*
+	   *  ログバッファとそれにアクセスするためのポインタ
+	    */
+	     SYSLOG	syslog_buffer[TCNT_SYSLOG_BUFFER];	/* ログバッファ */
+	     UINT	syslog_count;			/* ログバッファ中のログの数 */
+	     UINT	syslog_head;			/* 先頭のログの格納位置 */
+	     UINT	syslog_tail;			/* 次のログの格納位置 */
+	     UINT	syslog_lost;			/* 失われたログの数 */
+	  };
+/*
+	現在は、手で追加する
+
+	factory( INIT_HANDLER ,      TA_HLG, 0, tSyslog_initialize );
+
+	
+	factory( TERM_HANDLER ,      TA_HLG, 0, tSyslog_terminate );
+*/
+};
+
+[singleton] 
+celltype tDummySerialPort {
+	entry sPort ePort;
+	call  sPort cPort;
+};
+
+
+celltype tSerialPortLinux {
+	entry sPort ePort;
+	entry sSerialPortCallBackLinux eSerialPortCallBack;
+	call  sSIOPort cSIOPort;
+
+	var {
+		BOOL	init_flag;	/* 初期化済か？ */
+		int	in_read_ptr;	/* 受信バッファ読み出しポインタ */
+		int	in_write_ptr;	/* 受信バッファ書き込みポインタ */
+		int	out_read_ptr;	/* 送信バッファ読み出しポインタ */
+		int	out_write_ptr;	/* 送信バッファ書き込みポインタ */
+		UINT	ioctl;		/* ioctl による設定内容 */
+		BOOL	send_enabled;	/* 送信をイネーブルしてあるか？ */
+		BOOL	ixon_stopped;	/* STOP を受け取った状態か？ */
+		BOOL	ixoff_stopped;	/* 相手に STOP を送った状態か？ */
+		char	ixoff_send;	/* 相手に START/STOP を送るか？ */
+
+		char	in_buffer[SERIAL_BUFSZ];	/* 受信バッファエリア */
+		char	out_buffer[SERIAL_BUFSZ];	/* 受信バッファエリア */
+	};
+	attr {
+		ID	in_semid;	/* 受信バッファ管理用セマフォの ID */
+		ID	out_semid;	/* 送信バッファ管理用セマフォの ID */
+	};
+/* 
+ 以下の関数は手で独自に追加する
+
+	 factory( INIT_HANDLER ,      TA_HLG, 0, tSerialPort_initialize );
+   
+*/
+};
+
+celltype tSIOPortLinux {
+	entry sSIOPort eSIOPort;
+	call sSerialPortCallBackLinux cSerialPortCallBack;
+
+	var {
+/* SIOPCB */
+	     	VP_INT  exinf;		/* 拡張情報 */
+	     	BOOL    openflag;		/* オープン済みフラグ */
+	     	BOOL    sendflag;		/* 送信割込みイネーブルフラグ */
+	     	BOOL    getready;		/* 文字を受信した状態 */
+	     	BOOL    putready;		/* 文字を送信できる状態 */
+/*	     	HWPORT    hwport;*/
+		char   *path;		        /* UNIX 上でのファイル名 */
+		int	   fd;		        /* ファイルディスクリプタ */
+		struct termios	current_term;	/* 端末制御情報 */
+		struct termios	saved_term;    
+	};
+
+ /*
+ 以下の関数は手で独自に追加する
+
+	 factory( INIT_HANDLER ,      TA_HLG, 0, tSIOPortLinux_initialize );
+ 	 factory( INTERRUPT_HANDLER , TA_HLG, INHNO_SIO,
+ 	 tSIOPortLinux_interrupt );
+*/
+
+};
+
+/* セルの組み上げ記述 */
+
+/** Logセル **/
+cell tSysLog SysLog;
+cell tSerialPortLinux tSerialPortLinux;
+
+cell tLogTask LogTask {
+     cSysLog = SysLog.eSysLog;
+     cPort = SerialPortLinux.ePort;
+};
+
+/** DummySerialPortセル **/
+cell tSerialPortLinux SerialPortLinux;
+
+cell tDummySerialPort DummySerialPort {
+     cPort = SerialPortLinux.ePort;
+};
+
+/** SysLogセル **/
+cell tSysLog SysLog {
+	cSIOPort = SIOPortLinux.eSIOPort;
+};
+
+/* SerialPortLinuxセル */
+cell tSIOPortLinux SIOPortLinux;
+
+cell tSerialPortLinux SerialPortLinux {
+	cSIOPort = SIOPortLinux.eSIOPort;
+
+	/* var */
+	init_flag = FALSE;	/* 初期化済か？ */
+	in_read_ptr = 0;	/* 受信バッファ読み出しポインタ */
+	in_write_ptr = 0;	/* 受信バッファ書き込みポインタ */
+	out_read_ptr = 0;	/* 送信バッファ読み出しポインタ */
+	out_write_ptr = 0;	/* 送信バッファ書き込みポインタ */
+	ioctl = 0;		/* ioctl による設定内容 */
+	send_enabled = FALSE;	/* 送信をイネーブルしてあるか？ */
+	ixon_stopped = FALSE;	/* STOP を受け取った状態か？ */
+	ixoff_stopped = FALSE;	/* 相手に STOP を送った状態か？ */
+	ixoff_send = FALSE;	/* 相手に START/STOP を送るか？ */
+
+	in_buffer = { 0 };	/* 受信バッファエリア */
+	out_buffer = { 0 };	/* 受信バッファエリア */
+
+	/* attr */
+	in_semid = SERIAL_RCV_SEM1;
+	out_semid =  SERIAL_SND_SEM1;
+/*
+	factory(CRE_SEM , SERIAL_RCV_SEM1, { TA_TPRI, 0, 1 });
+	factory(CRE_SEM , SERIAL_SND_SEM1, { TA_TPRI, 1, 1 });
+*/
+};
+
+/* SIOPortLinuxセル */
+/**** cell tSerialPortLinux SerialPortLinux; ****/
+
+cell tSIOPortLinux SIOPortLinux {
+	cSerialPortCallBack = SerialPortLinux.eSerialPortCallBack;
+
+     	exinf = FALSE;		/* 拡張情報 */
+ 	openflag = FALSE;		/* オープン済みフラグ */
+	sendflag = FALSE;		/* 送信割込みイネーブルフラグ */
+	getready = FALSE;		/* 文字を受信した状態 */
+	putready = FALSE;		/* 文字を送信できる状態 */
+
+	/* attr */
+/*
+ 	reg_base = ST16C_CHB;
+	lcr_val = LCR_VAL; 
+	dlm_val = DLM_VAL; 
+	dll_val = DLL_VAL; 
+	pinter_val = PINTER_PINT7E;
+*/
+/*
+      siopinib = { {ST16C_CHB, LCR_VAL, DLM_VAL, DLL_VAL, PINTER_PINT7E},
+ 		   {ST16C_CHA, LCR_VAL, DLM_VAL, DLL_VAL, PINTER_PINT6E}
+ 		   };
+*/
+/*	
+	 factory( INIT_HANDLER ,      TA_HLG, 0, SIOPortLinux_initialize );
+*/
+
+};
+
+
+
+
+
+
+
+
+

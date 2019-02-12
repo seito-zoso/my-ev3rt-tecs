@@ -1,0 +1,55 @@
+typedef int32_t INT;
+
+celltype tCellIn1 {
+	attr {
+		int32_t a = C_EXP( "a_tCellIn1__$id$" );
+		INT     b = 10;
+	};
+};
+
+celltype tCellIn2 {
+	attr {
+		INT     c = C_EXP( "c_tCellIn2__$id$" );
+		int32_t d = 10;
+		int32_t e;
+		int32_t f = C_EXP( "f_tCellIn2__4id$" );
+	};
+};
+
+composite tComposite {
+	attr {
+//		int32_t a = 10;
+		int32_t a = C_EXP( "a_tComposite__$id$" );
+		INT     b = C_EXP( "b_tComposite__$id$" );
+		INT     c = C_EXP( "c_tComposite__$id$" );
+	};
+	cell tCellIn1 CellIn1 {
+		a = composite.a;
+		b = composite.b;
+	};
+	cell tCellIn2 CellIn2 {
+		c = composite.c;
+		d = C_EXP( "d_tComposite_CellIn2__$id$" );
+		e = composite.a;
+	};
+};
+
+cell tComposite Composite {
+	b = C_EXP( "b_Composite__$id$" );
+//	c = C_EXP( "c_Composite__$id$" );
+};
+
+composite tCompositeComposite {
+	attr {
+		int32_t A = C_EXP( "A_tCompositeComposite_$id$" );
+		INT     B;
+	};
+	cell tComposite Composite {
+		a = composite.A;
+		b = composite.B;
+	};
+};
+
+cell tCompositeComposite CompositeComposite {
+	B = C_EXP( "B_CompositeCompoiste_$id$" );
+};

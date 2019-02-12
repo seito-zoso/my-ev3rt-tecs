@@ -1,0 +1,47 @@
+signature sSig {
+	void func(void);
+};
+
+celltype tCt1 {
+	attr {
+		int32_t a1;
+	};
+};
+
+celltype tCt2 {
+	attr {
+		int32_t a2;
+		int32_t a3 = 10;
+		int32_t a4;
+		int32_t a5 = 50;
+	};
+};
+
+composite tComposite {
+	attr {
+		int32_t b1;
+		int32_t b3;
+		int32_t b4 = 404;
+	};
+	cell tCt1 Cell1 {
+		a1 = composite.b1;
+	};
+	cell tCt2 Cell2 {
+		/* error : a2 has no initializer */
+		a3 = composite.b3;
+		a4 = b4;
+	};
+};
+
+cell tComposite Composite {
+	/* error : b1 has no initializer */
+	/* error : b3 has no initializer */
+};
+
+cell tComposite Composite2 {
+	b1 = 1;
+	b3 = 100;
+	b4 = 405;
+};
+
+

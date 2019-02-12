@@ -1,0 +1,48 @@
+ï»¿
+/* #[<PREAMBLE>]#
+ * #[<...>]# ¤«¤é #[</...>]# ¤Ç°Ï¤Ş¤ì¤¿¥³¥á¥ó¥È¤ÏÊÔ½¸¤·¤Ê¤¤¤Ç¤¯¤À¤µ¤¤
+ * tecsmerge ¤Ë¤è¤ë¥Ş¡¼¥¸¤Ë»ÈÍÑ¤µ¤ì¤Ş¤¹
+ *
+ * ¸Æ¤Ó¸ı´Ø¿ô #_TCPF_#
+ * call port: cCall signature: sSample context:task
+ *   ER             cCall_sayHello( int32_t times );
+ *   ER             cCall_howAreYou( char_t* buf, int32_t len );
+ *
+ * #[</PREAMBLE>]# */
+
+#include <stdio.h>
+#include "tSimple_tecsgen.h"
+
+#ifndef E_OK
+#define	E_OK	0		/* æ­£å¸¸çµ‚äº† */
+#define	E_ID	(-18)	/* ä¸æ­£IDç•ªå· */
+#endif
+
+/* #[<ENTRY_PORT>]# eBody
+ * entry port: eBody
+ * signature:  sTaskBody
+ * context:    task
+ * #[</ENTRY_PORT>]# */
+
+/* #[<ENTRY_FUNC>]# eBody_main
+ * name:         eBody_main
+ * global_name:  tSimple_eBody_main
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+void
+eBody_main()
+{
+	char   buf[256];
+
+#define N_HELLO 3
+	printf( "Simple: Say hello %d times.\n", N_HELLO );
+	cCall_sayHello( N_HELLO );            /* å‘¼ã³å£ cCall ã® sayHello ã‚’å‘¼ã³å‡ºã™ */
+
+	printf( "Simple: How are you?\n" );
+	cCall_howAreYou( buf, sizeof buf );   /* å‘¼ã³å£ cCall ã® howAreYou ã‚’å‘¼ã³å‡ºã™ */
+	puts( buf );
+}
+
+/* #[<POSTAMBLE>]#
+ *   ¤³¤ì¤è¤ê²¼¤ËÈó¼õ¤±¸ı´Ø¿ô¤ò½ñ¤­¤Ş¤¹
+ * #[</POSTAMBLE>]#*/

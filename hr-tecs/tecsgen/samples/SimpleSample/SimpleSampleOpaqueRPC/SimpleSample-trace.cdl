@@ -1,0 +1,80 @@
+﻿/*
+ * Simple な Sample (OpaqueRPC 版)
+ *                                               sSocketClientOpener
+ *                                  +---------------------------------------+
+ *                                  |cOpener                                |eOpener
+ *  +-------------+           +-------------+           +-------------+     |    +-------------+
+ *  |             |           |             |           |             |     V    |             |
+ *  |   tTask     | sTaskBody |   tTaskMain | sTaskBody |   tSimple   |  sSample |   tSample   |
+ *  |   Task      |-----------|   TaskMain  |-----------|>  Simple    |==========|>  Sample    |
+ *  |             |cTask eBody|             |cBody eBody|             |cCall eEnt|             |
+ *  |             |Body       |             |           |             |          |             |
+ *  +-------------+           +-------------+           +-------------+          +-------------+
+ */
+
+
+// cygwin 用の簡易な型定義
+import( <cygwin_kernel.cdl> );
+  // TECS 対応 TOPPERS/ASP ならば import( <kernel.cdl> ); でよい
+
+import( <tSysLog.cdl> );
+import( <rpc.cdl> );
+import( <tSocketChannel.cdl> );
+
+signature sSample {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+};
+
+celltype tSample {
+	entry sSample eEnt;
+};
+
+[singleton,active]
+celltype tSimple {
+	call sSample cCall;
+	entry sTaskBody eBody;
+};
+
+celltype tTaskMain {
+	entry sTaskBody eBody;
+	call  sTaskBody cBody;
+	call  sSocketClientOpener cOpener;
+};
+
+[linkunit]
+region rSample {
+	cell tSysLog SysLog {
+	};
+	cell tKernel Kernel {
+	};
+	cell tSample Sample {
+	};
+};
+
+[linkunit,
+ to_through( rSample, OpaqueRPCPlugin,
+			 "PPAllocatorSize=1024,"
+			 "clientChannelCell= 'ClientChannel', "	// クライアント側チャンネルセル名
+)]
+region rSimple {
+	cell tSysLog SysLog {
+	};
+	cell tKernel Kernel {
+	};
+	cell tSimple Simple {
+		[through(TracePlugin,"")]
+		cCall = rSample::Sample.eEnt;
+	};
+	cell tTaskMain TaskMain {
+		cBody = Simple.eBody;
+		cOpener = ClientChannel.eOpener;
+	};
+
+	cell tTask Task {
+		cBody = TaskMain.eBody;
+		priority = 11;
+		stackSize = 1024;
+		taskAttribute = C_EXP( "TA_ACT" );
+	};
+};

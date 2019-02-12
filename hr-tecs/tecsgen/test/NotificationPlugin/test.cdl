@@ -1,0 +1,363 @@
+import_C( "id.h" );
+import_C( "types.h" );
+
+signature siNotificationHandler {
+};
+
+[active, generate(NotifierPlugin,
+	"factory=!CRE_CYC({{id}}, {{{attribute}}, {{_handler_params_}}, {{testArg}}});!, output_file=tecsgen.cfg")]
+celltype tTestNotifier {
+
+	[optional] call siNotificationHandler            ciNotificationHandler;
+	[optional] call siNotificationHandler ciErrorNotificationHandler;
+
+
+	attr {
+		[omit] int		id = C_EXP("CYCID_$id$");
+		[omit] int		attribute = C_EXP("TA_NULL");
+		[omit] bool_t   ignoreErrors = false;
+
+		[omit] int      testArg = C_EXP("TEST");
+
+		[omit] int 		setVariableValue = 0;
+		[omit] int 		setVariableAddress = 0;
+		[omit] int		incrementedVariableAddress = 0;
+		[omit] int 		flagPattern = 0;
+		[omit] int 		dataqueueSentValue = 0;
+
+		[omit] int 		setVariableAddressForError = 0;
+		[omit] int		incrementedVariableAddressForError = 0;
+		[omit] int 		flagPatternForError = 0;
+	};
+};
+
+[active]
+celltype tTask {
+	entry	siNotificationHandler	eiActivateNotificationHandler;
+	entry	siNotificationHandler	eiWakeUpNotificationHandler;
+	attr {
+		int				id = C_EXP("TSKID_$id$");
+		[omit] int		attribute = C_EXP("TA_NULL");
+	};
+	factory {
+		write("tecsgen.cfg",
+				"CRE_TSK(%s, { %s, $cbp$, tTask_start, 0, 0, NULL });",
+									id, attribute);
+	};
+};
+
+[active]
+celltype tSemaphore {
+	entry	siNotificationHandler	eSignalNotificationHandler;
+	attr {
+		int				id = C_EXP("SEMID_$id$");
+		[omit] int		attribute = C_EXP("TA_NULL");
+	};
+	factory {
+		write("tecsgen.cfg", "CRE_SEM(%s, { %s, 0, 1 });", id, attribute);
+	};
+};
+
+celltype tEventflag {
+	entry	siNotificationHandler	eiNotificationHandler;
+
+	attr {
+		int				id = C_EXP("FLGID_$id$");
+		[omit] int		attribute = C_EXP("TA_NULL");
+	};
+
+	factory {
+		write("tecsgen.cfg", "CRE_FLG(%s, { %s, 0 });",
+									id, attribute);
+	};
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+celltype tDataqueue {
+	entry	siNotificationHandler	eiNotificationHandler;
+
+	attr {
+		int				id = C_EXP("DTQID_$id$");
+		[omit] int		attribute = C_EXP("TA_NULL");
+	};
+
+	factory {
+		write("tecsgen.cfg", "CRE_DTQ(%s, { %s, 0, 0 });",
+						id, attribute);
+	};
+	FACTORY {
+		write("$ct$_factory.h", "#include \"kernel_cfg.h\"");
+	};
+};
+
+signature siHandlerBody {
+	void	main(void);
+};
+
+celltype tUserCelltypeA {
+	// CB/INIBなし
+	entry siHandlerBody	eiHandlerBody1;		// 複数のセルに結合
+	entry siHandlerBody	eiHandlerBody2[2];	// 複数のセルに結合
+	entry siHandlerBody	eiHandlerBody3;		// 単一のセルに結合
+	entry siHandlerBody	eiHandlerBody4[2];	// 単一のセルに結合
+};
+
+celltype tUserCelltypeB {
+	// CB/INIBあり
+	entry siHandlerBody	eiHandlerBody1;		// 複数のセルに結合
+	entry siHandlerBody	eiHandlerBody2[2];	// 複数のセルに結合
+	entry siHandlerBody	eiHandlerBody3;		// 単一のセルに結合
+	entry siHandlerBody	eiHandlerBody4[2];	// 単一のセルに結合
+	attr {
+		int dummyToMakeSureCBCreated = 1;
+	};
+	var {
+		int dummyToMakeSureINITBCreated = 1;
+	};
+};
+
+celltype tTimeEventHandler {
+	entry siNotificationHandler eiNotificatonHandler;
+	[omit] call siHandlerBody			ciHandlerBody;
+};
+
+cell tUserCelltypeA UserCellAa { };
+cell tUserCelltypeA UserCellAb { };
+cell tUserCelltypeB UserCellBa { };
+cell tUserCelltypeB UserCellBb { };
+cell tTimeEventHandler TimeEventHandlerAa1 { ciHandlerBody = UserCellAa.eiHandlerBody1; };
+cell tTimeEventHandler TimeEventHandlerAa2 { ciHandlerBody = UserCellAa.eiHandlerBody2[1]; };
+cell tTimeEventHandler TimeEventHandlerAa3 { ciHandlerBody = UserCellAa.eiHandlerBody3; };
+cell tTimeEventHandler TimeEventHandlerAa4 { ciHandlerBody = UserCellAa.eiHandlerBody4[1]; };
+cell tTimeEventHandler TimeEventHandlerAb1 { ciHandlerBody = UserCellAb.eiHandlerBody1; };
+cell tTimeEventHandler TimeEventHandlerAb2 { ciHandlerBody = UserCellAb.eiHandlerBody2[1]; };
+cell tTimeEventHandler TimeEventHandlerBa1 { ciHandlerBody = UserCellBa.eiHandlerBody1; };
+cell tTimeEventHandler TimeEventHandlerBa2 { ciHandlerBody = UserCellBa.eiHandlerBody2[1]; };
+cell tTimeEventHandler TimeEventHandlerBa3 { ciHandlerBody = UserCellBa.eiHandlerBody3; };
+cell tTimeEventHandler TimeEventHandlerBa4 { ciHandlerBody = UserCellBa.eiHandlerBody4[1]; };
+cell tTimeEventHandler TimeEventHandlerBb1 { ciHandlerBody = UserCellBb.eiHandlerBody1; };
+cell tTimeEventHandler TimeEventHandlerBb2 { ciHandlerBody = UserCellBb.eiHandlerBody2[1]; };
+
+cell tTimeEventHandler TimeEventHandlerAa2_0 { ciHandlerBody = UserCellAa.eiHandlerBody2[0]; };
+cell tTimeEventHandler TimeEventHandlerAa4_0 { ciHandlerBody = UserCellAa.eiHandlerBody4[0]; };
+cell tTimeEventHandler TimeEventHandlerAb2_0 { ciHandlerBody = UserCellAb.eiHandlerBody2[0]; };
+cell tTimeEventHandler TimeEventHandlerBa2_0 { ciHandlerBody = UserCellBa.eiHandlerBody2[0]; };
+cell tTimeEventHandler TimeEventHandlerBa4_0 { ciHandlerBody = UserCellBa.eiHandlerBody4[0]; };
+cell tTimeEventHandler TimeEventHandlerBb2_0 { ciHandlerBody = UserCellBb.eiHandlerBody2[0]; };
+
+cell tTask Task {
+};
+cell tSemaphore Semaphore {
+};
+cell tEventflag Eventflag {
+};
+cell tDataqueue Dataqueue {
+};
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa1
+{ ciNotificationHandler = TimeEventHandlerAa1.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa2
+{ ciNotificationHandler = TimeEventHandlerAa2.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa3
+{ ciNotificationHandler = TimeEventHandlerAa3.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa4
+{ ciNotificationHandler = TimeEventHandlerAa4.eiNotificatonHandler; };
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAb1
+{ ciNotificationHandler = TimeEventHandlerAb1.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAb2
+{ ciNotificationHandler = TimeEventHandlerAb2.eiNotificatonHandler; };
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa1
+{ ciNotificationHandler = TimeEventHandlerBa1.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa2
+{ ciNotificationHandler = TimeEventHandlerBa2.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa3
+{ ciNotificationHandler = TimeEventHandlerBa3.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa4
+{ ciNotificationHandler = TimeEventHandlerBa4.eiNotificatonHandler; };
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBb1
+{ ciNotificationHandler = TimeEventHandlerBb1.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBb2
+{ ciNotificationHandler = TimeEventHandlerBb2.eiNotificatonHandler; };
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa2_0
+{ ciNotificationHandler = TimeEventHandlerAa2_0.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAa4_0
+{ ciNotificationHandler = TimeEventHandlerAa4_0.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerAb2_0
+{ ciNotificationHandler = TimeEventHandlerAb2_0.eiNotificatonHandler; };
+
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa2_0
+{ ciNotificationHandler = TimeEventHandlerBa2_0.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBa4_0
+{ ciNotificationHandler = TimeEventHandlerBa4_0.eiNotificatonHandler; };
+cell tTestNotifier NotifierInstanceForTimeEventHandlerBb2_0
+{ ciNotificationHandler = TimeEventHandlerBb2_0.eiNotificatonHandler; };
+
+/* cell tTestNotifier NotifierInstanceForTimeEventHandlerInvalid {
+	ciNotificationHandler = TimeEventHandlerAa1.eiNotificatonHandler;
+	// HANDLERは失敗しないのでエラーハンドラは指定できない
+	ciErrorNotificationHandler = Task.eiActivateNotificationHandler;
+}; // */
+
+cell tTestNotifier NotifierInstanceForActivateTaskHandler {
+	ciNotificationHandler = Task.eiActivateNotificationHandler;
+	ignoreErrors = true;
+};
+cell tTestNotifier NotifierInstanceForWakeUpTaskHandler {
+	ciNotificationHandler = Task.eiWakeUpNotificationHandler;
+	ignoreErrors = true;
+};
+
+cell tTestNotifier NotifierInstanceForActivateTaskHandlerWithErrorHandler {
+	ciNotificationHandler = Task.eiActivateNotificationHandler;
+	ciErrorNotificationHandler = Task.eiActivateNotificationHandler;
+};
+cell tTestNotifier NotifierInstanceForWakeUpTaskHandlerWithErrorHandler {
+	ciNotificationHandler = Task.eiWakeUpNotificationHandler;
+	ciErrorNotificationHandler = Task.eiActivateNotificationHandler;
+};
+
+/* cell tTestNotifier NotifierInstanceForActivateTaskHandlerWithThroughPlugin {
+	// throughプラグインはここでは使えない
+	[ through( TestThroughPlugin, "" ) ]
+	ciNotificationHandler = Task.eiActivateNotificationHandler;
+	ignoreErrors = true;
+}; // */
+
+cell tTestNotifier NotifierInstanceForSettingVariable {
+	setVariableAddress = C_EXP("&theAnswer");
+	setVariableValue = 42;
+};
+
+/* cell tTestNotifier NotifierInstanceForSettingVariableWithInvalidErrorHandler {
+	setVariableAddress = C_EXP("&theAnswer");
+	setVariableValue = 42;
+
+	// 変数の設定は失敗しないので、エラーハンドラの指定は不適切
+	ciErrorNotificationHandler = Task.eiActivateNotificationHandler;
+}; // */
+
+/* cell tTestNotifier NotifierInstanceForSettingVariableWithoutAddress {
+	// variableAddressが未指定
+	setVariableValue = 42;
+}; // */
+/* cell tTestNotifier NotifierInstanceForSettingVariableWithoutValue {
+	setVariableAddress = C_EXP("&theAnswer");
+	// variableValueが未指定
+}; // */
+
+cell tTestNotifier NotifierInstanceForSettingVariableWhenError {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	flagPattern = 42;
+	// エラー通知で変数の設定を指定した場合、エラーコードが代入されるので、
+	// 値は指定できない。
+	setVariableAddressForError = C_EXP("&theSmallestPrime");
+};
+
+cell tTestNotifier NotifierInstanceForIncrementingVariable {
+	incrementedVariableAddress = C_EXP("&theAnswer");
+};
+
+/* cell tTestNotifier NotifierInstanceForIncrementingVariableWithInvalidErrorHandler {
+	incrementedVariableAddress = C_EXP("&theAnswer");
+
+	// 変数の設定は失敗しないので、エラーハンドラの指定は不適切
+	ciErrorNotificationHandler = Task.eiActivateNotificationHandler;
+}; // */
+
+/* cell tTestNotifier NotifierInstanceForIncrementingVariableAndSettingVariable {
+	// INCVARとSETVARを同時指定はできない
+	incrementedVariableAddress = C_EXP("&theAnswer");
+	setVariableAddress = C_EXP("&theAnswer");
+	setVariableValue = 42;
+}; // */
+
+cell tTestNotifier NotifierInstanceForIncrementingVariableWhenError {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	flagPattern = 42;
+
+	incrementedVariableAddressForError = C_EXP("&theSmallestPrime");
+};
+
+/* cell tTestNotifier NotifierInstanceForSettingVariableAndIncrementingVariableWhenError {
+	setVariableAddress = C_EXP("&theAnswer");
+	setVariableValue = 42;
+	// 変数の設定は失敗しないので，エラーハンドラの指定は不適切
+	incrementedVariableAddressForError = C_EXP("&theSmallestPrime");
+}; // */
+
+cell tTestNotifier NotifierInstanceForSignallingSemaphore {
+	ciNotificationHandler = Semaphore.eSignalNotificationHandler;
+	ignoreErrors = true;
+};
+cell tTestNotifier NotifierInstanceForSignallingSemaphoreWithErrorHandler {
+	ciNotificationHandler = Semaphore.eSignalNotificationHandler;
+	ciErrorNotificationHandler = Semaphore.eSignalNotificationHandler;
+};
+
+cell tTestNotifier NotifierInstanceForSettingEventflag {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	ignoreErrors = true;
+	flagPattern = 42;
+};
+cell tTestNotifier NotifierInstanceForSettingEventflagWithErrorHandler {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	ciErrorNotificationHandler = Eventflag.eiNotificationHandler;
+	flagPattern = 42;
+	flagPatternForError = 24;
+};
+/* cell tTestNotifier NotifierInstanceForSettingEventflagWithErrorHandlerPatternMissing {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	ciErrorNotificationHandler = Eventflag.eiNotificationHandler;
+	// flagPatternが指定されていない
+	flagPatternForError = 24;
+}; // */
+/* cell tTestNotifier NotifierInstanceForSettingEventflagWithErrorHandlerErrorPatternMissing {
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	ciErrorNotificationHandler = Eventflag.eiNotificationHandler;
+	// flagPatternErrorが指定されていない
+	flagPattern = 42;
+}; // */
+
+/* cell tTestNotifier NotifierInstanceForSettingEventflagWithThroughPlugin {
+	// 仮想的な結合であるので、throughプラグインは使用できない
+	[ through( TestThroughPlugin, "" ) ]
+	ciNotificationHandler = Eventflag.eiNotificationHandler;
+	ignoreErrors = true;
+	flagPattern = 42;
+}; // */
+
+cell tTestNotifier NotifierInstanceForSendingToDataqueue {
+	ciNotificationHandler = Dataqueue.eiNotificationHandler;
+	ignoreErrors = true;
+	dataqueueSentValue = 42;
+};
+cell tTestNotifier NotifierInstanceForSendingToDataqueueWithErrorHandler {
+	ciNotificationHandler = Dataqueue.eiNotificationHandler;
+	dataqueueSentValue = 42;
+	ciErrorNotificationHandler = Dataqueue.eiNotificationHandler;
+	// エラー通知にデータキューを指定した場合、エラーコードが送られるので、
+	// 値を指定することはできない。
+};
+cell tTestNotifier NotifierInstanceForSendingToDataqueueWithErrorHandler2 {
+	ciNotificationHandler = Dataqueue.eiNotificationHandler;
+	dataqueueSentValue = 42;
+	setVariableAddressForError = C_EXP("&theSmallestPrime");
+};
+/* cell tTestNotifier NotifierInstanceForSendingToDataqueueWithErrorHandlerPatternMissing {
+	ciNotificationHandler = Dataqueue.eiNotificationHandler;
+	ciErrorNotificationHandler = Dataqueue.eiNotificationHandler;
+	// dataqueueSentValueが指定されていない
+	dataqueueSentValueForError = 24;
+}; // */
+/* cell tTestNotifier NotifierInstanceForSendingToDataqueueWithErrorHandlerErrorPatternMissing {
+	ciNotificationHandler = Dataqueue.eiNotificationHandler;
+	ciErrorNotificationHandler = Dataqueue.eiNotificationHandler;
+	// dataqueueSentValueErrorが指定されていない
+	dataqueueSentValue = 42;
+}; // */

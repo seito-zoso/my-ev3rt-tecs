@@ -1,0 +1,32 @@
+import( <kernel.cdl> );
+
+/* タスクレディキューを回すコンポーネント(非タスク部) */
+celltype tiTaskWakeupper {
+    entry siHandlerBody  eiBody;
+    call  siTask         ciTask;
+};
+
+/* 周期的にタスクを起床させるコンポーネント */
+[active]
+composite tTaskCyclicWakeupper {
+    attr {
+        RELTIM    cyclicTime;
+        RELTIM    cyclicPhase  = 0;
+        ATR       attribute    = C_EXP( "TA_NULL" );  /* 周期ハンドラの attribute　*/
+    };
+    call  siTask    ciTask;     /* 周期的に起床させるタスク */
+    entry sCyclic   eCyclic;
+
+    /* タスクを起床させる */
+    cell tiTaskWakeupper TaskWakeupper{
+        ciTask => composite.ciTask;
+    };
+    /* 周期ハンドラ */
+    cell tCyclicHandler CyclicHandler{
+        ciBody = TaskWakeupper.eiBody;
+        attribute = composite.attribute;
+        cyclicTime   = composite.cyclicTime;
+        cyclicPhase  = composite.cyclicPhase;
+    };
+    composite.eCyclic => CyclicHandler.eCyclic;
+};

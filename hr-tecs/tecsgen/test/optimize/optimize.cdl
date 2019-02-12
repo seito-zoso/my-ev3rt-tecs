@@ -1,0 +1,123 @@
+import_C( "tecs.h" );
+
+signature sSig{
+  void func( void );
+};
+
+/*** 1.単一セル最適化 ***/
+// 単一セル最適化 (VMT 不要最適化、スケルトン不要最適化を含む)
+// 受け側のセルが一つで、ポートも一つだけ
+
+celltype tSingleCellOptimizeCaller {
+  call sSig cCall;
+  entry sSig eEnt;
+};
+
+celltype tSingleCellOptimizeCallee {
+  entry sSig eEnt;
+};
+
+// 呼び側セル 1つ目
+cell tSingleCellOptimizeCallee SingleCellOptimizeCallee;
+
+cell tSingleCellOptimizeCaller SingleCellOptimizeCaller {
+  cCall = SingleCellOptimizeCallee.eEnt;
+};
+// 受け側セル
+cell tSingleCellOptimizeCallee SingleCellOptimizeCallee {
+};
+// 呼び側セル 2つ目
+cell tSingleCellOptimizeCaller SingleCellOptimizeCaller2 {
+  cCall = SingleCellOptimizeCallee.eEnt;
+};
+
+/*** 2. VMT 不要最適化 ***/
+// 受け側のセルが一つだが、受け口配列
+
+celltype tVMTUselessOptimizeCaller {
+  call sSig cCall;
+  entry sSig eEnt;
+};
+
+celltype tVMTUselessOptimizeCallee {
+  entry sSig eEnt[2];
+  attr {
+	  int32_t  attribute = 100;
+  };
+};
+
+// 受け側セル
+cell tVMTUselessOptimizeCallee VMTUselessOptimizeCallee;
+
+// 呼び側セル 1つ目
+cell tVMTUselessOptimizeCaller VMTUselessOptimizeCaller {
+  cCall = VMTUselessOptimizeCallee.eEnt[0];
+};
+// 呼び側セル 2つ目
+cell tVMTUselessOptimizeCaller VMTUselessOptimizeCaller2 {
+  cCall = VMTUselessOptimizeCallee.eEnt[1];
+};
+// 受け側セル
+cell tVMTUselessOptimizeCallee VMTUselessOptimizeCallee {
+};
+
+/*** VMT 不要最適化&スケルトン不要最適化 ***/
+// 受け側のセルが複数だが、単一のセルタイプ
+
+celltype tSkeltonUselessOptimizeCaller {
+  call sSig cCall;
+  entry sSig eEnt;
+};
+
+celltype tSkeltonUselessNotOptimizeCaller {
+  call sSig cCall;
+  entry sSig eEnt;
+};
+
+celltype tSkeltonUselessOptimizeCallee {
+  entry sSig eEnt;
+  attr {
+	  int32_t  attribute = 100;
+  };
+};
+
+// 受け側セル
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee;
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee2;
+
+// 呼び側セル 1つ目
+cell tSkeltonUselessOptimizeCaller SkeltonUselessOptimizeCaller {
+  cCall = SkeltonUselessOptimizeCallee.eEnt;
+};
+// 呼び側セル 2つ目
+cell tSkeltonUselessOptimizeCaller SkeltonUselessOptimizeCaller2 {
+  cCall = SkeltonUselessOptimizeCallee2.eEnt;
+};
+
+cell tSkeltonUselessNotOptimizeCaller SkeltonUselessNotOptimizeCaller{
+	cCall = SkeltonUselessOptimizeCallee.eEnt;
+};
+
+// 受け側セル
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee {
+};
+cell tSkeltonUselessOptimizeCallee SkeltonUselessOptimizeCallee2 {
+};
+
+[singleton]
+celltype tMain {
+	call sSig cMain[];
+};
+cell tMain Main{
+	cMain[0] = SingleCellOptimizeCaller.eEnt;
+	cMain[1] = VMTUselessOptimizeCaller.eEnt;
+    cMain[2] = SkeltonUselessOptimizeCallee.eEnt;
+    cMain[3] = SkeltonUselessOptimizeCallee2.eEnt;
+};
+
+import( <TECSInfo.cdl> );
+
+/******* TECSInfo cell *******/
+cell nTECSInfo::tTECSInfo TECSInfo {
+     cTECSInfo = rTECSInfo::TECSInfoSub.eTECSInfo;
+};

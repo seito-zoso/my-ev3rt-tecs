@@ -1,0 +1,9 @@
+celltype TaskMain {
+/*　varの定義が空でならsyntax error */
+	var {
+/*
+		x = 0;
+*/
+	};
+}
+

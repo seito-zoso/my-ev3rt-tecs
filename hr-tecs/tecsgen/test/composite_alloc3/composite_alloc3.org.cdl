@@ -1,0 +1,53 @@
+/*
+ * セルフアロケータのテスト
+ */
+
+import_C( "cygwin_tecs.h" );
+import( "cygwin_kernel.cdl" );
+
+signature sAlloc {
+	ER  alloc( [in]int32_t sz, [out]void **p );
+	ER  dealloc( [in]const void *p );
+};
+
+signature sSig {
+	ER  func( [send(sAlloc)]int32_t *a );
+	ER  func2( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t sz );
+};
+
+celltype tAlloc {
+	entry sAlloc eA;
+};
+
+celltype tCt1 {
+	entry sSig eEnt;
+};
+
+[active,singleton]
+celltype tCt2 {
+	call sSig cCall;
+};
+
+// composite 内のセルフアロケータ
+composite tCompAlloc {
+
+	entry sSig  eEntExt;
+
+	cell tAlloc Alloc{};
+
+	[allocator(
+		eEnt.func.a=Alloc.eA,
+		eEnt.func2.buf=Alloc.eA)]
+	cell tCt1 Cell1 {
+	};
+
+	composite.eEntExt => Cell1.eEnt;
+};
+
+cell tCompAlloc CompAlloc{
+};
+
+cell tCt2 Cell2{
+	cCall = CompAlloc.eEntExt;
+};
+

@@ -1,0 +1,76 @@
+import_C( "tecs.h" );
+
+/* typedef int32_t ER;
+typedef int32_t TMO; */
+
+[deviate]
+signature sAlloc {
+  ER  alloc( [in]int32_t size, [out]void **p );
+  ER  dealloc( [in]const void *p );
+};
+
+signature sAllocTMO {
+  ER  alloc( [in]int32_t size, [out]void *p, [in]TMO tmo );
+  ER  dealloc( [in]const void *p );
+};
+
+celltype tAlloc {
+  entry sAlloc eA;
+  attr {
+    int32_t  size = 8192;
+  };
+  var {
+    [size_is(size)]
+    int8_t  *buffer;
+  };
+};
+
+cell tAlloc alloc {
+};
+
+signature sSendRecv {
+  /* この関数名に send, receive を使ってしまうと allocator 指定できない */
+  ER snd( [send(sAlloc),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+  ER rcv( [receive(sAlloc),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};
+
+celltype tTestComponent {
+  entry  sSendRecv eS;
+  entry  sSendRecv eA[2];
+};
+
+[allocator(
+   eS.snd.buf=alloc.eA,
+   eS.rcv.buf=alloc.eA,
+   eA[0].snd.buf=alloc.eA,
+   eA[1].snd.buf=alloc.eA,
+   eA[0].rcv.buf=alloc.eA,
+   eA[1].rcv.buf=alloc.eA
+)]
+cell tTestComponent comp{
+};
+
+[singleton,active]
+celltype tTestClient {
+  call   sSendRecv cS;
+  call   sSendRecv cA[2];
+};
+
+cell tTestClient cl {
+  cS = comp.eS;
+  cA[0] = comp.eA[0];
+  cA[1] = comp.eA[1];
+};
+
+/***** 固定長アロケータ *****/
+[deviate]
+signature sAllocFixedSize {
+  ER  alloc( [out]void **p, [in]TMO tmo );
+  ER  dealloc( [in]const void *p );
+};
+
+signature sSendRecvFixed {
+  /* この関数名に send, receive を使ってしまうと allocator 指定できない */
+  ER snd( [send(sAllocFixedSize),size_is(sz)]int8_t *buf, [in]int32_t  sz );
+  ER rcv( [receive(sAllocFixedSize),size_is(*sz)]int8_t **buf, [out]int32_t  *sz );
+};

@@ -1,0 +1,112 @@
+/*
+ * Simple な Sample
+ *
+ */
+
+// cygwin 用の簡易な型定義
+  //import_C( "tecs-types.h" );
+  // TOPPERS/ASP 用ならば import_C( "kernel.h" ); でよい
+  // TECS 対応 TOPPERS/ASP ならば import( "kernel.cdl" ); でよい
+
+const int_t	ArraySize = 8;
+
+struct stA {
+	int32_t a;
+	int32_t b;
+	[string(len)]
+		char_t   *msg;
+	int32_t	len;
+};
+
+signature sSample {
+	ER  sayHello( [in]int32_t times );
+	ER  howAreYou( [out,string(len)]char_t *buf, [in]int32_t len );
+	ER  giftToYou( [send(sAlloc),size_is(len)]char_t *buf, [in]int32_t len );
+	ER  returnGiftFromYou( [receive(sAlloc),size_is(*len)]int16_t **buf, [out]int32_t *len );
+	ER  transferStruct( [in,size_is(len)]const struct stA *a, [in]int32_t len );
+	ER  transferStruct2( [in]struct stA a );
+	ER  transferInArray( [in] int8_t array0[ArraySize] );
+	ER  transferInArray2( [in]const int8_t (*array1)[ArraySize] );
+	ER  transferOutArray( [out]int8_t (*array2)[ArraySize] );
+	unsigned char  UnsignedTypes( [in]uint8_t in, [in]unsigned short s, [in]uint_t ui, [in]ulong_t ul );
+	char  SignedTypes( [in]int8_t in, [in]short s, [in]int_t ui, [in]long_t ul );
+	[oneway]
+		ER  onewayFunc( [send(sAlloc),size_is(len)]char_t *buf, [in]int32_t len );
+	[oneway]
+		void exit(void);
+};
+
+signature sSimple {
+	[oneway]
+		ER  onewayPtr( [in]const uint32_t *in );
+	[oneway]
+		ER  onewayArray( [in,size_is(len)]const uint32_t *in, [in]int32_t len );
+	[oneway]
+		ER  onewayDoubleArray( [in,size_is(len)]const int32_t *in, [in]int32_t len,
+							   [in,size_is(len)]const int32_t *in2, [in]int32_t len2 );
+	[oneway]
+		ER  onewayStringArray( [in,size_is(len),string]const char_t **in, [in]int32_t len );
+	[oneway]
+		ER  onewayString( [in,string(len)]const char_t *in, [in]int32_t len );
+	[oneway]
+		ER  onewayStruct( [in]const struct stA *a );
+	[oneway]
+		ER  onewayStruct2( [in,size_is(len)]const struct stA *a, [in]int32_t len );
+	[oneway]
+		ER  onewayInArray( [in] int8_t array0[ArraySize] );
+	[oneway]
+		ER  onewayInArray2( [in]const int8_t (*array1)[ArraySize] );
+	[oneway]
+		ER  onewayNulable( [in,nullable]const int8_t (*array)[3] );
+//  エラー sizeis, string 両方指定
+//	[oneway]
+//		void errorsizestring( [in,size_is(len),string]const char_t *str, [in]int32_t len );
+//  エラー string の長さ指定がない
+//	[oneway]
+//		void errorstring( [in,string]const char_t *str );
+//  配列は未サポート
+//	[oneway]
+//	  void  onewaySubscriptArray( [in]const int32_t  array[2], [in]const int32_t (*array2)[4] );
+	[oneway]
+		void exit();
+//  ディスクリプタ型の引数を持つ関数
+//    void func( [in]Descriptor( sSample ) desc );
+};
+
+celltype tSample {
+	entry sSample eEnt;
+	call  sSimple cSimple;
+};
+
+[singleton,active]
+celltype tSimple {
+	entry sTaskBody eBody;
+	call  sSample  cCall;
+	entry sSimple  eSimple;
+	require tKernel.eKernel;
+};
+
+region rTransparent {
+
+	cell tSimple Simple; // プロトタイプ宣言
+
+	[allocator(eEnt.giftToYou.buf=Allocator.eAlloc,
+			   eEnt.returnGiftFromYou.buf=Allocator.eAlloc,
+			   eEnt.onewayFunc.buf=Allocator.eAlloc)]
+	cell tSample Sample {
+		[through(RPCPlugin,"PPAllocatorSize=1024"),through(TracePlugin,"")]
+			cSimple = Simple.eSimple;
+	};
+
+	cell tSimple Simple {
+		[through(RPCPlugin,"PPAllocatorSize=1024"),through(TracePlugin,"")]
+		cCall = Sample.eEnt;
+	};
+
+	cell tTask SimpleTask {
+		cBody = Simple.eBody;
+		priority = 0;
+		stackSize = 4096;
+		taskAttribute = C_EXP( "TA_ACT" );
+	};
+}; /* region rTransparent */

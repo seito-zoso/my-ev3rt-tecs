@@ -1,0 +1,234 @@
+import_C( "tecs.h" );
+import_C( "attr.h" );
+
+typedef struct tagT {
+	int32_t   a;
+} T;
+
+signature sMain {
+	ER   main(void);
+};
+
+[active]
+celltype tAttribute {
+	entry sMain eMain;
+	attr {
+		 uint32_t  size = 2;
+		 [choice={"0", "1", "2"}]
+			 uint32_t  size2 = 2;
+
+		 [size_is(size)]
+			 int32_t  *size_array = { 1, 2 };
+
+		 volatile int32_t *ptr;
+		 int32_t very_long_name_more_than_16char;
+		 char_t *msg;
+	};
+	var {
+		[size_is(size*size2)]
+			int32_t  *sz_array;
+		// T st = { size };   // size は見つからない
+		T st = { 100 };
+		char_t  *msg2 = msg;
+	};
+
+};
+
+cell tAttribute attr1 {
+	ptr = 0;
+	very_long_name_more_than_16char = 0;
+	msg = "abc";
+};
+
+cell tAttribute attr2 {
+	ptr = 0;
+	size = 10;
+	msg = "hello \
+world!";
+	very_long_name_more_than_16char = 0;
+};
+
+cell tAttribute attr3 {
+	size = 10;
+	size_array = { 0, 1, 2 };
+
+	very_long_name_more_than_16char = 0;
+	ptr = (int32_t *)0x30;
+	msg = "hello \
+wao \
+good-bye";
+};
+
+cell tAttribute attr4 {
+	size = 10;
+	size_array = { 0, 1, 2 };
+	very_long_name_more_than_16char = 0;
+
+	ptr = (int32_t *)0x40;
+	msg = "hello " "world!";
+};
+
+cell tAttribute attr5 {
+//	size = C_EXP( "(AA10)" );
+	size = 10;
+	size_array = { 0, 1, 2 };
+	very_long_name_more_than_16char = 0;
+
+	ptr = (int32_t *)0x50;
+	// msg = "hello " "world!";
+	msg = "hello " "world! ハロー";
+};
+
+
+struct tTag {
+	int32_t  a;
+};
+
+[active]
+celltype tAttributeSt {
+	entry sMain eMain;
+	attr {
+		int32_t  size;
+		[size_is(size)]
+			struct tTag *st_array;
+	};
+};
+
+cell tAttributeSt tst {
+	size = 2;
+	st_array = { { 1 }, { 2 } };
+    // st_array = C_EXP( "a" );
+};
+
+cell tAttributeSt tst2 {
+	size = 3;
+	st_array = { { 100} };
+};
+
+[singleton, active]
+celltype tMain {
+	call sMain cMain[];
+	attr {
+		int32_t   a = 100;
+	};
+	var {
+		int32_t   v = a;
+	};
+};
+
+cell tMain Main {
+	cMain[] = attr1.eMain;
+	cMain[] = attr2.eMain;
+	cMain[] = attr3.eMain;
+	cMain[] = tst.eMain;
+	cMain[] = tst2.eMain;
+};
+
+typedef int32_t INT32_T;
+
+[active]
+celltype tTest {
+	attr {
+		INT32_T   val = 10;
+	};
+	var {
+		INT32_T   vval = val;     //#191 typedef した型だと val を参照できない
+	};
+};
+
+[active]
+celltype tCEXP {
+	attr {
+		int32_t  val = C_EXP( "DEFINED_INTVAL" );
+	};
+	var {
+		int32_t  vval = val;     //#192 C_EXP を eval_const しようとしてエラーとなる
+	};
+};
+
+const int32_t  VAL_INIT = C_EXP( "CONST_INTVAL" );
+
+cell tCEXP CEXP {};
+cell tCEXP CEXP2 {
+	val=C_EXP("NOTDEFINED_INTVAL");
+};
+cell tCEXP CEXP3 {
+	val=VAL_INIT;
+};
+
+[active]
+celltype tCelltype {
+    attr {
+		[size_is(size)]
+		char_t **array = {
+			"A", "B", "C"
+		};
+		int size = 3;
+	};
+};
+
+cell tCelltype Cell{
+};
+
+/* size_is 指定がないケース  */
+[active]
+celltype tAttribute2 {
+	entry sMain eMain;
+	// /*
+	attr {
+		// int32_t  *unsizeArray = { 1, 2 };   // エラー size_is 指定されていないのに配列として初期化しようとした
+		[size_is(2)]
+			int32_t  *sizeArray = { 1, 2 };
+		int8_t  *p = (int8_t *)1;
+		int_t	size = 2;
+		// int_t	size = C_EXP( "N" );      // エラー size_is が定数でない
+	};
+	// */
+	// /*
+	var {
+		// int32_t  *unsizedArrayV = { 3, 4 }; // エラー size_is 指定されていないのに配列として初期化しようとした
+		// int32_t  *ptr = sizeArray;          // エラー size_is 指定されていないのに配列として初期化しようとした
+		[size_is(size)]
+		    // int32_t  *array = sizeArray;    // エラー size_is 指定されている場合、配列初期化子以外では初期化できない
+			int32_t  *array = { 1, 2 };
+	};
+	// */
+};
+
+cell tAttribute2 Cell2{
+	// sizeArray = (int32_t *)0x0;             // エラー size_is 指定されている場合、配列初期化子以外では初期化できない
+};
+
+/*** 2014.11.1  Azumi さんからの質問 ***/
+[active]
+celltype tAttribute3{
+	attr{
+		int  size = 3;
+	};
+	var {
+		[size_is(size)]
+			char (*buf)[2];
+            // char *buf[2];   非配列の size_is 指定でエラー
+	};
+};
+
+cell tAttribute3 Attr3 {
+	size = 5;
+};
+
+[active]
+celltype tAttribute4{
+  attr{
+    char  *buf0[2] = { 0, 0 }; // = { {0,0,0,0}, {0,0,0,0,0,0,0} };     // 
+    //    char  *buf1 = {0,0,0,0};
+  };
+
+  /*  var {
+    char *buf[2] = { buf0[0], buf0[1] };   //  buf0[0]  -->  [] 演算子の評価ができない
+    }; */
+};
+
+cell tAttribute4 Attr4 {
+/*	buf0 = { {0,0,0,0,0,0,0}, {0,0,0,0,0,0,0,0,0} }; */
+};
+
