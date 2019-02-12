@@ -1,6 +1,6 @@
 # 「mruby on EV3RT + TECS」 作成したrubyアプリケーションをLCD上に一覧表示させ実行する。さらに、メニューからBluetoothモードの選択も可能に。
 ---
-「[mruby on EV3RT + TECS](http://dev.toppers.jp/trac_user/contrib/wiki/tecs)」で
+「[mruby on EV3RT + TECS](https://www.toppers.jp/tecs.html)」で
 - わざわざ何度もSDを抜き差ししなくても複数のrubyアプリケーションを実行したい。
 - Bluetoothで飛んできたバイトコードは保存して次回以降も使用したい。
 
@@ -12,7 +12,7 @@
 以下に使い方をまとめます。
 
 ## ０．EV3RT+TECSのダウンロードや環境構築
-「mruby on EV3RT+TECS」はここからダウンロードできます[[ダウンロード](http://dev.toppers.jp/trac_user/contrib/wiki/tecs)]。
+「mruby on EV3RT+TECS」はここからダウンロードできます[[ダウンロード](https://www.toppers.jp/tecs.html)]。
 また初期環境構築等の方法についてはダウンロードしたファイルの doc/mruby_on_ev3rt+tecs_build.pdf を参考にしてください。
 
 次にこのレポジトリ
