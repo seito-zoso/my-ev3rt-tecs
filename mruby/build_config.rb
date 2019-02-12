@@ -19,7 +19,7 @@ MRuby::Build.new do |conf|
   # conf.gem :github => 'masuidrive/mrbgems-example', :checksum_hash => '76518e8aecd131d047378448ac8055fa29d974a9'
   # conf.gem :git => 'git@github.com:masuidrive/mrbgems-example.git', :branch => 'master', :options => '-v'
   #
-  
+
   # include the default GEMs
   conf.gembox 'default'
   # C compiler settings
@@ -113,18 +113,18 @@ MRuby::CrossBuild.new('ARM') do |conf|
   toolchain :gcc
   conf.cc.defines = %w(DISABLE_STDIO)
   conf.bins = []
-  
+
   [conf.cc, conf.objc, conf.asm].each do |cc|
     cc.command = ENV['CC'] || 'arm-none-eabi-gcc'
     cc.flags = [ENV['CFLAGS'] || %w(-g -std=gnu99 -O3 -Wall -Werror-implicit-function-declaration)]
     cc.include_paths = ["#{MRUBY_ROOT}/include"],
-    
+
     cc.defines = %w(DISABLE_GEMS)
     cc.option_include_path = '-I%s'
     cc.option_define = '-D%s'
     cc.compile_options = '%{flags} -MMD -o %{outfile} -c %{infile}'
   end
-  
+
   [conf.cxx].each do |cxx|
     cxx.command = ENV['CXX'] || 'arm-none-eabi-g++'
     cxx.flags = [ENV['CXXFLAGS'] || ENV['CFLAGS'] || %w(-g -O3 -Wall -Werror-implicit-function-declaration)]
@@ -144,7 +144,7 @@ MRuby::CrossBuild.new('ARM') do |conf|
     linker.option_library_path = '-L%s'
     linker.link_options = '%{flags} -o %{outfile} %{objs} %{flags_before_libraries} %{libs} %{flags_after_libraries}'
   end
-  
+
   # Archiver settings
   conf.archiver do |archiver|
     archiver.command = ENV['AR'] || 'arm-none-eabi-ar'
@@ -161,7 +161,8 @@ p  end
   #  conf.gem :core => "mruby-math"
   # Use mruby-compiler to build other mrbgems
   conf.gem :core => "mruby-compiler"
-=begin    
+  conf.gem :core => "mruby-array-ext"
+=begin
   conf.build_mrbtest_lib_only
   # Use standard Kernel#sprintf method
   conf.gem :core => "mruby-sprintf"
