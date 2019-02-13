@@ -19,7 +19,8 @@ class CLIMenu
 
   def draw
     clear
-    @mode ? LCD.draw("--run--  delete",0, 0) : LCD.draw("  run  --delete--",0, 0)
+    @mode ? LCD.draw("run",7, 0) : LCD.draw("delete",6, 0)
+    @mode ? LCD.draw(">",16, 0) : LCD.draw("<",0, 0)
     start = @page * MENU_PAGE_SIZE
     finish = [start + MENU_PAGE_SIZE, @entries.size].min
     @entries.values_at(start...finish).each_with_index do |entry, index|
