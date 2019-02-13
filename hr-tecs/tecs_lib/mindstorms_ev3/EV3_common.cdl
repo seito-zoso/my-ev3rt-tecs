@@ -24,7 +24,7 @@ import(<tSharedMemory.cdl>);
 import(<tFatFile.cdl>);
 import(<tFatDir.cdl>);
 import(<tRunApp.cdl>);
-import(<tReceive.cdl>);
+import("tReceive.cdl");
 
 /*
  * シグニチャプラグイン MrubyBridgePlugin の呼び出し。

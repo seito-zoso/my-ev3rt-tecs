@@ -59,7 +59,7 @@ ER zmodem_recv_file(ID portid, void *buf, SIZE size, SIZE *filesz);
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eReceive_receive(CELLIDX idx)
+eReceive_receive(CELLIDX idx, const char_t* path)
 {
 	CELLCB	*p_cellcb;
 	if (VALID_IDX(idx)) {
@@ -73,8 +73,8 @@ eReceive_receive(CELLIDX idx)
 
   while(1) {
     test_serial_loader(p_cellcb, SIO_PORT_BT);
-
-    cFatFile_fopen("mrb_app/received.mrb","w");
+    cFatFile_fopen(path,"w");
+    // cFatFile_fopen("mrb_app/received.mrb","w");
     cFatFile_fwrite(VAR_irepApp, ATTR_irepAppSize, VAR_bw);
     cFatFile_fclose();
 
