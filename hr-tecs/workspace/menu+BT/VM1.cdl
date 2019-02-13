@@ -10,6 +10,7 @@ region rDomainEV3 {
 			"$(MRUBY_LIB_DIR)/FatFile.rb "
 			"$(MRUBY_LIB_DIR)/FatDir.rb "
 			"$(MRUBY_LIB_DIR)/RunApp.rb "
+			"$(MRUBY_LIB_DIR)/Receive.rb "
 			"$(APP_PARAM_RB) "
 			"$(APP_PARAM_SET_RB) "
 			"$(APP_RB)";

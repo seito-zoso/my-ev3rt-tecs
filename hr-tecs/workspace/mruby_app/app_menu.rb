@@ -1,6 +1,6 @@
 include EV3RT_TECS # モジュール
 
-mrb_dir = "mrb_app" # .mrb保存ディレクトリの指定
+DIR = "mrb_app" # .mrb保存ディレクトリの指定
 
 class CLIMenu
   MENU_PAGE_SIZE = 6
@@ -23,7 +23,7 @@ class CLIMenu
       clear
       LCD.draw("Menu & Bluetooth",0, 0)
       if @mode == 0
-        LCD.draw("<      run       >",0, 7)
+        LCD.draw("<      Run       >",0, 7)
         start = @page * MENU_PAGE_SIZE
         finish = [start + MENU_PAGE_SIZE, @entries.size].min
         @entries.values_at(start...finish).each_with_index do |entry, index|
@@ -32,7 +32,7 @@ class CLIMenu
           LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
         end
       elsif @mode == 1
-        LCD.draw("<     delete     >",0, 7)
+        LCD.draw("<     Delete     >",0, 7)
         start = @page * MENU_PAGE_SIZE
         finish = [start + MENU_PAGE_SIZE, @entries.size].min
         @entries.values_at(start...finish).each_with_index do |entry, index|
@@ -41,9 +41,11 @@ class CLIMenu
           LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
         end
       elsif @mode == 2
-        LCD.draw("<    bluetooth   >",0, 7)
+        LCD.draw("<    Bluetooth   >",0, 7)
         LCD.draw("Receive file",0, 2)
-        LCD.draw("  via bluetooth?",0, 3)
+        LCD.draw("    via bluetooth",0, 3)
+        LCD.draw("Please connect ",0, 4)
+        LCD.draw("       to your PC",0, 5)
       end
     end
     @change_flag = false
@@ -149,9 +151,22 @@ class CLIMenu
   end
 
   def bluetooth
-    @change_flag = true
     clear
-    LCD.draw("Bluetooth", 0, 0)
+    code_num = 1
+    continue_flag = true
+    while continue_flag
+      @entries.each_with_index do |entry, idx|
+        if entry.include?("recv#{code_num}")
+          code_num += 1 # 同名ファイルが存在したので名前を変更
+          break
+        end
+        if idx + 1 == @entries.size # 最後までなし
+          continue_flag = false
+        end
+      end
+    end
+    instant = Receive.new
+    instant.recv("#{@dir}/recv#{code_num}.mrb")
     while true
       if Button[:enter].pressed?
         while Button[:enter].pressed?
@@ -160,8 +175,7 @@ class CLIMenu
         break
       end
     end
-    # instant = Receive.new
-    # instant.recv()
+
   end
 
   def mode_change_right
@@ -180,7 +194,7 @@ class CLIMenu
 end
 
 # 引数：タイトルと読み込み対象ディレクトリ
-cli_menu = CLIMenu.new(mrb_dir)
+cli_menu = CLIMenu.new(DIR)
 flag = false
 begin
   cli_menu.push # 対象dirを読み込みentryに追加
