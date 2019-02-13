@@ -112,7 +112,6 @@ class CLIMenu
       file.delete("#{@dir}/#{entries[@position]}")
       clear
       LCD.draw("Delete #{entries[@position].gsub(".mrb","")} !", 0, 0)
-      @mode = true
       @page = 0
       @position = 0
       while true
@@ -141,7 +140,7 @@ end
 
 # 引数：タイトルと読み込み対象ディレクトリ
 cli_menu = CLIMenu.new(mrb_dir)
-
+flag = false
 begin
   cli_menu.push # 対象dirを読み込みentryに追加
   cli_menu.draw
@@ -169,7 +168,7 @@ begin
         RTOS.delay(10)
       end
       cli_menu.mode ? cli_menu.run : cli_menu.delete
-      cli_menu.push unless cli_menu.mode
+      cli_menu.mode ? flag = true : cli_menu.push # 終了：更新
     end
 
     if Button[:right].pressed?
@@ -184,9 +183,11 @@ begin
       end
       cli_menu.mode_change_run
     end
+    break if flag
     cli_menu.draw
     RTOS.delay(200)
   end
+  cli_menu.clear
 rescue => e
   LCD.error_puts e
 end
