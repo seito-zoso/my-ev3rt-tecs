@@ -8,29 +8,49 @@ class CLIMenu
   attr_reader :entries, :page, :mode
 
   def initialize(dir)
-    @mode = true # run_mode:true、delete_mode:fault
+    @mode = 0 # run:0、delete:1,bluetooth:2
     @dir = dir
     @entries = []
     @page = 0
     @position = 0
+    @change_flag = true # 何かユーザーから操作があったか
     @btr = 4096   # 読みだすバイト数。必要であれば変更する
     LCD.font = :medium
   end
 
   def draw
-    clear
-    @mode ? LCD.draw("run",7, 0) : LCD.draw("delete",6, 0)
-    @mode ? LCD.draw(">",16, 0) : LCD.draw("<",0, 0)
-    start = @page * MENU_PAGE_SIZE
-    finish = [start + MENU_PAGE_SIZE, @entries.size].min
-    @entries.values_at(start...finish).each_with_index do |entry, index|
-      selected = (@position % MENU_PAGE_SIZE == index)
-      prefix = selected ? ">" : " " # selectedが真であれば＞、偽なら何もなし
-      LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
+    if @change_flag then
+      clear
+      LCD.draw("Menu & Bluetooth",0, 0)
+      if @mode == 0
+        LCD.draw("<      run       >",0, 7)
+        start = @page * MENU_PAGE_SIZE
+        finish = [start + MENU_PAGE_SIZE, @entries.size].min
+        @entries.values_at(start...finish).each_with_index do |entry, index|
+          selected = (@position % MENU_PAGE_SIZE == index)
+          prefix = selected ? ">" : " " # selectedが真であれば＞、偽なら何もなし
+          LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
+        end
+      elsif @mode == 1
+        LCD.draw("<     delete     >",0, 7)
+        start = @page * MENU_PAGE_SIZE
+        finish = [start + MENU_PAGE_SIZE, @entries.size].min
+        @entries.values_at(start...finish).each_with_index do |entry, index|
+          selected = (@position % MENU_PAGE_SIZE == index)
+          prefix = selected ? ">" : " " # selectedが真であれば＞、偽なら何もなし
+          LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
+        end
+      elsif @mode == 2
+        LCD.draw("<    bluetooth   >",0, 7)
+        LCD.draw("Receive file",0, 2)
+        LCD.draw("  via bluetooth?",0, 3)
+      end
     end
+    @change_flag = false
   end
 
   def next
+    @change_flag = true
     return if @position + 1 >= entries.size # 今の位置がentriesの要素数以上なら何もしない
     @position += 1
     if @position + 1 > (@page + 1) * MENU_PAGE_SIZE #更新後の位置がページサイズ×現在のページ以上なら
@@ -39,6 +59,7 @@ class CLIMenu
   end
 
   def prev
+    @change_flag = true
     return if @position <= 0 # 今の位置が0以下なら何もしない
     @position -= 1
     if @position < @page * MENU_PAGE_SIZE
@@ -51,6 +72,7 @@ class CLIMenu
   end
 
   def push
+    @change_flag = true
     @entries.clear
     dir = FatDir.new
     dir.open(@dir)
@@ -83,6 +105,7 @@ class CLIMenu
   end
 
   def delete
+    @change_flag = true
     clear
     flag = false
     LCD.draw("Delete #{entries[@position].gsub(".mrb","")} ?", 0, 0)
@@ -125,14 +148,32 @@ class CLIMenu
     end
   end
 
-  def mode_change_run
-    @mode = true
+  def bluetooth
+    @change_flag = true
+    clear
+    LCD.draw("Bluetooth", 0, 0)
+    while true
+      if Button[:enter].pressed?
+        while Button[:enter].pressed?
+          RTOS.delay(10)
+        end
+        break
+      end
+    end
+    # instant = Receive.new
+    # instant.recv()
   end
 
-  def mode_change_delete
-    @mode = false
+  def mode_change_right
+    @mode += 1
+    @mode -= 3 if @mode > 2
+    @change_flag = true
   end
-
+  def mode_change_left
+    @mode -= 1
+    @mode += 3 if @mode < 0
+    @change_flag = true
+  end
   def clear
     LCD.fill_rect(0, 0, 178, 128, :white)
   end
@@ -167,21 +208,31 @@ begin
       while Button[:enter].pressed?
         RTOS.delay(10)
       end
-      cli_menu.mode ? cli_menu.run : cli_menu.delete
-      cli_menu.mode ? flag = true : cli_menu.push # 終了：更新
+      if cli_menu.mode == 0
+        cli_menu.run
+        flag = true
+      end
+      if cli_menu.mode == 1
+        cli_menu.delete
+        cli_menu.push
+      end
+      if cli_menu.mode == 2
+        cli_menu.bluetooth
+        flag = true
+      end
     end
 
     if Button[:right].pressed?
       while Button[:right].pressed?
         RTOS.delay(10)
       end
-      cli_menu.mode_change_delete
+      cli_menu.mode_change_right
     end
     if Button[:left].pressed?
       while Button[:left].pressed?
         RTOS.delay(10)
       end
-      cli_menu.mode_change_run
+      cli_menu.mode_change_left
     end
     break if flag
     cli_menu.draw
