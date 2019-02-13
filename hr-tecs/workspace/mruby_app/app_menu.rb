@@ -25,7 +25,7 @@ class CLIMenu
     @entries.values_at(start...finish).each_with_index do |entry, index|
       selected = (@position % MENU_PAGE_SIZE == index)
       prefix = selected ? ">" : " " # selectedが真であれば＞、偽なら何もなし
-      LCD.draw("#{prefix}#{entry.name}", 0, index + 1)
+      LCD.draw("#{prefix}#{entry}", 0, index + 1)
     end
   end
 
@@ -60,7 +60,7 @@ class CLIMenu
       if buf[0] == 0 then # 項目なしの時は抜ける
         break
       end
-      entries.push(Entry.new(text)) # 項目をentriesにPUSH
+      entries.push(text.dup) # 項目をentriesにPUSH
       num += 1
     end
     dir.close
@@ -69,7 +69,7 @@ class CLIMenu
   def run
     clear
     inst = RunApp.new
-    inst.run("#{@dir}/#{entries[@position].name}")
+    inst.run("#{@dir}/#{entries[@position]}")
     while true
       if Button[:back].pressed?
         while Button[:back].pressed?
@@ -81,7 +81,9 @@ class CLIMenu
   end
   def delete
     # TODO deleteメソッドの追加
-    LCD.draw("delete #{entries[@position].name}",0, 2)
+    clear
+    LCD.draw("Delete #{entries[@position]}", 0, 2)
+    LCD.draw("Press Enter", 0, 3)
     while true
       break if Button[:enter].pressed?
     end
@@ -99,16 +101,8 @@ class CLIMenu
   end
 end
 
-class Entry
-  attr_accessor :name #参照と変更両方可能に
-
-  def initialize(name)
-    @name = name
-  end
-end
-
 # 引数：タイトルと読み込み対象ディレクトリ
-cli_menu = CLIMenu.new( mrb_dir)
+cli_menu = CLIMenu.new(mrb_dir)
 
 begin
   cli_menu.push # 対象dirを読み込みentryに追加
