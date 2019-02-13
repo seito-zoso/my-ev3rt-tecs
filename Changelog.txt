@@ -1,0 +1,42 @@
+2018-05-7 Version beta 2.1.0
+* Make available bigger tire and wheel.
+   tire  (6021952/11957 Motorcycle Tyre Φ100,6)
+   wheel (6176748/88517 Motorcycle Rim Φ75)
+* Update documernts
+* Replace way of port number assingment with using Patameter class in sample programs.
+
+2017-05-17 Version beta 2.0.1
+* Fix bugs for touch sensor
+* Fix bugs for Bluetooth ver.
+* Remove warnings at build-time
+* Update balancer module
+* Update TECSGEN (1.5.A.5)
+
+
+2017-05-02 Version beta 2.0.0
+* Support multi VM
+* Update EV3RT (beta7)
+* Update TECSGEN (1.5.A.4)
+
+2016-05-27 Version beta 1.0.1
+* Modified reset for SD version
+
+2016-05-10 Version beta 1.0.0
+* Added BLuetooth Loader
+* Update TECSGEN
+* Update mruby
+* Update ev3rt
+
+2015-07-09 Version alpha 1.0.2
+* Added  ev3way_sample.rb
+* Added  rtos_sample.rb
+* Added  RTOS.usec, RTOS.msec
+* Fixed memory error
+
+2015-06-16 Version alpha 51.0.1
+* Supported LCD.error_puts
+* TECS_CPP (TECSGEN)
+  - Supported Mac and Linux users
+
+2015-06-09 Version alpha 1.0.0
+* Released alpha 1.0.0

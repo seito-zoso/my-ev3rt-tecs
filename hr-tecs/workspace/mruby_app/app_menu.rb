@@ -5,10 +5,10 @@ mrb_dir = "mrb_app" # .mrb保存ディレクトリの指定
 class CLIMenu
   MENU_PAGE_SIZE = 6
 
-  attr_reader :title, :entries, :page # 参照可能にしている
+  attr_reader :entries, :page, :mode
 
-  def initialize(title,dir)
-    @title = title    # インスタンス変数。同じインスタンスであればメソッドを超えて共通。
+  def initialize(dir)
+    @mode = true # run_mode:true、delete_mode:fault
     @dir = dir
     @entries = []
     @page = 0
@@ -17,26 +17,9 @@ class CLIMenu
     LCD.font = :medium
   end
 
-  def push
-    dir = FatDir.new
-    dir.open(@dir)
-    buf = TECS::CharPointer.new(13)
-    num = 0
-    while true
-      text = dir.read
-      buf.from_s text
-      if buf[0] == 0 then # 項目なしの時は抜ける
-        break
-      end
-      entries.push(Entry.new(text)) # 項目をentriesにPUSH
-      num += 1
-    end
-    dir.close
-  end
-
   def draw
     clear
-    LCD.draw(@title, 0, 0)
+    @mode ? LCD.draw("--run--  delete",0, 0) : LCD.draw("  run  --delete--",0, 0)
     start = @page * MENU_PAGE_SIZE
     finish = [start + MENU_PAGE_SIZE, @entries.size].min
     @entries.values_at(start...finish).each_with_index do |entry, index|
@@ -66,6 +49,23 @@ class CLIMenu
     @position
   end
 
+  def push
+    dir = FatDir.new
+    dir.open(@dir)
+    buf = TECS::CharPointer.new(13)
+    num = 0
+    while true
+      text = dir.read
+      buf.from_s text
+      if buf[0] == 0 then # 項目なしの時は抜ける
+        break
+      end
+      entries.push(Entry.new(text)) # 項目をentriesにPUSH
+      num += 1
+    end
+    dir.close
+  end
+
   def run
     clear
     inst = RunApp.new
@@ -78,6 +78,20 @@ class CLIMenu
         break
       end
     end
+  end
+  def delete
+    # TODO deleteメソッドの追加
+    LCD.draw("delete #{entries[@position].name}",0, 2)
+    while true
+      break if Button[:enter].pressed?
+    end
+  end
+  def mode_change_run
+    @mode = true
+  end
+
+  def mode_change_delete
+    @mode = false
   end
 
   def clear
@@ -94,7 +108,7 @@ class Entry
 end
 
 # 引数：タイトルと読み込み対象ディレクトリ
-cli_menu = CLIMenu.new("App Menu", mrb_dir)
+cli_menu = CLIMenu.new( mrb_dir)
 
 begin
   cli_menu.push # 対象dirを読み込みentryに追加
@@ -122,8 +136,22 @@ begin
       while Button[:enter].pressed?
         RTOS.delay(10)
       end
-      cli_menu.run
+      cli_menu.mode ? cli_menu.run : cli_menu.delete
     end
+
+    if Button[:right].pressed?
+      while Button[:right].pressed?
+        RTOS.delay(10)
+      end
+      cli_menu.mode_change_delete
+    end
+    if Button[:left].pressed?
+      while Button[:left].pressed?
+        RTOS.delay(10)
+      end
+      cli_menu.mode_change_run
+    end
+    cli_menu.push
     cli_menu.draw
     RTOS.delay(200)
   end
