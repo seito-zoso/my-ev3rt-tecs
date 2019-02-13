@@ -43,8 +43,7 @@ signature sFatFile {
   // FRESULT fopen ([in,string] const TCHAR* path_new, [in] BYTE mode); /* Open or create a file */
   FRESULT fopen ([in,string] const TCHAR* path, [in,string] const TCHAR* mode); /* Open or create a file */
   FRESULT fclose (void);         /* Close an open file object */
-  FRESULT fread ([out,size_is(btr)] TCHAR* buffer, [in] UINT btr);  /* Read data from a file btr:読みだすバイト数 */
-  // FRESULT fwrite ([in,string] const TCHAR* buffer, [in] UINT btw);   /* Write data to a file */
+  FRESULT fread ([out,size_is(btr)] TCHAR* buffer, [in] UINT btr);  /* Read data from a file */
   FRESULT fwrite ([in,size_is(btw)] const TCHAR* buffer, [in] UINT btw, [out] UINT* bw);   /* Write data to a file */
   // FRESULT forward ([in] const FIL* fp, [in] UINT(*func)(const BYTE*,UINT), [in] UINT btf, [out] UINT* bf); /* Forward data to the stream */
   // FRESULT lseek ([in] const FIL* fp, [in] DWORD ofs); /* Move file pointer of a file object */
@@ -56,7 +55,7 @@ signature sFatFile {
   // // TCHAR* gets (TCHAR* buff, int len, FIL* fp);
 /* ファイル/ディレクトリ管理 */
   // FRESULT mkdir ([in,string] const TCHAR* path);                /* Create a sub directory */
-  // FRESULT unlink ([in,string] const TCHAR* path);               /* Delete an existing file or directory */
+  FRESULT unlink ([in,string] const TCHAR* path);               /* Delete an existing file or directory */
   // FRESULT rename ([in,string] const TCHAR* path_old, [in,string] const TCHAR* path_new);  /* Rename/Move a file or directory */
   // FRESULT stat ([in,string] const TCHAR* path, [out] FILINFO* fno);         /* Get file status */
   // FRESULT chmod ([in,string] const TCHAR* path, [in] BYTE value, [in] BYTE mask);     /* Change attribute of the file/dir */

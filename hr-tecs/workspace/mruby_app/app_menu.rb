@@ -26,7 +26,7 @@ class CLIMenu
     @entries.values_at(start...finish).each_with_index do |entry, index|
       selected = (@position % MENU_PAGE_SIZE == index)
       prefix = selected ? ">" : " " # selectedが真であれば＞、偽なら何もなし
-      LCD.draw("#{prefix}#{entry}", 0, index + 1)
+      LCD.draw("#{prefix}#{entry.gsub(".mrb","")}", 0, index + 1)
     end
   end
 
@@ -107,7 +107,8 @@ class CLIMenu
       end
     end
     if flag
-      # TODO 削除
+      file = FatFile.new
+      file.delete(entries[@position])
       clear
       LCD.draw("Delete #{entries[@position].gsub(".mrb","")} !", 0, 0)
       @mode = true

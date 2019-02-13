@@ -123,6 +123,26 @@ eFatFile_fwrite(CELLIDX idx, const TCHAR* buffer, UINT btw, UINT* bw)
 	return f_write(&VAR_fs, buffer, btw, bw);
 }
 
+/* #[<ENTRY_FUNC>]# eFatFile_unlink
+ * name:         eFatFile_unlink
+ * global_name:  tFatFile_eFatFile_unlink
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+FRESULT
+eFatFile_unlink(CELLIDX idx, const TCHAR* path)
+{
+	CELLCB	*p_cellcb;
+	if (VALID_IDX(idx)) {
+		p_cellcb = GET_CELLCB(idx);
+	}
+	else {
+		/* エラー処理コードをここに記述します */
+	} /* end if VALID_IDX(idx) */
+
+	/* ここに処理本体を記述します #_TEFB_# */
+	f_unlink(path);
+}
+
 /* #[<POSTAMBLE>]#
  *   これより下に非受け口関数を書きます
  * #[</POSTAMBLE>]#*/
