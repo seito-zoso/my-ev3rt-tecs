@@ -1,0 +1,14 @@
+/*
+ *  tEV3Sample.cdl
+ *
+ *  VMの個数に応じてCDLファイルを選択する
+ *  (VMを２つ使う場合，VM2.cdlをインポートする）
+ *
+ */
+/* import_C("tEV3Sample.h"); */
+/* const int32_t MRUBY_VM_STACK_SIZE = 8192; */
+/* const int32_t MRUBY_VM_STACK_SIZE = 40960; */
+const int32_t MRUBY_VM_STACK_SIZE = 81920;
+
+import("VM1_bigtire.cdl");
+//import("VM2.cdl");
