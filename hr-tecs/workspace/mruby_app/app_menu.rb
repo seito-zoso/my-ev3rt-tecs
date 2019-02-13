@@ -79,15 +79,48 @@ class CLIMenu
       end
     end
   end
+
   def delete
-    # TODO deleteメソッドの追加
     clear
-    LCD.draw("Delete #{entries[@position]}", 0, 2)
-    LCD.draw("Press Enter", 0, 3)
+    flag = false
+    LCD.draw("Delete #{entries[@position].gsub(".mrb","")} ?", 0, 0)
     while true
-      break if Button[:enter].pressed?
+      flag ? LCD.draw(" No >Yes", 0, 2) : LCD.draw(">No  Yes", 0, 2)
+      if Button[:right].pressed?
+        while Button[:right].pressed?
+          RTOS.delay(10)
+        end
+        flag = true
+      end
+      if Button[:left].pressed?
+        while Button[:left].pressed?
+          RTOS.delay(10)
+        end
+        flag = false
+      end
+      if Button[:enter].pressed?
+        while Button[:enter].pressed?
+          RTOS.delay(10)
+        end
+        break
+      end
+    end
+    if flag
+      # TODO 削除
+      clear
+      LCD.draw("Delete #{entries[@position].gsub(".mrb","")} !", 0, 0)
+      @mode = true
+      while true
+        if Button[:enter].pressed?
+          while Button[:enter].pressed?
+            RTOS.delay(10)
+          end
+          break
+        end
+      end
     end
   end
+
   def mode_change_run
     @mode = true
   end
@@ -131,6 +164,7 @@ begin
         RTOS.delay(10)
       end
       cli_menu.mode ? cli_menu.run : cli_menu.delete
+      cli_menu.push unless cli_menu.mode
     end
 
     if Button[:right].pressed?
@@ -145,7 +179,6 @@ begin
       end
       cli_menu.mode_change_run
     end
-    cli_menu.push
     cli_menu.draw
     RTOS.delay(200)
   end
