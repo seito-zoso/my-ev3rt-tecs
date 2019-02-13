@@ -7,6 +7,7 @@ region rDomainEV3 {
 			"$(MRUBY_LIB_DIR)/RTOS.rb "
 			"$(MRUBY_LIB_DIR)/Button.rb "
 			"$(MRUBY_LIB_DIR)/LCD.rb "
+			"$(MRUBY_LIB_DIR)/FatFile.rb "
 			"$(MRUBY_LIB_DIR)/FatDir.rb "
 			"$(MRUBY_LIB_DIR)/RunApp.rb "
 			"$(APP_PARAM_RB) "

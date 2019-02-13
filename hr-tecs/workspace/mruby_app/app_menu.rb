@@ -51,6 +51,7 @@ class CLIMenu
   end
 
   def push
+    @entries.clear
     dir = FatDir.new
     dir.open(@dir)
     buf = TECS::CharPointer.new(13)
@@ -61,7 +62,7 @@ class CLIMenu
       if buf[0] == 0 then # 項目なしの時は抜ける
         break
       end
-      entries.push(text.dup) # 項目をentriesにPUSH
+      @entries.push(text.dup) # 項目をentriesにPUSH
       num += 1
     end
     dir.close
@@ -108,10 +109,12 @@ class CLIMenu
     end
     if flag
       file = FatFile.new
-      file.delete(entries[@position])
+      file.delete("#{@dir}/#{entries[@position]}")
       clear
       LCD.draw("Delete #{entries[@position].gsub(".mrb","")} !", 0, 0)
       @mode = true
+      @page = 0
+      @position = 0
       while true
         if Button[:enter].pressed?
           while Button[:enter].pressed?
