@@ -1,17 +1,11 @@
-#
-#  Title: Makefile
-#  Date	: 2016/05/10
-#  Name	: Takuro
-#
-
 #  mrubyのアプリケーションファイル名
-APP_NAME = bluetooth.rb
+# APP_NAME = bluetooth.rb
 # APP_NAME = battery.rb
 # APP_NAME = button.rb
 # APP_NAME = color.rb
 # APP_NAME = color2.rb
 # APP_NAME = color3.rb
-# APP_NAME = ev3way.rb
+APP_NAME = ev3way.rb
 # APP_NAME = gyro.rb
 # APP_NAME = lcd.rb
 # APP_NAME = lcd2.rb
