@@ -42,10 +42,11 @@ class CLIMenu
         end
       elsif @mode == 2
         LCD.draw("<    Bluetooth   >",0, 7)
-        LCD.draw("Receive file",0, 2)
-        LCD.draw("    via bluetooth",0, 3)
-        LCD.draw("Please connect ",0, 4)
-        LCD.draw("       to your PC",0, 5)
+        LCD.font = :small
+        LCD.draw("Receive file via bluetooth.",0, 5)
+        LCD.draw("Please connect to your PC,",0, 6)
+        LCD.draw("and then, press Enter.",0, 7)
+        LCD.font = :medium
       end
     end
     @change_flag = false
