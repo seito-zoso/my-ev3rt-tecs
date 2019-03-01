@@ -72,7 +72,7 @@ Makefileの準備ができたら
 hr_tecs/workspace/cp_mrb_app/での make によりSDに保存されたバイトコードがLCD上に一覧で表示されます。
 上下ボタンで実行したいアプリを選択してください。
 
-![Runモード](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/2_run.PNG)
+<img src="https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/2_run.PNG" width=60%>
 
 ### 2-2. Deleteモード
 保存されたバイトコードを削除します。
@@ -84,7 +84,7 @@ hr_tecs/workspace/cp_mrb_app/での make によりSDに保存されたバイト�
 Bluetooth 経由でバイトコードを受信します。
 doc/mruby_on_ev3rt+tecs_build.pdf の手順に従ってEV3をPCに接続してからEnterを押下します。
 
-![Bluetoohモード](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/4_bluetooth.PNG)
+<img src="https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/4_bluetooth.PNG" width=60%>
 
 
 TeraTermからバイトコードの転送を行えばアプリケーションの実行が可能です。
