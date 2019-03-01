@@ -96,6 +96,6 @@ TeraTermからバイトコードの転送を行えばアプリケーションの
 
 ![TeraTermでのバイトコード送信](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/5_teraterm.PNG)
 
-### Bluetoohにおいての注意
+<!-- ### Bluetoohにおいての注意
 私の試した環境では、ファイル送信が成功するバイトコードとできないバイトコードがありました。
-hr_tecs/workspace/mruby_app/led_sample.mrb であれば成功することを確認しています。
+hr_tecs/workspace/mruby_app/led_sample.mrb であれば成功することを確認しています。 -->
