@@ -65,26 +65,37 @@ Makefileの準備ができたら
 まずはじめにEV3RTのメニュー画面が表示されるのでEnterを押してください。
 各モードの切り替えはEV3の左右ボタンで行います。
 
+![モード選択](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/1_mode.PNG)
+
 ### 2-1. Runモード
 保存されたバイトコードを実行します。
 hr_tecs/workspace/cp_mrb_app/での make によりSDに保存されたバイトコードがLCD上に一覧で表示されます。
 上下ボタンで実行したいアプリを選択してください。
 
+![Runモード](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/2_run.PNG)
+
 ### 2-2. Deleteモード
 保存されたバイトコードを削除します。
 削除対象を選択し、確認画面でYesを押してください。
 
+![Deleteモード](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/3_delete.PNG)
+
 ### 2-3．Bluetoothモード
 Bluetooth 経由でバイトコードを受信します。
 doc/mruby_on_ev3rt+tecs_build.pdf の手順に従ってEV3をPCに接続してからEnterを押下します。
+
+![Bluetoohモード](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/4_bluetooth.PNG)
+
+
 TeraTermからバイトコードの転送を行えばアプリケーションの実行が可能です。
 また転送されたバイトコードは「recv#.mrb」として保存され、再起動時LCD上で選択実行可能です。
 （#には１から順に使用されていないファイル名の番号が入ります）
 
     　例：SDにrecv1、recv3が保存されている場合recv2が作成されます
 
+
+![TeraTermでのバイトコード送信](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/5_teraterm.PNG)
+
 ### Bluetoohにおいての注意
 私の試した環境では、ファイル送信が成功するバイトコードとできないバイトコードがありました。
 hr_tecs/workspace/mruby_app/led_sample.mrb であれば成功することを確認しています。
-
-![画像テスト](https://github.com/seito-zoso/my-ev3rt-tecs/blob/images/DSC_0149.JPG)
