@@ -3,7 +3,7 @@
  *
  *
  */
-import("tFatFile.cdl");
+import(<tFatFile.cdl>);
 import(<mruby.cdl>);
 // import(<sMruby.cdl>);
 // import(<tTLSFMalloc.cdl>);
