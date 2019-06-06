@@ -1,4 +1,4 @@
-import("EV3_common.cdl");
+import("EV3_common_menu+bluetooth.cdl");
 //[domain(HRP2, "trusted")]
 //[domain(HRP2, "nontrusted")]
 region rDomainEV3 {

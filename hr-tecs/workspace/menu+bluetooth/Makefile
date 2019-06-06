@@ -69,7 +69,7 @@ RUNNING_BODY_TIRE = normal
  # RUNNING_BODY_TIRE = big
 
 #  mrubyのアプリケーションファイル名
-APP_NAME = app_menu.rb
+APP_NAME = menu+bluetooth.rb
 
 
 PARAM_NAME = parameter.rb

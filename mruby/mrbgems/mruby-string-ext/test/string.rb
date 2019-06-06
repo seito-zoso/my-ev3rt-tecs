@@ -1,3 +1,4 @@
+# coding: utf-8
 ##
 # String(Ext) Test
 
@@ -32,62 +33,72 @@ assert('String#byteslice') do
 end
 
 assert('String#dump') do
-  ("\1" * 100).dump     # should not raise an exception - regress #1210
-  "\0".inspect == "\"\\000\"" and
-  "foo".dump == "\"foo\""
+  assert_equal("\"\\x00\"", "\0".dump)
+  assert_equal("\"foo\"", "foo".dump)
+  assert_nothing_raised { ("\1" * 100).dump }   # regress #1210
 end
 
 assert('String#strip') do
   s = "  abc  "
-  "".strip == "" and " \t\r\n\f\v".strip == "" and
-  "\0a\0".strip == "\0a" and
-  "abc".strip     == "abc" and
-  "  abc".strip   == "abc" and
-  "abc  ".strip   == "abc" and
-  "  abc  ".strip == "abc" and
-  s == "  abc  "
+  assert_equal("abc", s.strip)
+  assert_equal("  abc  ", s)
+  assert_equal("", "".strip)
+  assert_equal("", " \t\r\n\f\v".strip)
+  assert_equal("\0a", "\0a\0".strip)
+  assert_equal("abc", "abc".strip)
+  assert_equal("abc", "  abc".strip)
+  assert_equal("abc", "abc  ".strip)
 end
 
 assert('String#lstrip') do
   s = "  abc  "
-  s.lstrip
-  "".lstrip == "" and " \t\r\n\f\v".lstrip == "" and
-  "\0a\0".lstrip == "\0a\0" and
-  "abc".lstrip     == "abc"   and
-  "  abc".lstrip   == "abc"   and
-  "abc  ".lstrip   == "abc  " and
-  "  abc  ".lstrip == "abc  " and
-  s == "  abc  "
+  assert_equal("abc  ", s.lstrip)
+  assert_equal("  abc  ", s)
+  assert_equal("", "".lstrip)
+  assert_equal("", " \t\r\n\f\v".lstrip)
+  assert_equal("\0a\0", "\0a\0".lstrip)
+  assert_equal("abc", "abc".lstrip)
+  assert_equal("abc", "  abc".lstrip)
+  assert_equal("abc  ", "abc  ".lstrip)
 end
 
 assert('String#rstrip') do
   s = "  abc  "
-  s.rstrip
-  "".rstrip == "" and " \t\r\n\f\v".rstrip == "" and
-  "\0a\0".rstrip == "\0a" and
-  "abc".rstrip     == "abc"   and
-  "  abc".rstrip   == "  abc" and
-  "abc  ".rstrip   == "abc"   and
-  "  abc  ".rstrip == "  abc" and
-  s == "  abc  "
+  assert_equal("  abc", s.rstrip)
+  assert_equal("  abc  ", s)
+  assert_equal("", "".rstrip)
+  assert_equal("", " \t\r\n\f\v".rstrip)
+  assert_equal("\0a", "\0a\0".rstrip)
+  assert_equal("abc", "abc".rstrip)
+  assert_equal("  abc", "  abc".rstrip)
+  assert_equal("abc", "abc  ".rstrip)
 end
 
 assert('String#strip!') do
   s = "  abc  "
   t = "abc"
-  s.strip! == "abc" and s == "abc" and t.strip! == nil
+  assert_equal("abc", s.strip!)
+  assert_equal("abc", s)
+  assert_nil(t.strip!)
+  assert_equal("abc", t)
 end
 
 assert('String#lstrip!') do
   s = "  abc  "
   t = "abc  "
-  s.lstrip! == "abc  " and s == "abc  " and t.lstrip! == nil
+  assert_equal("abc  ", s.lstrip!)
+  assert_equal("abc  ", s)
+  assert_nil(t.lstrip!)
+  assert_equal("abc  ", t)
 end
 
 assert('String#rstrip!') do
   s = "  abc  "
   t = "  abc"
-  s.rstrip! == "  abc" and s == "  abc" and t.rstrip! == nil
+  assert_equal("  abc", s.rstrip!)
+  assert_equal("  abc", s)
+  assert_nil(t.rstrip!)
+  assert_equal("  abc", t)
 end
 
 assert('String#swapcase') do
@@ -103,12 +114,10 @@ assert('String#swapcase!') do
 end
 
 assert('String#concat') do
-  s = "Hello "
-  s.concat "World!"
-  t = "Hello "
-  t << "World!"
-  assert_equal "Hello World!", t
-  assert_equal "Hello World!", s
+  assert_equal "Hello World!", "Hello " << "World" << 33
+  assert_equal "Hello World!", "Hello ".concat("World").concat(33)
+
+  assert_raise(TypeError) { "".concat(Object.new) }
 end
 
 assert('String#casecmp') do
@@ -116,11 +125,69 @@ assert('String#casecmp') do
   assert_equal 0, "aBcDeF".casecmp("abcdef")
   assert_equal(-1, "abcdef".casecmp("abcdefg"))
   assert_equal 0, "abcdef".casecmp("ABCDEF")
-  o = Object.new
-  def o.to_str
-    "ABCDEF"
-  end
-  assert_equal 0, "abcdef".casecmp(o)
+end
+
+assert('String#count') do
+  s = "abccdeff123"
+  assert_equal 0, s.count("")
+  assert_equal 1, s.count("a")
+  assert_equal 2, s.count("ab")
+  assert_equal 9, s.count("^c")
+  assert_equal 8, s.count("a-z")
+  assert_equal 4, s.count("a0-9")
+end
+
+assert('String#tr') do
+  assert_equal "ABC", "abc".tr('a-z', 'A-Z')
+  assert_equal "hippo", "hello".tr('el', 'ip')
+  assert_equal "Ruby", "Lisp".tr("Lisp", "Ruby")
+  assert_equal "*e**o", "hello".tr('^aeiou', '*')
+  assert_equal "heo", "hello".tr('l', '')
+end
+
+assert('String#tr!') do
+  s = "abcdefghijklmnopqR"
+  assert_equal "ab12222hijklmnopqR", s.tr!("cdefg", "12")
+  assert_equal "ab12222hijklmnopqR", s
+end
+
+assert('String#tr_s') do
+  assert_equal "hero", "hello".tr_s('l', 'r')
+  assert_equal "h*o", "hello".tr_s('el', '*')
+  assert_equal "hhxo", "hello".tr_s('el', 'hx')
+end
+
+assert('String#tr_s!') do
+  s = "hello"
+  assert_equal "hero", s.tr_s!('l', 'r')
+  assert_equal "hero", s
+  assert_nil s.tr_s!('l', 'r')
+end
+
+assert('String#squeeze') do
+  assert_equal "yelow mon", "yellow moon".squeeze
+  assert_equal " now is the", "  now   is  the".squeeze(" ")
+  assert_equal "puters shot balls", "putters shoot balls".squeeze("m-z")
+end
+
+assert('String#squeeze!') do
+  s = "  now   is  the"
+  assert_equal " now is the", s.squeeze!(" ")
+  assert_equal " now is the", s
+end
+
+assert('String#delete') do
+  assert_equal "he", "hello".delete("lo")
+  assert_equal "hll", "hello".delete("aeiou")
+  assert_equal "ll", "hello".delete("^l")
+  assert_equal "ho", "hello".delete("ej-m")
+end
+
+assert('String#delete!') do
+  s = "hello"
+  assert_equal "he", s.delete!("lo")
+  assert_equal "he", s
+  assert_nil s.delete!("lz")
 end
 
 assert('String#start_with?') do
@@ -399,6 +466,10 @@ assert('String#insert') do
   assert_equal "abcdX", "abcd".insert(-1, 'X')
   assert_raise(IndexError) { "abcd".insert(5, 'X') }
   assert_raise(IndexError) { "abcd".insert(-6, 'X') }
+
+  a = "abcd"
+  a.insert(0, 'X')
+  assert_equal "Xabcd", a
 end
 
 assert('String#prepend') do
@@ -410,11 +481,75 @@ end
 assert('String#ljust') do
   assert_equal "hello", "hello".ljust(4)
   assert_equal "hello               ", "hello".ljust(20)
+  assert_equal 20, "hello".ljust(20).length
   assert_equal "hello123412341234123", "hello".ljust(20, '1234')
   assert_equal "hello", "hello".ljust(-3)
 end
 
+assert('String#rjust') do
+  assert_equal "hello", "hello".rjust(4)
+  assert_equal "               hello", "hello".rjust(20)
+  assert_equal 20, "hello".rjust(20).length
+  assert_equal "123412341234123hello", "hello".rjust(20, '1234')
+  assert_equal "hello", "hello".rjust(-3)
+end
+
+if UTF8STRING
+  assert('String#ljust with UTF8') do
+    assert_equal "helloん              ", "helloん".ljust(20)
+    assert_equal "helloó                            ", "helloó".ljust(34)
+    assert_equal 34, "helloó".ljust(34).length
+    assert_equal "helloんんんんんんんんんんんんんん", "hello".ljust(19, 'ん')
+    assert_equal "helloんんんんんんんんんんんんんんん", "hello".ljust(20, 'ん')
+  end
+
+  assert('String#rjust with UTF8') do
+    assert_equal "              helloん", "helloん".rjust(20)
+    assert_equal "                            helloó", "helloó".rjust(34)
+    # assert_equal 34, "helloó".rjust(34).length
+    assert_equal "んんんんんんんんんんんんんんhello", "hello".rjust(19, 'ん')
+    assert_equal "んんんんんんんんんんんんんんんhello", "hello".rjust(20, 'ん')
+  end
+
+  assert('UTF8 byte counting') do
+    ret = '                                  '
+    ret[-6..-1] = "helloó"
+    assert_equal 34, ret.length
+  end
+end
+
+assert('String#ljust should not change string') do
+  a = "hello"
+  a.ljust(20)
+  assert_equal "hello", a
+end
+
+assert('String#rjust should not change string') do
+  a = "hello"
+  a.rjust(20)
+  assert_equal "hello", a
+end
+
+assert('String#ljust should raise on zero width padding') do
+  assert_raise(ArgumentError) { "foo".ljust(10, '') }
+end
+
+assert('String#rjust should raise on zero width padding') do
+  assert_raise(ArgumentError) { "foo".rjust(10, '') }
+end
+
 assert('String#upto') do
+  assert_equal %w(a8 a9 b0 b1 b2 b3 b4 b5 b6), "a8".upto("b6").to_a
+  assert_equal ["9", "10", "11"], "9".upto("11").to_a
+  assert_equal [], "25".upto("5").to_a
+  assert_equal ["07", "08", "09", "10", "11"], "07".upto("11").to_a
+
+if UTF8STRING
+  assert_equal ["あ", "ぃ", "い", "ぅ", "う", "ぇ", "え", "ぉ", "お"], "あ".upto("お").to_a
+end
+
+  assert_equal ["9", ":", ";", "<", "=", ">", "?", "@", "A"], "9".upto("A").to_a
+
   a     = "aa"
   start = "aa"
   count = 0
@@ -474,11 +609,17 @@ assert('String#upto') do
     count += 1
   })
   assert_equal(2, count)
+
+  assert_raise(TypeError) { "a".upto(:c) {} }
 end
 
 assert('String#ord') do
   got = "hello!".split('').map {|x| x.ord}
   expect = [104, 101, 108, 108, 111, 33]
+  unless UTF8STRING
+    got << "\xff".ord
+    expect << 0xff
+  end
   assert_equal expect, got
 end
 
@@ -568,3 +709,17 @@ assert('String#each_codepoint(UTF-8)') do
   end
   assert_equal expect, cp
 end if UTF8STRING
+
+assert('String#delete_prefix') do
+  assert_equal "llo", "hello".delete_prefix("he")
+  assert_equal "hello", "hello".delete_prefix("llo")
+  assert_equal "llo", "hello".delete_prefix!("he")
+  assert_nil "hello".delete_prefix!("llo")
+end
+
+assert('String#delete_suffix') do
+  assert_equal "he", "hello".delete_suffix("llo")
+  assert_equal "hello", "hello".delete_suffix("he")
+  assert_equal "he", "hello".delete_suffix!("llo")
+  assert_nil "hello".delete_suffix!("he")
+end

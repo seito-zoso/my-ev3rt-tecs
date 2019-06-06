@@ -1,6 +1,8 @@
 ##
 # Float ISO Test
 
+if Object.const_defined?(:Float)
+
 assert('Float', '15.2.9') do
   assert_equal Class, Float.class
 end
@@ -148,6 +150,9 @@ end
 
 assert('Float#to_i', '15.2.9.3.14') do
   assert_equal(3, 3.123456789.to_i)
+  assert_raise(FloatDomainError) { Float::INFINITY.to_i }
+  assert_raise(FloatDomainError) { (-Float::INFINITY).to_i }
+  assert_raise(FloatDomainError) { Float::NAN.to_i }
 end
 
 assert('Float#truncate', '15.2.9.3.15') do
@@ -200,3 +205,44 @@ assert('Float#>>') do
   # Don't raise on large Right Shift
   assert_equal(-1, -23.0 >> 128)
 end
+
+assert('Float#to_s') do
+  uses_float = 4e38.infinite?  # enable MRB_USE_FLOAT?
+
+  assert_equal("Infinity", Float::INFINITY.to_s)
+  assert_equal("-Infinity", (-Float::INFINITY).to_s)
+  assert_equal("NaN", Float::NAN.to_s)
+  assert_equal("0.0", 0.0.to_s)
+  assert_equal("-0.0", -0.0.to_s)
+  assert_equal("-3.25", -3.25.to_s)
+  assert_equal("50.0", 50.0.to_s)
+  assert_equal("0.0125", 0.0125.to_s)
+  assert_equal("-0.0125", -0.0125.to_s)
+  assert_equal("1.0e-10", 0.0000000001.to_s)
+  assert_equal("-1.0e-10", -0.0000000001.to_s)
+  assert_equal("1.0e+20", 1e20.to_s)
+  assert_equal("-1.0e+20", -1e20.to_s)
+  assert_equal("1.0e+16", 10000000000000000.0.to_s)
+  assert_equal("-1.0e+16", -10000000000000000.0.to_s)
+  assert_equal("100000.0", 100000.0.to_s)
+  assert_equal("-100000.0", -100000.0.to_s)
+  if uses_float
+    assert_equal("1.0e+08", 100000000.0.to_s)
+    assert_equal("-1.0e+08", -100000000.0.to_s)
+    assert_equal("1.0e+07", 10000000.0.to_s)
+    assert_equal("-1.0e+07", -10000000.0.to_s)
+  else
+    assert_equal("1.0e+15", 1000000000000000.0.to_s)
+    assert_equal("-1.0e+15", -1000000000000000.0.to_s)
+    assert_equal("100000000000000.0", 100000000000000.0.to_s)
+    assert_equal("-100000000000000.0", -100000000000000.0.to_s)
+  end
+end
+
+assert('Float#eql?') do
+  assert_true(5.0.eql?(5.0))
+  assert_false(5.0.eql?(5))
+  assert_false(5.0.eql?("5.0"))
+end
+
+end # const_defined?(:Float)

@@ -36,7 +36,7 @@ end
 
 assert('Class#new', '15.2.3.3.3') do
   assert_raise(TypeError, 'Singleton should raise TypeError') do
-    "a".singleton_class.new
+    (class <<"a"; self; end).new
   end
 
   class TestClass
@@ -236,6 +236,11 @@ assert('class to return the last value') do
   assert_equal(m, :m)
 end
 
+assert('class to return nil if body is empty') do
+  assert_nil(class C end)
+  assert_nil(class << self; end)
+end
+
 assert('raise when superclass is not a class') do
   module FirstModule; end
   assert_raise(TypeError, 'should raise TypeError') do
@@ -293,15 +298,7 @@ assert('singleton tests') do
     end
   end
 
-  assert_false baz.singleton_methods.include? :run_foo_mod
-  assert_false baz.singleton_methods.include? :run_baz
-
-  assert_raise(NoMethodError, 'should raise NoMethodError') do
-    baz.run_foo_mod
-  end
-  assert_raise(NoMethodError, 'should raise NoMethodError') do
-    baz.run_baz
-  end
+  assert_equal :run_baz, baz
 
   assert_raise(NoMethodError, 'should raise NoMethodError') do
     bar.run_foo_mod
@@ -318,8 +315,8 @@ assert('singleton tests') do
     self
   end
 
-  assert_true baz.singleton_methods.include? :run_baz
-  assert_true baz.singleton_methods.include? :run_foo_mod
+  assert_true baz.respond_to? :run_baz
+  assert_true baz.respond_to? :run_foo_mod
   assert_equal 100, baz.run_foo_mod
   assert_equal 300, baz.run_baz
 
@@ -358,7 +355,7 @@ assert('singleton tests') do
         7
       end
     end
-  end
+  end if Object.const_defined?(:Float)
 end
 
 assert('clone Class') do
@@ -368,7 +365,7 @@ assert('clone Class') do
     end
   end
 
-  Foo.clone.new.func
+  assert_true(Foo.clone.new.func)
 end
 
 assert('class variable and class << self style class method') do
@@ -382,6 +379,58 @@ assert('class variable and class << self style class method') do
   end
 
   assert_equal("value", ClassVariableTest.class_variable)
+end
+
+assert('class variable definition in singleton_class') do
+  class ClassVariableDefinitionInSingletonTest
+    class << self
+      @@class_variable = "value"
+    end
+    def class_variable
+      @@class_variable
+    end
+  end
+
+  assert_equal("value", ClassVariableDefinitionInSingletonTest.new.class_variable)
+end
+
+assert('class variable in module and class << self style class method') do
+  module ClassVariableInModuleTest
+    @@class_variable = "value"
+    class << self
+      def class_variable
+        @@class_variable
+      end
+    end
+  end
+
+  assert_equal("value", ClassVariableInModuleTest.class_variable)
+end
+
+assert('child class/module defined in singleton class get parent constant') do
+  actual = module GetParentConstantTest
+            EXPECT = "value"
+            class << self
+              class CHILD
+                class << self
+                    EXPECT
+                end
+              end
+            end
+          end
+  assert_equal("value", actual)
+end
+
+assert('overriding class variable with a module (#3235)') do
+  module ModuleWithCVar
+    @@class_variable = 1
+  end
+  class CVarOverrideTest
+    @@class_variable = 2
+    include ModuleWithCVar
+
+    assert_equal(1, @@class_variable)
+  end
 end
 
 assert('class with non-class/module outer raises TypeError') do

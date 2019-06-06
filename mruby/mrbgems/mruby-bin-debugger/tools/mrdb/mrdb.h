@@ -6,7 +6,7 @@
 #ifndef MRDB_H
 #define MRDB_H
 
-#include "mruby.h"
+#include <mruby.h>
 
 #include "mrdbconf.h"
 
@@ -23,6 +23,7 @@ typedef enum debug_command_id {
   DBGCMD_STEP,
   DBGCMD_BREAK,
   DBGCMD_INFO_BREAK,
+  DBGCMD_INFO_LOCAL,
   DBGCMD_WATCH,
   DBGCMD_INFO_WATCH,
   DBGCMD_ENABLE,
@@ -109,6 +110,7 @@ typedef struct mrb_debug_context {
 
   const char *prvfile;
   int32_t prvline;
+  mrb_callinfo *prvci;
 
   mrdb_exemode xm;
   mrdb_exephase xphase;
@@ -146,9 +148,11 @@ typedef dbgcmd_state (*debug_command_func)(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_run(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_continue(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_step(mrb_state*, mrdb_state*);
+dbgcmd_state dbgcmd_next(mrb_state*, mrdb_state*);
 /* cmdbreak.c */
 dbgcmd_state dbgcmd_break(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_info_break(mrb_state*, mrdb_state*);
+dbgcmd_state dbgcmd_info_local(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_delete(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_enable(mrb_state*, mrdb_state*);
 dbgcmd_state dbgcmd_disable(mrb_state*, mrdb_state*);

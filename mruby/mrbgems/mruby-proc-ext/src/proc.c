@@ -1,9 +1,9 @@
-#include "mruby.h"
-#include "mruby/proc.h"
-#include "mruby/opcode.h"
-#include "mruby/array.h"
-#include "mruby/string.h"
-#include "mruby/debug.h"
+#include <mruby.h>
+#include <mruby/proc.h>
+#include <mruby/opcode.h>
+#include <mruby/array.h>
+#include <mruby/string.h>
+#include <mruby/debug.h>
 
 static mrb_value
 mrb_proc_lambda(mrb_state *mrb, mrb_value self)
@@ -25,8 +25,8 @@ mrb_proc_source_location(mrb_state *mrb, mrb_value self)
     int32_t line;
     const char *filename;
 
-    filename = mrb_debug_get_filename(irep, 0);
-    line = mrb_debug_get_line(irep, 0);
+    filename = mrb_debug_get_filename(mrb, irep, 0);
+    line = mrb_debug_get_line(mrb, irep, 0);
 
     return (!filename && line == -1)? mrb_nil_value()
         : mrb_assoc_new(mrb, mrb_str_new_cstr(mrb, filename), mrb_fixnum_value(line));
@@ -46,13 +46,13 @@ mrb_proc_inspect(mrb_state *mrb, mrb_value self)
     int32_t line;
     mrb_str_cat_lit(mrb, str, "@");
 
-    filename = mrb_debug_get_filename(irep, 0);
+    filename = mrb_debug_get_filename(mrb, irep, 0);
     mrb_str_cat_cstr(mrb, str, filename ? filename : "-");
     mrb_str_cat_lit(mrb, str, ":");
 
-    line = mrb_debug_get_line(irep, 0);
+    line = mrb_debug_get_line(mrb, irep, 0);
     if (line != -1) {
-      mrb_str_append(mrb, str, mrb_fixnum_value(line));
+      str = mrb_format(mrb, "%S:%S", str, mrb_fixnum_value(line));
     }
     else {
       mrb_str_cat_lit(mrb, str, "-");
@@ -94,39 +94,46 @@ static mrb_value
 mrb_proc_parameters(mrb_state *mrb, mrb_value self)
 {
   struct parameters_type {
-    int size;
+    size_t len;
     const char *name;
+    int size;
   } *p, parameters_list [] = {
-    {0, "req"},
-    {0, "opt"},
-    {0, "rest"},
-    {0, "req"},
-    {0, "block"},
-    {0, NULL}
+    {sizeof("req")   - 1, "req",   0},
+    {sizeof("opt")   - 1, "opt",   0},
+    {sizeof("rest")  - 1, "rest",  0},
+    {sizeof("req")   - 1, "req",   0},
+    {sizeof("block") - 1, "block", 0},
+    {0, NULL, 0}
   };
   const struct RProc *proc = mrb_proc_ptr(self);
   const struct mrb_irep *irep = proc->body.irep;
   mrb_aspec aspec;
   mrb_value parameters;
   int i, j;
+  int max = -1;
 
   if (MRB_PROC_CFUNC_P(proc)) {
     // TODO cfunc aspec is not implemented yet
     return mrb_ary_new(mrb);
   }
+  if (!irep) {
+    return mrb_ary_new(mrb);
+  }
   if (!irep->lv) {
     return mrb_ary_new(mrb);
   }
-  if (GET_OPCODE(*irep->iseq) != OP_ENTER) {
+  if (*irep->iseq != OP_ENTER) {
     return mrb_ary_new(mrb);
   }
 
   if (!MRB_PROC_STRICT_P(proc)) {
+    parameters_list[0].len = sizeof("opt") - 1;
     parameters_list[0].name = "opt";
+    parameters_list[3].len = sizeof("opt") - 1;
     parameters_list[3].name = "opt";
   }
 
-  aspec = GETARG_Ax(*irep->iseq);
+  aspec = PEEK_W(irep->iseq+1);
   parameters_list[0].size = MRB_ASPEC_REQ(aspec);
   parameters_list[1].size = MRB_ASPEC_OPT(aspec);
   parameters_list[2].size = MRB_ASPEC_REST(aspec);
@@ -134,14 +141,28 @@ mrb_proc_parameters(mrb_state *mrb, mrb_value self)
   parameters_list[4].size = MRB_ASPEC_BLOCK(aspec);
 
   parameters = mrb_ary_new_capa(mrb, irep->nlocals-1);
+
+  max = irep->nlocals-1;
   for (i = 0, p = parameters_list; p->name; p++) {
-    mrb_value sname = mrb_symbol_value(mrb_intern_cstr(mrb, p->name));
+    mrb_value sname = mrb_symbol_value(mrb_intern_static(mrb, p->name, p->len));
+
     for (j = 0; j < p->size; i++, j++) {
-      mrb_assert(i < (irep->nlocals-1));
-      mrb_ary_push(mrb, parameters, mrb_assoc_new(mrb,
-        sname,
-        mrb_symbol_value(irep->lv[i].name)
-      ));
+      mrb_value a;
+
+      a = mrb_ary_new(mrb);
+      mrb_ary_push(mrb, a, sname);
+      if (i < max && irep->lv[i].name) {
+        mrb_sym sym = irep->lv[i].name;
+        const char *name = mrb_sym2name(mrb, sym);
+        switch (name[0]) {
+        case '*': case '&':
+          break;
+        default:
+          mrb_ary_push(mrb, a, mrb_symbol_value(sym));
+          break;
+        }
+      }
+      mrb_ary_push(mrb, parameters, a);
     }
   }
   return parameters;

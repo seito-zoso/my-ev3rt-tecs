@@ -8,6 +8,7 @@ MRuby::Build.new do |conf|
     toolchain :gcc
   end
 
+  # Turn on `enable_debug` for better debugging
   enable_debug
 
   # Use mrbgems
@@ -16,9 +17,10 @@ MRuby::Build.new do |conf|
   #   g.cc.flags << '-g' # append cflags in this gem
   # end
   # conf.gem 'examples/mrbgems/c_and_ruby_extension_example'
-  # conf.gem :github => 'masuidrive/mrbgems-example', :checksum_hash => '76518e8aecd131d047378448ac8055fa29d974a9'
-  # conf.gem :git => 'git@github.com:masuidrive/mrbgems-example.git', :branch => 'master', :options => '-v'
-  #
+  # conf.gem :core => 'mruby-eval'
+  # conf.gem :mgem => 'mruby-io'
+  # conf.gem :github => 'iij/mruby-io'
+  # conf.gem :git => 'git@github.com:iij/mruby-io.git', :branch => 'master', :options => '-v'
 
   # include the default GEMs
   conf.gembox 'default'
@@ -27,7 +29,7 @@ MRuby::Build.new do |conf|
   #   cc.command = ENV['CC'] || 'gcc'
   #   cc.flags = [ENV['CFLAGS'] || %w()]
   #   cc.include_paths = ["#{root}/include"]
-  #   cc.defines = %w(DISABLE_GEMS)
+  #   cc.defines = %w()
   #   cc.option_include_path = '-I%s'
   #   cc.option_define = '-D%s'
   #   cc.compile_options = "%{flags} -MMD -o %{outfile} -c %{infile}"
@@ -82,33 +84,59 @@ MRuby::Build.new do |conf|
   # bintest
   # conf.enable_bintest
 end
-=begin
-MRuby::Build.new('host-debug') do |conf|
-  # load specific toolchain settings
 
-  # Gets set by the VS command prompts.
-  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
-    toolchain :visualcpp
-  else
-    toolchain :gcc
-  end
+# MRuby::Build.new('host-debug') do |conf|
+#   # load specific toolchain settings
 
-  enable_debug
+#   # Gets set by the VS command prompts.
+#   if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
+#     toolchain :visualcpp
+#   else
+#     toolchain :gcc
+#   end
 
-  # include the default GEMs
-  conf.gembox 'default'
+#   enable_debug
 
-  # C compiler settings
-  conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK)
+#   # include the default GEMs
+#   conf.gembox 'default'
 
-  # Generate mruby debugger command (require mruby-eval)
-  conf.gem :core => "mruby-bin-debugger"
+#   # C compiler settings
+#   conf.cc.defines = %w(MRB_ENABLE_DEBUG_HOOK)
 
-  # bintest
-  # conf.enable_bintest
-end
-=end
-# Define cross build settings
+#   # Generate mruby debugger command (require mruby-eval)
+#   conf.gem :core => "mruby-bin-debugger"
+
+#   # bintest
+#   # conf.enable_bintest
+# end
+
+# MRuby::Build.new('test') do |conf|
+#   # Gets set by the VS command prompts.
+#   if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
+#     toolchain :visualcpp
+#   else
+#     toolchain :gcc
+#   end
+
+#   enable_debug
+#   conf.enable_bintest
+#   conf.enable_test
+
+#   conf.gembox 'default'
+# end
+
+#MRuby::Build.new('bench') do |conf|
+#  # Gets set by the VS command prompts.
+#  if ENV['VisualStudioVersion'] || ENV['VSINSTALLDIR']
+#    toolchain :visualcpp
+#  else
+#    toolchain :gcc
+#    conf.cc.flags << '-O3'
+#  end
+#
+#  conf.gembox 'default'
+#end
+
 MRuby::CrossBuild.new('ARM') do |conf|
   toolchain :gcc
   conf.cc.defines = %w(DISABLE_STDIO)
@@ -222,5 +250,4 @@ end
 #   conf.gem 'examples/mrbgems/c_and_ruby_extension_example'
 #
 #   conf.test_runner.command = 'env'
-#
 # end

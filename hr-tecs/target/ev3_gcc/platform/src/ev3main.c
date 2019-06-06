@@ -100,7 +100,7 @@ void ev3_main_task(intptr_t exinf) {
 	syslog(LOG_NOTICE, " ");
 	// syslog(LOG_NOTICE, "%s", version_banner);
     syslog(LOG_NOTICE, "=============================");
-    syslog(LOG_NOTICE, "mruby on ev3rt+tecs beta2.1.0");
+    syslog(LOG_NOTICE, "mruby on ev3rt+tecs beta2.2.0");
     syslog(LOG_NOTICE, "=============================");
 	syslog(LOG_NOTICE, " ");
 	syslog(LOG_NOTICE, "Powered by TOPPERS/HRP2 RTOS");

@@ -1,0 +1,323 @@
+import(<kernel.cdl>);
+
+/* mrubyの本体 */
+import(<tMruby.cdl>);
+
+import(<tUltrasonicSensor.cdl>);
+import(<tColorSensor.cdl>);
+import(<tTouchSensor.cdl>);
+import(<tGyroSensor.cdl>);
+
+import(<tMotor.cdl>);
+
+import(<tLCD.cdl>);
+import(<tLED.cdl>);
+import(<tButton.cdl>);
+import(<tBattery.cdl>);
+import(<tSpeaker.cdl>);
+
+import(<tEV3Platform.cdl>);
+import(<tBalancer_bigtire.cdl>);
+
+import(<tSharedMemory.cdl>);
+
+import(<tFatFile.cdl>);
+import(<tFatDir.cdl>);
+import(<tRunApp.cdl>);
+import(<tReceive.cdl>);
+
+/*
+ * シグニチャプラグイン MrubyBridgePlugin の呼び出し。
+ */
+generate( MrubyBridgePlugin, sKernel, "" );
+
+generate( MrubyBridgePlugin, sMotor, "" );
+
+generate( MrubyBridgePlugin, sLCD, "" );
+generate( MrubyBridgePlugin, sLED, "" );
+generate( MrubyBridgePlugin, sButton, "" );
+generate( MrubyBridgePlugin, sBattery, "" );
+generate( MrubyBridgePlugin, sSpeaker, "" );
+
+generate( MrubyBridgePlugin, sUltrasonicSensor, "" );
+generate( MrubyBridgePlugin, sGyroSensor, "" );
+generate( MrubyBridgePlugin, sColorSensor, "" );
+generate( MrubyBridgePlugin, sTouchSensor, "" );
+
+generate( MrubyBridgePlugin, sBalancer, "" );
+
+generate( MrubyBridgePlugin, sSharedMemory, "" );
+
+generate( MrubyBridgePlugin, sFatFile, "" );
+generate( MrubyBridgePlugin, sFatDir, "" );
+generate( MrubyBridgePlugin, sRunApp, "" );
+generate( MrubyBridgePlugin, sReceive, "" );
+
+
+
+
+/*
+ *  サンプルプログラムの定義
+ */
+
+[domain(HRP2, "trusted")]
+//[domain(HRP2, "nontrusted")]
+region rDomainEV3 {
+  cell nMruby::tsKernel BridgeKernel {
+    cTECS = HRP2Kernel.eKernel;
+  };
+  // Motor ブリッジセル
+  cell nMruby::tsMotor BridgeMotorA {
+    cTECS = MotorA.eMotor;
+  };
+  cell nMruby::tsMotor BridgeMotorB {
+    cTECS = MotorB.eMotor;
+  };
+  cell nMruby::tsMotor BridgeMotorC {
+    cTECS = MotorC.eMotor;
+  };
+  cell nMruby::tsMotor BridgeMotorD {
+    cTECS = MotorD.eMotor;
+  };
+  // LCD ブリッジセル
+  cell nMruby::tsLCD BridgeLCD {
+    cTECS = LCD.eLCD;
+  };
+  // LED ブリッジセル
+  cell nMruby::tsLED BridgeLED {
+    cTECS = LED.eLED;
+  };
+  // Button ブリッジセル
+  cell nMruby::tsButton BridgeButton {
+    cTECS = Button.eButton;
+  };
+  // Battery ブリッジセル
+  cell nMruby::tsBattery BridgeBattery {
+    cTECS = Battery.eBattery;
+  };
+  // Speaker ブリッジセル
+  cell nMruby::tsSpeaker BridgeSpeaker {
+    cTECS = Speaker.eSpeaker;
+  };
+  // UltrasonicSensor ブリッジセル
+  cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor1 {
+    cTECS = UltrasonicSensor1.eUltrasonicSensor;
+  };
+  cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor2 {
+    cTECS = UltrasonicSensor2.eUltrasonicSensor;
+  };
+  cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor3 {
+    cTECS = UltrasonicSensor3.eUltrasonicSensor;
+  };
+  cell nMruby::tsUltrasonicSensor BridgeUltrasonicSensor4 {
+    cTECS = UltrasonicSensor4.eUltrasonicSensor;
+  };
+  //GyroSensor ブリッジセル
+  cell nMruby::tsGyroSensor BridgeGyroSensor1 {
+    cTECS = GyroSensor1.eGyroSensor;
+  };
+  cell nMruby::tsGyroSensor BridgeGyroSensor2 {
+    cTECS = GyroSensor2.eGyroSensor;
+  };
+  cell nMruby::tsGyroSensor BridgeGyroSensor3 {
+    cTECS = GyroSensor3.eGyroSensor;
+  };
+  cell nMruby::tsGyroSensor BridgeGyroSensor4 {
+    cTECS = GyroSensor4.eGyroSensor;
+  };
+  // ColorSensor ブリッジセル
+  cell nMruby::tsColorSensor BridgeColorSensor1 {
+    cTECS = ColorSensor1.eColorSensor;
+  };
+  cell nMruby::tsColorSensor BridgeColorSensor2 {
+    cTECS = ColorSensor2.eColorSensor;
+  };
+  cell nMruby::tsColorSensor BridgeColorSensor3 {
+    cTECS = ColorSensor3.eColorSensor;
+  };
+  cell nMruby::tsColorSensor BridgeColorSensor4 {
+    cTECS = ColorSensor4.eColorSensor;
+  };
+  // TouchSensor ブリッジセル
+  cell nMruby::tsTouchSensor BridgeTouchSensor1 {
+    cTECS = TouchSensor1.eTouchSensor;
+  };
+  cell nMruby::tsTouchSensor BridgeTouchSensor2 {
+    cTECS = TouchSensor2.eTouchSensor;
+  };
+  cell nMruby::tsTouchSensor BridgeTouchSensor3 {
+    cTECS = TouchSensor3.eTouchSensor;
+  };
+  cell nMruby::tsTouchSensor BridgeTouchSensor4 {
+    cTECS = TouchSensor4.eTouchSensor;
+  };
+  // Balancer ブリッジセル
+  cell nMruby::tsBalancer BridgeBalancer {
+    cTECS = Balancer.eBalancer;
+  };
+  // SharedMemory ブリッジセル
+  cell nMruby::tsSharedMemory BridgeSharedMemory {
+    cTECS = SharedMemory.eSharedMemory;
+  };
+  // FatFs ブリッジセル
+  cell nMruby::tsFatFile BridgeFatFile {
+    cTECS = FatFile.eFatFile;
+  };
+  cell nMruby::tsFatDir BridgeFatDir {
+    cTECS = FatDir.eFatDir;
+  };
+  cell nMruby::tsRunApp BridgeRunApp {
+    cTECS = RunApp.eRunApp;
+  };
+  cell nMruby::tsReceive BridgeReceive {
+    cTECS = Receive.eReceive;
+  };
+  //Kernel
+  cell tKernel HRP2Kernel {
+  };
+  //Motor
+  cell tMotor MotorA {
+    port = C_EXP("EV3_PORT_A");
+  };
+  cell tMotor MotorB {
+    port = C_EXP("EV3_PORT_B");
+  };
+  cell tMotor MotorC {
+    port = C_EXP("EV3_PORT_C");
+  };
+  cell tMotor MotorD {
+    port = C_EXP("EV3_PORT_D");
+  };
+  //LCD
+  cell tLCD LCD {
+    cButton = Button.eButton;
+  };
+  //LED
+  cell tLED LED {
+  };
+  //Button
+  cell tButton Button {
+  };
+  //Battery
+  cell tBattery Battery {
+  };
+  //Speaker
+  cell tSpeaker Speaker {
+  };
+  //UltrasonicSensor
+  cell tUltrasonicSensor UltrasonicSensor1 {
+    port = C_EXP("EV3_PORT_1");
+  };
+  cell tUltrasonicSensor UltrasonicSensor2 {
+    port = C_EXP("EV3_PORT_2");
+  };
+  cell tUltrasonicSensor UltrasonicSensor3 {
+    port = C_EXP("EV3_PORT_3");
+  };
+  cell tUltrasonicSensor UltrasonicSensor4 {
+    port = C_EXP("EV3_PORT_4");
+  };
+  //GyroSensor
+  cell tGyroSensor GyroSensor1 {
+    port = C_EXP("EV3_PORT_1");
+  };
+  cell tGyroSensor GyroSensor2 {
+    port = C_EXP("EV3_PORT_2");
+  };
+  cell tGyroSensor GyroSensor3 {
+    port = C_EXP("EV3_PORT_3");
+  };
+  cell tGyroSensor GyroSensor4 {
+    port = C_EXP("EV3_PORT_4");
+  };
+  //ColorSensor
+  cell tColorSensor ColorSensor1 {
+    port = C_EXP("EV3_PORT_1");
+  };
+  cell tColorSensor ColorSensor2 {
+    port = C_EXP("EV3_PORT_2");
+  };
+  cell tColorSensor ColorSensor3 {
+    port = C_EXP("EV3_PORT_3");
+  };
+  cell tColorSensor ColorSensor4 {
+    port = C_EXP("EV3_PORT_4");
+  };
+  //TouchSensor
+  cell tTouchSensor TouchSensor1 {
+    port = C_EXP("EV3_PORT_1");
+  };
+  cell tTouchSensor TouchSensor2 {
+    port = C_EXP("EV3_PORT_2");
+  };
+  cell tTouchSensor TouchSensor3 {
+    port = C_EXP("EV3_PORT_3");
+  };
+  cell tTouchSensor TouchSensor4 {
+    port = C_EXP("EV3_PORT_4");
+  };
+  cell tBalancer Balancer {
+  };
+  cell tSharedMemory SharedMemory {
+  };
+  cell tFatFile FatFile {
+  };
+  cell tFatDir FatDir {
+  };
+  cell tRunApp RunApp {
+    cFatFile = FatFile.eFatFile;
+    cInit = VM_TECSInitializer.eInitialize;     /* TECSイニシャライザ */
+  /* mrubyライブラリ */
+    mrubyLib = "$(MRUBY_LIB_DIR)/EV3_common.rb "
+    "$(MRUBY_LIB_DIR)/RTOS.rb "
+    "$(MRUBY_LIB_DIR)/Speaker.rb "
+    "$(MRUBY_LIB_DIR)/Button.rb "
+    "$(MRUBY_LIB_DIR)/Motor.rb "
+    "$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+    "$(MRUBY_LIB_DIR)/GyroSensor.rb "
+    "$(MRUBY_LIB_DIR)/ColorSensor.rb "
+    "$(MRUBY_LIB_DIR)/TouchSensor.rb "
+    "$(MRUBY_LIB_DIR)/LED.rb "
+    "$(MRUBY_LIB_DIR)/LCD.rb "
+    "$(MRUBY_LIB_DIR)/Battery.rb "
+    "$(MRUBY_LIB_DIR)/Balancer.rb "
+    "$(MRUBY_LIB_DIR)/SharedMemory.rb "
+    "$(MRUBY_LIB_DIR)/Receive.rb "
+    "$(APP_PARAM_RB) "
+    "$(APP_PARAM_SET_RB) ";
+  };
+  cell tReceive Receive {
+  /* ファイルの読み込み操作 */
+    cFatFile = FatFile.eFatFile;
+    cInit = VM_TECSInitializer.eInitialize;     /* TECSイニシャライザ */
+  /* mrubyライブラリ */
+    mrubyLib = "$(MRUBY_LIB_DIR)/EV3_common.rb "
+    "$(MRUBY_LIB_DIR)/RTOS.rb "
+    "$(MRUBY_LIB_DIR)/Speaker.rb "
+    "$(MRUBY_LIB_DIR)/Button.rb "
+    "$(MRUBY_LIB_DIR)/Motor.rb "
+    "$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
+    "$(MRUBY_LIB_DIR)/GyroSensor.rb "
+    "$(MRUBY_LIB_DIR)/ColorSensor.rb "
+    "$(MRUBY_LIB_DIR)/TouchSensor.rb "
+    "$(MRUBY_LIB_DIR)/LED.rb "
+    "$(MRUBY_LIB_DIR)/LCD.rb "
+    "$(MRUBY_LIB_DIR)/Battery.rb "
+    "$(MRUBY_LIB_DIR)/Balancer.rb "
+    "$(MRUBY_LIB_DIR)/SharedMemory.rb "
+    "$(MRUBY_LIB_DIR)/Receive.rb "
+    "$(APP_PARAM_RB) "
+    "$(APP_PARAM_SET_RB) ";
+
+  };
+  cell tEV3Platform EV3Platform {
+  };
+  cell tTask EV3Task {
+    // 呼び口の結合
+    cBody = EV3Platform.eTaskBody;
+    //* 属性の設定
+    taskAttribute   = C_EXP("TA_ACT");
+    priority    = C_EXP("EV3_PLATFORM_PRIORITY");
+    systemStackSize = C_EXP("STACK_SIZE");
+  };
+};

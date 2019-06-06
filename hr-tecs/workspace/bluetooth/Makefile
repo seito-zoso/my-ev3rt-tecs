@@ -258,7 +258,8 @@ INCLUDES := -I. -I./gen -I$(SRCDIR)/tecs_kernel \
 			-I$(TECSGEN_DIR)/tecs \
 			-I$(TECSGEN_DIR)/tecs/mruby \
 			-I$(TECSGEN_DIR)/tecs/TLSFMalloc \
-            -I$(TECSGEN_DIR)/tecs/posix $(INCLUDES)
+            -I$(TECSGEN_DIR)/tecs/posix $(INCLUDES) \
+
 
 LDFLAGS := $(LDFLAGS) -L $(MRUBY_SRC_DIR)/build/ARM/lib/
 CFG1_OUT_LDFLAGS := $(CFG1_OUT_LDFLAGS) -L $(MRUBY_SRC_DIR)/build/ARM/lib/

@@ -79,4 +79,6 @@
 
 #include <stdio.h>
 
+extern void	zmodem_recv_task(intptr_t exinf);
+
 #endif /* TOPPERS_MACRO_ONLY */

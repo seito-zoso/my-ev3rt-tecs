@@ -1,3 +1,12 @@
+2019-05-23 Version beta 2.2.0
+* Added menu+BT application (Detail: doc/menu+BT.pdf)
+* Added EV3_common_menu+bluetooth.cdl (/hr-tecs/tecs_lib/mindstorms_ev3/)
+* Updata mruby (2.0.1)
+    change the below description from github.com/mruby/mruby on 2019/05/31 (ver2.0.1)
+      <mruby/minirake>
+      486 if $rake_root_fiber -> unless $rake_root_fiberhttps://www.youtube.com/?gl=JP&hl=ja
+* Modify the behavior when pressing the Back button on the application where zomodem is included
+
 2018-05-7 Version beta 2.1.0
 * Make available bigger tire and wheel.
    tire  (6021952/11957 Motorcycle Tyre Φ100,6)
@@ -11,7 +20,6 @@
 * Remove warnings at build-time
 * Update balancer module
 * Update TECSGEN (1.5.A.5)
-
 
 2017-05-02 Version beta 2.0.0
 * Support multi VM

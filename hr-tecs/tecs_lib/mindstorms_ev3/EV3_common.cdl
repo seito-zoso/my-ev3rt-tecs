@@ -21,10 +21,6 @@ import(<tBalancer.cdl>);
 
 import(<tSharedMemory.cdl>);
 
-import(<tFatFile.cdl>);
-import(<tFatDir.cdl>);
-import(<tRunApp.cdl>);
-import(<tReceive.cdl>);
 
 /*
  * シグニチャプラグイン MrubyBridgePlugin の呼び出し。
@@ -47,13 +43,6 @@ generate( MrubyBridgePlugin, sTouchSensor, "" );
 generate( MrubyBridgePlugin, sBalancer, "" );
 
 generate( MrubyBridgePlugin, sSharedMemory, "" );
-
-generate( MrubyBridgePlugin, sFatFile, "" );
-generate( MrubyBridgePlugin, sFatDir, "" );
-generate( MrubyBridgePlugin, sRunApp, "" );
-generate( MrubyBridgePlugin, sReceive, "" );
-
-
 
 
 /*
@@ -159,19 +148,6 @@ region rDomainEV3 {
 	cell nMruby::tsSharedMemory BridgeSharedMemory {
 		cTECS = SharedMemory.eSharedMemory;
 	};
-	// FatFs ブリッジセル
-	cell nMruby::tsFatFile BridgeFatFile {
-		cTECS = FatFile.eFatFile;
-	};
-	cell nMruby::tsFatDir BridgeFatDir {
-		cTECS = FatDir.eFatDir;
-	};
-	cell nMruby::tsRunApp BridgeRunApp {
-		cTECS = RunApp.eRunApp;
-	};
-	cell nMruby::tsReceive BridgeReceive {
-		cTECS = Receive.eReceive;
-	};
 	//Kernel
 	cell tKernel HRP2Kernel {
 	};
@@ -260,56 +236,6 @@ region rDomainEV3 {
 	};
 	cell tSharedMemory SharedMemory {
 	};
-	cell tFatFile FatFile {
-	};
-	cell tFatDir FatDir {
-	};
-  cell tRunApp RunApp {
-  	cFatFile = FatFile.eFatFile;
-    cInit = VM_TECSInitializer.eInitialize;     /* TECSイニシャライザ */
-  /* mrubyライブラリ */
-	 	mrubyLib = "$(MRUBY_LIB_DIR)/EV3_common.rb "
-		"$(MRUBY_LIB_DIR)/RTOS.rb "
-		"$(MRUBY_LIB_DIR)/Speaker.rb "
-		"$(MRUBY_LIB_DIR)/Button.rb "
-		"$(MRUBY_LIB_DIR)/Motor.rb "
-		"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
-		"$(MRUBY_LIB_DIR)/GyroSensor.rb "
-		"$(MRUBY_LIB_DIR)/ColorSensor.rb "
-		"$(MRUBY_LIB_DIR)/TouchSensor.rb "
-		"$(MRUBY_LIB_DIR)/LED.rb "
-		"$(MRUBY_LIB_DIR)/LCD.rb "
-		"$(MRUBY_LIB_DIR)/Battery.rb "
-		"$(MRUBY_LIB_DIR)/Balancer.rb "
-		"$(MRUBY_LIB_DIR)/SharedMemory.rb "
-		"$(MRUBY_LIB_DIR)/Receive.rb "
-		"$(APP_PARAM_RB) "
-		"$(APP_PARAM_SET_RB) ";
-  };
-  cell tReceive Receive {
-  /* ファイルの読み込み操作 */
-  	cFatFile = FatFile.eFatFile;
-    cInit = VM_TECSInitializer.eInitialize;     /* TECSイニシャライザ */
-  /* mrubyライブラリ */
-	 	mrubyLib = "$(MRUBY_LIB_DIR)/EV3_common.rb "
-		"$(MRUBY_LIB_DIR)/RTOS.rb "
-		"$(MRUBY_LIB_DIR)/Speaker.rb "
-		"$(MRUBY_LIB_DIR)/Button.rb "
-		"$(MRUBY_LIB_DIR)/Motor.rb "
-		"$(MRUBY_LIB_DIR)/UltrasonicSensor.rb "
-		"$(MRUBY_LIB_DIR)/GyroSensor.rb "
-		"$(MRUBY_LIB_DIR)/ColorSensor.rb "
-		"$(MRUBY_LIB_DIR)/TouchSensor.rb "
-		"$(MRUBY_LIB_DIR)/LED.rb "
-		"$(MRUBY_LIB_DIR)/LCD.rb "
-		"$(MRUBY_LIB_DIR)/Battery.rb "
-		"$(MRUBY_LIB_DIR)/Balancer.rb "
-		"$(MRUBY_LIB_DIR)/SharedMemory.rb "
-		"$(MRUBY_LIB_DIR)/Receive.rb "
-		"$(APP_PARAM_RB) "
-		"$(APP_PARAM_SET_RB) ";
-
-  };
 	cell tEV3Platform EV3Platform {
 	};
 	cell tTask EV3Task {

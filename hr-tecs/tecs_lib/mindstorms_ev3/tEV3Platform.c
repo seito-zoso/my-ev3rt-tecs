@@ -70,22 +70,23 @@ eTaskBody_main(CELLIDX idx)
         // TODO::support event_handler
         dly_tsk(250);
         if (ev3_button_is_pressed(BACK_BUTTON)) {
-#ifndef ZMODEM
+// #ifndef ZMODEM
             ext_ker();
-#else
-            CELLCB   *p_cellcb;
-            if (VALID_IDX(idx)) {
-                p_cellcb = GET_CELLCB(idx);
-            }
-            initialize_console_dri();
-            syslog(LOG_EMERG,"Reset button is pressed");
-            for (int i=0; i<NCP_cRiteVM; i++) {
-                cRiteVM_reset(i);
-            }
-            for (int i=0; i<NCP_cTask; i++) {
-                cTask_activate(i);
-            }
-#endif /* ZMODEM */
+// #else
+//             CELLCB   *p_cellcb;
+//             if (VALID_IDX(idx)) {
+//                 p_cellcb = GET_CELLCB(idx);
+//             }
+//             initialize_console_dri();
+//             dly_tsk(500);
+//             syslog(LOG_EMERG,"Reset button is pressed");
+//             for (int i=0; i<NCP_cRiteVM; i++) {
+//                 cRiteVM_reset(i);
+//             }
+//             for (int i=0; i<NCP_cTask; i++) {
+//                 cTask_activate(i);
+//             }
+// #endif /* ZMODEM */
         }
     }
 }

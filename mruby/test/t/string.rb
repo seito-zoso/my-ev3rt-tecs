@@ -20,6 +20,7 @@ assert('String#<=>', '15.2.10.5.1') do
   assert_equal  1, c
   assert_equal(-1, d)
   assert_equal  1, e
+  assert_nil 'a' <=> 1024
 end
 
 assert('String#==', '15.2.10.5.2') do
@@ -154,10 +155,11 @@ assert('String#[]=') do
     d[-10] = 'X'
   end
 
-  e = 'abc'
-  e[1.1] = 'X'
-  assert_equal 'aXc', e
-
+  if Object.const_defined?(:Float)
+   e = 'abc'
+   e[1.1] = 'X'
+   assert_equal 'aXc', e
+  end
 
   # length of args is 2
   a1 = 'abc'
@@ -328,6 +330,12 @@ assert('String#each_line', '15.2.10.5.15') do
   end
 
   assert_equal list, n_list
+
+  n_list.clear
+  a.each_line("li") do |line|
+    n_list << line
+  end
+  assert_equal ["first li", "ne\nsecond li", "ne\nthird li", "ne"], n_list
 end
 
 assert('String#empty?', '15.2.10.5.16') do
@@ -347,11 +355,18 @@ assert('String#gsub', '15.2.10.5.18') do
   assert_equal('aBcaBc', 'abcabc'.gsub('b', 'B'), 'gsub without block')
   assert_equal('aBcaBc', 'abcabc'.gsub('b'){|w| w.capitalize }, 'gsub with block')
   assert_equal('$a$a$',  '#a#a#'.gsub('#', '$'), 'mruby/mruby#847')
-  assert_equal('$a$a$',  '#a#a#'.gsub('#'){|w| '$' }, 'mruby/mruby#847 with block')
+  assert_equal('$a$a$',  '#a#a#'.gsub('#'){|_w| '$' }, 'mruby/mruby#847 with block')
   assert_equal('$$a$$',  '##a##'.gsub('##', '$$'), 'mruby/mruby#847 another case')
-  assert_equal('$$a$$',  '##a##'.gsub('##'){|w| '$$' }, 'mruby/mruby#847 another case with block')
+  assert_equal('$$a$$',  '##a##'.gsub('##'){|_w| '$$' }, 'mruby/mruby#847 another case with block')
   assert_equal('A',      'a'.gsub('a', 'A'))
   assert_equal('A',      'a'.gsub('a'){|w| w.capitalize })
+  assert_equal("<a><><>", 'a'.gsub('a', '<\0><\1><\2>'))
+  assert_equal(".h.e.l.l.o.", "hello".gsub("", "."))
+  a = []
+  assert_equal(".h.e.l.l.o.", "hello".gsub("") { |i| a << i; "." })
+  assert_equal(["", "", "", "", "", ""], a)
+  assert_raise(ArgumentError) { "".gsub }
+  assert_raise(ArgumentError) { "".gsub("", "", "") }
 end
 
 assert('String#gsub with backslash') do
@@ -381,8 +396,6 @@ assert('String#hash', '15.2.10.5.20') do
 end
 
 assert('String#include?', '15.2.10.5.21') do
-  assert_true 'abc'.include?(97)
-  assert_false 'abc'.include?(100)
   assert_true 'abc'.include?('a')
   assert_false 'abc'.include?('d')
 end
@@ -391,6 +404,8 @@ assert('String#index', '15.2.10.5.22') do
   assert_equal 0, 'abc'.index('a')
   assert_nil 'abc'.index('d')
   assert_equal 3, 'abcabc'.index('a', 1)
+  assert_equal 5, "hello".index("", 5)
+  assert_equal nil, "hello".index("", 6)
 end
 
 assert('String#initialize', '15.2.10.5.23') do
@@ -449,12 +464,11 @@ assert('String#reverse', '15.2.10.5.29') do
 end
 
 assert('String#reverse(UTF-8)', '15.2.10.5.29') do
-  assert_equal "ち", "こんにちは世界"[3]
-  assert_equal nil, "こんにちは世界"[20]
-  assert_equal "世", "こんにちは世界"[-2]
-  assert_equal "世界", "こんにちは世界"[-2..-1]
-  assert_equal "んに", "こんにちは世界"[1,2]
-  assert_equal "世", "こんにちは世界"["世"]
+  a = 'こんにちは世界!'
+  a.reverse
+
+  assert_equal 'こんにちは世界!', a
+  assert_equal '!界世はちにんこ', 'こんにちは世界!'.reverse
 end if UTF8STRING
 
 assert('String#reverse!', '15.2.10.5.30') do
@@ -559,6 +573,16 @@ assert('String#sub', '15.2.10.5.36') do
   assert_equal 'aBcabc', 'abcabc'.sub('b', 'B')
   assert_equal 'aBcabc', 'abcabc'.sub('b') { |w| w.capitalize }
   assert_equal 'aa$', 'aa#'.sub('#', '$')
+  assert_equal '.abc', "abc".sub("", ".")
+
+  str = "abc"
+  miss = str.sub("X", "Z")
+  assert_equal str, miss
+  assert_not_same str, miss
+
+  a = []
+  assert_equal '.abc', "abc".sub("") { |i| a << i; "." }
+  assert_equal [""], a
 end
 
 assert('String#sub with backslash') do
@@ -585,11 +609,15 @@ assert('String#to_f', '15.2.10.5.38') do
   a = ''.to_f
   b = '123456789'.to_f
   c = '12345.6789'.to_f
+  d = '1e-2147483648'.to_f
+  e = '1e2147483648'.to_f
 
   assert_float(0.0, a)
   assert_float(123456789.0, b)
   assert_float(12345.6789, c)
-end
+  assert_float(0, d)
+  assert_float(Float::INFINITY, e)
+end if Object.const_defined?(:Float)
 
 assert('String#to_i', '15.2.10.5.39') do
   a = ''.to_i
@@ -644,7 +672,7 @@ assert('String#inspect', '15.2.10.5.46') do
   ("\1" * 100).inspect
   end
 
-  assert_equal "\"\\000\"", "\0".inspect
+  assert_equal "\"\\x00\"", "\0".inspect
 end
 
 # Not ISO specified
@@ -683,6 +711,11 @@ assert('String#freeze') do
   str = "hello"
   str.freeze
 
-  assert_raise(RuntimeError) { str.upcase! }
+  assert_raise(FrozenError) { str.upcase! }
 end
 
+assert('String literal concatenation') do
+  assert_equal 2, ("A" "B").size
+  assert_equal 3, ('A' "B" 'C').size
+  assert_equal 4, (%(A) "B#{?C}" "D").size
+end

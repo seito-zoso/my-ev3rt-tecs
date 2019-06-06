@@ -1,7 +1,7 @@
 #  mrubyのアプリケーションファイル名
 # APP_NAME = bluetooth.rb
 # APP_NAME = battery.rb
-# APP_NAME = button.rb
+APP_NAME = button.rb
 # APP_NAME = color.rb
 # APP_NAME = color2.rb
 # APP_NAME = color3.rb
@@ -10,7 +10,7 @@
 # APP_NAME = lcd.rb
 # APP_NAME = lcd2.rb
 # APP_NAME = lcd3.rb
-APP_NAME = led.rb
+# APP_NAME = led.rb
 # APP_NAME = motor.rb
 # APP_NAME = motor2.rb
 # APP_NAME = rtos.rb

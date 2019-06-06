@@ -1,21 +1,16 @@
 $ok_test = 0
 $ko_test = 0
 $kill_test = 0
+$skip_test = 0
 $asserts  = []
 $test_start = Time.now if Object.const_defined?(:Time)
 
-# Implementation of print due to the reason that there might be no print
-def t_print(*args)
-  i = 0
-  len = args.size
-  while i < len
-    str = args[i].to_s
-    begin
-      __printstr__ str
-    rescue NoMethodError
-      __t_printstr__ str rescue print str
-    end
-    i += 1
+unless RUBY_ENGINE == "mruby"
+  # For bintest on Ruby
+  def t_print(*args)
+    print(*args)
+    $stdout.flush
+    nil
   end
 end
 
@@ -23,12 +18,14 @@ end
 # Create the assertion in a readable way
 def assertion_string(err, str, iso=nil, e=nil, bt=nil)
   msg = "#{err}#{str}"
-  msg += " [#{iso}]" if iso && iso != ''
-  msg += " => #{e.message}" if e
-  msg += " (mrbgems: #{GEMNAME})" if Object.const_defined?(:GEMNAME)
+  msg += " [#{iso}]" if iso && !iso.empty?
+  msg += " => #{e}" if e && !e.to_s.empty?
+  msg += " (#{GEMNAME == 'mruby-test' ? 'core' : "mrbgems: #{GEMNAME}"})"
   if $mrbtest_assert && $mrbtest_assert.size > 0
-    $mrbtest_assert.each do |idx, str, diff|
-      msg += "\n - Assertion[#{idx}] Failed: #{str}\n#{diff}"
+    $mrbtest_assert.each do |idx, assert_msg, diff|
+      msg += "\n - Assertion[#{idx}]"
+      msg += " #{assert_msg}." if assert_msg && !assert_msg.empty?
+      msg += "\n#{diff}" if diff && !diff.empty?
     end
   end
   msg += "\nbacktrace:\n\t#{bt.join("\n\t")}" if bt
@@ -48,24 +45,24 @@ def assert(str = 'Assertion failed', iso = '')
   begin
     $mrbtest_assert = []
     $mrbtest_assert_idx = 0
-    if(!yield || $mrbtest_assert.size > 0)
-      $asserts.push(assertion_string('Fail: ', str, iso, nil))
+    yield
+    if($mrbtest_assert.size > 0)
+      $asserts.push(assertion_string('Fail: ', str, iso))
       $ko_test += 1
       t_print('F')
     else
       $ok_test += 1
       t_print('.')
     end
+  rescue MRubyTestSkip => e
+    $asserts.push(assertion_string('Skip: ', str, iso, e))
+    $skip_test += 1
+    t_print('?')
   rescue Exception => e
     bt = e.backtrace if $mrbtest_verbose
-    if e.class.to_s == 'MRubyTestSkip'
-      $asserts.push "Skip: #{str} #{iso} #{e.cause}"
-      t_print('?')
-    else
-      $asserts.push(assertion_string("#{e.class}: ", str, iso, e, bt))
-      $kill_test += 1
-      t_print('X')
-  end
+    $asserts.push(assertion_string("#{e.class}: ", str, iso, e, bt))
+    $kill_test += 1
+    t_print('X')
   ensure
     $mrbtest_assert = nil
   end
@@ -73,187 +70,172 @@ def assert(str = 'Assertion failed', iso = '')
 end
 
 def assertion_diff(exp, act)
-  "    Expected: #{exp.inspect}\n" +
+  "    Expected: #{exp.inspect}\n" \
   "      Actual: #{act.inspect}"
 end
 
-def assert_true(ret, msg = nil, diff = nil)
+def assert_true(obj, msg = nil, diff = nil)
   if $mrbtest_assert
     $mrbtest_assert_idx += 1
-    unless ret
-      msg = "Expected #{ret.inspect} to be true" unless msg
-      diff = assertion_diff(true, ret)  unless diff
+    unless obj == true
+      diff ||= "    Expected #{obj.inspect} to be true."
       $mrbtest_assert.push([$mrbtest_assert_idx, msg, diff])
     end
   end
-  ret
+  obj
 end
 
-def assert_false(ret, msg = nil, diff = nil)
-  if $mrbtest_assert
-    $mrbtest_assert_idx += 1
-    if ret
-      msg = "Expected #{ret.inspect} to be false" unless msg
-      diff = assertion_diff(false, ret) unless diff
+def assert_false(obj, msg = nil, diff = nil)
+  unless obj == false
+    diff ||= "    Expected #{obj.inspect} to be false."
+  end
+  assert_true(!obj, msg, diff)
+end
 
-      $mrbtest_assert.push([$mrbtest_assert_idx, msg, diff])
+def assert_equal(exp, act_or_msg = nil, msg = nil, &block)
+  ret, exp, act, msg = _eval_assertion(:==, exp, act_or_msg, msg, block)
+  unless ret
+    diff = assertion_diff(exp, act)
+  end
+  assert_true(ret, msg, diff)
+end
+
+def assert_not_equal(exp, act_or_msg = nil, msg = nil, &block)
+  ret, exp, act, msg = _eval_assertion(:==, exp, act_or_msg, msg, block)
+  if ret
+    diff = "    Expected #{act.inspect} to not be equal to #{exp.inspect}."
+  end
+  assert_true(!ret, msg, diff)
+end
+
+def assert_same(*args); _assert_same(true, *args) end
+def assert_not_same(*args); _assert_same(false, *args) end
+def _assert_same(affirmed, exp, act, msg = nil)
+  unless ret = exp.equal?(act) == affirmed
+    exp_str, act_str = [exp, act].map do |o|
+      "#{o.inspect} (class=#{o.class}, oid=#{o.__id__})"
     end
+    diff = "    Expected #{act_str} to #{'not ' unless affirmed}be the same as #{exp_str}."
   end
-  !ret
-end
-
-def assert_equal(arg1, arg2 = nil, arg3 = nil)
-  if block_given?
-    exp, act, msg = arg1, yield, arg2
-  else
-    exp, act, msg = arg1, arg2, arg3
-  end
-
-  msg = "Expected to be equal" unless msg
-  diff = assertion_diff(exp, act)
-  assert_true(exp == act, msg, diff)
-end
-
-def assert_not_equal(arg1, arg2 = nil, arg3 = nil)
-  if block_given?
-    exp, act, msg = arg1, yield, arg2
-  else
-    exp, act, msg = arg1, arg2, arg3
-  end
-
-  msg = "Expected to be not equal" unless msg
-  diff = assertion_diff(exp, act)
-  assert_false(exp == act, msg, diff)
+  assert_true(ret, msg, diff)
 end
 
 def assert_nil(obj, msg = nil)
-  msg = "Expected #{obj.inspect} to be nil" unless msg
-  diff = assertion_diff(nil, obj)
-  assert_true(obj.nil?, msg, diff)
-end
-
-def assert_include(collection, obj, msg = nil)
-  msg = "Expected #{collection.inspect} to include #{obj.inspect}" unless msg
-  diff = "    Collection: #{collection.inspect}\n" +
-         "        Object: #{obj.inspect}"
-  assert_true(collection.include?(obj), msg, diff)
-end
-
-def assert_not_include(collection, obj, msg = nil)
-  msg = "Expected #{collection.inspect} to not include #{obj.inspect}" unless msg
-  diff = "    Collection: #{collection.inspect}\n" +
-         "        Object: #{obj.inspect}"
-  assert_false(collection.include?(obj), msg, diff)
-end
-
-def assert_raise(*exp)
-  ret = true
-  if $mrbtest_assert
-    $mrbtest_assert_idx += 1
-    msg = exp.last.class == String ? exp.pop : nil
-    msg = msg.to_s + " : " if msg
-    should_raise = false
-    begin
-      yield
-      should_raise = true
-    rescue Exception => e
-      msg = "#{msg}#{exp.inspect} exception expected, not"
-      diff = "      Class: <#{e.class}>\n" +
-             "    Message: #{e.message}"
-      if not exp.any?{|ex| ex.instance_of?(Module) ? e.kind_of?(ex) : ex == e.class }
-        $mrbtest_assert.push([$mrbtest_assert_idx, msg, diff])
-        ret = false
-      end
-    end
-
-    exp = exp.first if exp.first
-    if should_raise
-      msg = "#{msg}#{exp.inspect} expected but nothing was raised."
-      $mrbtest_assert.push([$mrbtest_assert_idx, msg, nil])
-      ret = false
-    end
+  unless ret = obj.nil?
+    diff = "    Expected #{obj.inspect} to be nil."
   end
-  ret
+  assert_true(ret, msg, diff)
 end
 
-def assert_nothing_raised(*exp)
-  ret = true
-  if $mrbtest_assert
-    $mrbtest_assert_idx += 1
-    msg = exp.last.class == String ? exp.pop : ""
-    begin
-      yield
-    rescue Exception => e
-      msg = "#{msg} exception raised."
-      diff = "      Class: <#{e.class}>\n" +
-             "    Message: #{e.message}"
-      $mrbtest_assert.push([$mrbtest_assert_idx, msg, diff])
-      ret = false
-    end
+def assert_include(*args); _assert_include(true, *args) end
+def assert_not_include(*args); _assert_include(false, *args) end
+def _assert_include(affirmed, collection, obj, msg = nil)
+  unless ret = collection.include?(obj) == affirmed
+    diff = "    Expected #{collection.inspect} to #{'not ' unless affirmed}include #{obj.inspect}."
   end
-  ret
+  assert_true(ret, msg, diff)
 end
 
 ##
 # Fails unless +obj+ is a kind of +cls+.
 def assert_kind_of(cls, obj, msg = nil)
-  msg = "Expected #{obj.inspect} to be a kind of #{cls}, not #{obj.class}" unless msg
-  diff = assertion_diff(cls, obj.class)
-  assert_true(obj.kind_of?(cls), msg, diff)
+  unless ret = obj.kind_of?(cls)
+    diff = "    Expected #{obj.inspect} to be a kind of #{cls}, not #{obj.class}."
+  end
+  assert_true(ret, msg, diff)
 end
 
 ##
 # Fails unless +exp+ is equal to +act+ in terms of a Float
 def assert_float(exp, act, msg = nil)
-  msg = "Float #{exp} expected to be equal to float #{act}" unless msg
-  diff = assertion_diff(exp, act)
-  assert_true check_float(exp, act), msg, diff
+  e, a = exp.to_f, act.to_f
+  if (e.infinite? || a.infinite?) && e != a ||
+     e.nan? && !a.nan? || !e.nan? && a.nan?
+    flunk(msg, "    Expected #{act} to be #{exp}.")
+  elsif (n = (e - a).abs) > Mrbtest::FLOAT_TOLERANCE
+    flunk(msg, "    Expected |#{exp} - #{act}| (#{n}) to be <= #{Mrbtest::FLOAT_TOLERANCE}.")
+  else
+    pass
+  end
+end
+
+def assert_raise(*exc)
+  msg = (exc.last.is_a? String) ? exc.pop : nil
+  exc = exc.empty? ? StandardError : exc.size == 1 ? exc[0] : exc
+  begin
+    yield
+  rescue *exc
+    pass
+  rescue Exception => e
+    diff = "    #{exc} exception expected, not\n" \
+           "    Class: <#{e.class}>\n" \
+           "    Message: <#{e}>"
+    flunk(msg, diff)
+  else
+    diff = "    #{exc} expected but nothing was raised."
+    flunk(msg, diff)
+  end
+end
+
+def assert_nothing_raised(msg = nil)
+  begin
+    yield
+  rescue Exception => e
+    diff = "    Exception raised:\n" \
+           "    Class: <#{e.class}>\n" \
+           "    Message: <#{e}>"
+    flunk(msg, diff)
+  else
+    pass
+  end
+end
+
+def pass
+  assert_true(true)
+end
+
+def flunk(msg = nil, diff = "Epic Fail!")
+  assert_true(false, msg, diff)
 end
 
 ##
 # Report the test result and print all assertions
 # which were reported broken.
-def report()
+def report
   t_print("\n")
 
   $asserts.each do |msg|
-    puts msg
+    t_print("#{msg}\n")
   end
 
-  $total_test = $ok_test+$ko_test+$kill_test
+  $total_test = $ok_test + $ko_test + $kill_test + $skip_test
   t_print("Total: #{$total_test}\n")
 
   t_print("   OK: #{$ok_test}\n")
   t_print("   KO: #{$ko_test}\n")
   t_print("Crash: #{$kill_test}\n")
+  t_print(" Skip: #{$skip_test}\n")
 
   if Object.const_defined?(:Time)
     t_time = Time.now - $test_start
     t_print(" Time: #{t_time.round(2)} seconds\n")
   end
+
+  $ko_test == 0 && $kill_test == 0
 end
 
-##
-# Performs fuzzy check for equality on methods returning floats
-def check_float(a, b)
-  tolerance = 1e-12
-  a = a.to_f
-  b = b.to_f
-  if a.finite? and b.finite?
-    (a-b).abs < tolerance
+def _eval_assertion(meth, exp, act_or_msg, msg, block)
+  if block
+    exp, act, msg = exp, block.call, act_or_msg
   else
-    true
+    exp, act, msg = exp, act_or_msg, msg
   end
+  return exp.__send__(meth, act), exp, act, msg
 end
 
 ##
 # Skip the test
-class MRubyTestSkip < NotImplementedError
-  attr_accessor :cause
-  def initialize(cause)
-    @cause = cause
-  end
-end
+class MRubyTestSkip < NotImplementedError; end
 
 def skip(cause = "")
   raise MRubyTestSkip.new(cause)

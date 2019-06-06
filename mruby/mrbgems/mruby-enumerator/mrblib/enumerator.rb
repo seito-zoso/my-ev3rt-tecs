@@ -109,24 +109,30 @@ class Enumerator
   #
   #     p fib.take(10) # => [1, 1, 2, 3, 5, 8, 13, 21, 34, 55]
   #
-  def initialize(obj=nil, meth=:each, *args, &block)
-    if block_given?
+  # In the second, deprecated, form, a generated Enumerator iterates over the
+  # given object using the given method with the given arguments passed. This
+  # form is left only for internal use.
+  #
+  # Use of this form is discouraged.  Use Kernel#enum_for or Kernel#to_enum
+  # instead.
+  def initialize(obj=NONE, meth=:each, *args, &block)
+    if block
       obj = Generator.new(&block)
-    else
-      raise ArgumentError unless obj
+    elsif obj == NONE
+      raise ArgumentError, "wrong number of arguments (given 0, expected 1+)"
     end
 
     @obj = obj
     @meth = meth
-    @args = args.dup
+    @args = args
     @fib = nil
     @dst = nil
     @lookahead = nil
     @feedvalue = nil
     @stop_exc = false
   end
-  attr_accessor :obj, :meth, :args, :fib
-  private :obj, :meth, :args, :fib
+  attr_accessor :obj, :meth, :args
+  attr_reader :fib
 
   def initialize_copy(obj)
     raise TypeError, "can't copy type #{obj.class}" unless obj.kind_of? Enumerator
@@ -151,14 +157,19 @@ class Enumerator
   #
   # +offset+:: the starting index to use
   #
-  def with_index(offset=0)
-    return to_enum :with_index, offset unless block_given?
-    raise TypeError, "no implicit conversion of #{offset.class} into Integer" unless offset.respond_to?(:to_int)
+  def with_index(offset=0, &block)
+    return to_enum :with_index, offset unless block
 
-    n = offset.to_int - 1
-    enumerator_block_call do |i|
+    if offset.nil?
+      offset = 0
+    else
+      offset = offset.__to_int
+    end
+
+    n = offset - 1
+    enumerator_block_call do |*i|
       n += 1
-      yield [i,n]
+      block.call i.__svalue, n
     end
   end
 
@@ -171,8 +182,8 @@ class Enumerator
   #
   # If no block is given, a new Enumerator is returned that includes the index.
   #
-  def each_with_index
-    with_index
+  def each_with_index(&block)
+    with_index(0, &block)
   end
 
   ##
@@ -203,23 +214,21 @@ class Enumerator
   #   # => foo:1
   #   # => foo:2
   #
-  def with_object(object)
-    return to_enum(:with_object, object) unless block_given?
+  def with_object(object, &block)
+    return to_enum(:with_object, object) unless block
 
     enumerator_block_call do |i|
-      yield [i,object]
+      block.call [i,object]
     end
     object
   end
 
   def inspect
-    return "#<#{self.class}: uninitialized>" unless @obj
-
     if @args && @args.size > 0
       args = @args.join(", ")
-      "#<#{self.class}: #{@obj}:#{@meth}(#{args})>"
+      "#<#{self.class}: #{@obj.inspect}:#{@meth}(#{args})>"
     else
-      "#<#{self.class}: #{@obj}:#{@meth}>"
+      "#<#{self.class}: #{@obj.inspect}:#{@meth}>"
     end
   end
 
@@ -271,7 +280,7 @@ class Enumerator
       end
       obj.args = args
     end
-    return obj unless block_given?
+    return obj unless block
     enumerator_block_call(&block)
   end
 
@@ -516,6 +525,7 @@ class Enumerator
 
   # just for internal
   class Generator
+    include Enumerable
     def initialize(&block)
       raise TypeError, "wrong argument type #{self.class} (expected Proc)" unless block.kind_of? Proc
 
@@ -531,7 +541,7 @@ class Enumerator
   # just for internal
   class Yielder
     def initialize(&block)
-      raise LocalJumpError, "no block given" unless block_given?
+      raise LocalJumpError, "no block given" unless block
 
       @proc = block
     end
@@ -605,30 +615,43 @@ module Kernel
   def to_enum(meth=:each, *args)
     Enumerator.new self, meth, *args
   end
-  alias :enum_for :to_enum
+  alias enum_for to_enum
 end
 
 module Enumerable
   # use Enumerator to use infinite sequence
-  def zip(*arg)
-    ary = []
-    arg = arg.map{|a|a.each}
-    i = 0
-    self.each do |*val|
-      a = []
-      a.push(val.__svalue)
-      idx = 0
-      while idx < arg.size
-        begin
-          a.push(arg[idx].next)
-        rescue StopIteration
-          a.push(nil)
-        end
-        idx += 1
+  def zip(*args, &block)
+    args = args.map do |a|
+      if a.respond_to?(:each)
+        a.to_enum(:each)
+      else
+        raise TypeError, "wrong argument type #{a.class} (must respond to :each)"
       end
-      ary.push(a)
-      i += 1
     end
-    ary
+
+    result = block ? nil : []
+
+    each do |*val|
+      tmp = [val.__svalue]
+      args.each do |arg|
+        v = if arg.nil?
+          nil
+        else
+          begin
+            arg.next
+          rescue StopIteration
+            nil
+          end
+        end
+        tmp.push(v)
+      end
+      if result.nil?
+        block.call(tmp)
+      else
+        result.push(tmp)
+      end
+    end
+
+    result
   end
 end

@@ -233,6 +233,7 @@ TARGETDIR = $(SRCDIR)/target/$(TARGET)
 include $(TARGETDIR)/Makefile.ev3
 include $(TARGETDIR)/api/Makefile
 
+
 # =begin added by ishikawa for tmp
 USE_SYSLOG = true
 # =end added by ishikawa for tmp
@@ -284,7 +285,8 @@ INCLUDES := -I. -I./gen -I$(SRCDIR)/tecs_kernel \
 			-I$(TECSGEN_DIR)/tecs \
 			-I$(TECSGEN_DIR)/tecs/mruby \
 			-I$(TECSGEN_DIR)/tecs/TLSFMalloc \
-            -I$(TECSGEN_DIR)/tecs/posix $(INCLUDES)
+            -I$(TECSGEN_DIR)/tecs/posix $(INCLUDES) \
+            -I$(SRCDIR)/target/ev3_gcc/drivers/fatfs/ff10b/src
 
 LDFLAGS := $(LDFLAGS) -L $(MRUBY_SRC_DIR)/build/ARM/lib/
 CFG1_OUT_LDFLAGS := $(CFG1_OUT_LDFLAGS) -L $(MRUBY_SRC_DIR)/build/ARM/lib/
@@ -364,7 +366,7 @@ endif
 #  ターゲットファイル（複数を同時に選択してはならない）
 #
 #all: $(OBJFILE)
-all: $(OBJNAME).bin uImage 
+all: $(OBJNAME).bin uImage
 #all: $(OBJNAME).srec
 
 ##### 以下は編集しないこと #####

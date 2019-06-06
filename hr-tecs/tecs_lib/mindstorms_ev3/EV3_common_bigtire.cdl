@@ -21,6 +21,7 @@ import(<tBalancer_bigtire.cdl>);
 
 import(<tSharedMemory.cdl>);
 
+
 /*
  * シグニチャプラグイン MrubyBridgePlugin の呼び出し。
  */
@@ -42,6 +43,7 @@ generate( MrubyBridgePlugin, sTouchSensor, "" );
 generate( MrubyBridgePlugin, sBalancer, "" );
 
 generate( MrubyBridgePlugin, sSharedMemory, "" );
+
 
 /*
  *  サンプルプログラムの定義
@@ -146,7 +148,6 @@ region rDomainEV3 {
 	cell nMruby::tsSharedMemory BridgeSharedMemory {
 		cTECS = SharedMemory.eSharedMemory;
 	};
-
 	//Kernel
 	cell tKernel HRP2Kernel {
 	};

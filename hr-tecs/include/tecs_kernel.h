@@ -1,7 +1,7 @@
 #ifdef TECSGEN
 #define TOPPERS_SVC_CALL
 #define TOPPERS_TARGET_SVC_H
-#define while(n) return(n)
+// #define while(n) return(n)
 #define TOPPERS_SIL_H
 
 #ifndef __attribute__

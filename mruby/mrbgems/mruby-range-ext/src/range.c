@@ -1,5 +1,5 @@
-#include "mruby.h"
-#include "mruby/range.h"
+#include <mruby.h>
+#include <mruby/range.h>
 #include <math.h>
 
 static mrb_bool
@@ -40,19 +40,19 @@ r_lt(mrb_state *mrb, mrb_value a, mrb_value b)
  *     ("a".."z").cover?("cc")   #=> true
  */
 static mrb_value
-mrb_range_cover(mrb_state *mrb, mrb_value range)
+range_cover(mrb_state *mrb, mrb_value range)
 {
   mrb_value val;
-  struct RRange *r = mrb_range_ptr(range);
+  struct RRange *r = mrb_range_ptr(mrb, range);
   mrb_value beg, end;
 
   mrb_get_args(mrb, "o", &val);
 
-  beg = r->edges->beg;
-  end = r->edges->end;
+  beg = RANGE_BEG(r);
+  end = RANGE_END(r);
 
   if (r_le(mrb, beg, val)) {
-    if (r->excl) {
+    if (RANGE_EXCL(r)) {
       if (r_lt(mrb, val, end))
         return mrb_true_value();
     }
@@ -63,32 +63,6 @@ mrb_range_cover(mrb_state *mrb, mrb_value range)
   }
 
   return mrb_false_value();
-}
-
-/*
- *  call-seq:
- *     rng.first    -> obj
- *     rng.first(n) -> an_array
- *
- *  Returns the first object in the range, or an array of the first +n+
- *  elements.
- *
- *    (10..20).first     #=> 10
- *    (10..20).first(3)  #=> [10, 11, 12]
- */
-static mrb_value
-mrb_range_first(mrb_state *mrb, mrb_value range)
-{
-  mrb_int num;
-  mrb_value array;
-  struct RRange *r = mrb_range_ptr(range);
-
-  if (mrb_get_args(mrb, "|i", &num) == 0) {
-    return r->edges->beg;
-  }
-
-  array = mrb_funcall(mrb, range, "to_a", 0);
-  return mrb_funcall(mrb, array, "first", 1, mrb_fixnum_value(num));
 }
 
 /*
@@ -108,14 +82,13 @@ mrb_range_first(mrb_state *mrb, mrb_value range)
  *    (10...20).last(3)  #=> [17, 18, 19]
  */
 static mrb_value
-mrb_range_last(mrb_state *mrb, mrb_value range)
+range_last(mrb_state *mrb, mrb_value range)
 {
   mrb_value num;
   mrb_value array;
-  struct RRange *r = mrb_range_ptr(range);
 
   if (mrb_get_args(mrb, "|o", &num) == 0) {
-    return r->edges->end;
+    return mrb_range_end(mrb, range);
   }
 
   array = mrb_funcall(mrb, range, "to_a", 0);
@@ -134,17 +107,19 @@ mrb_range_last(mrb_state *mrb, mrb_value range)
  */
 
 static mrb_value
-mrb_range_size(mrb_state *mrb, mrb_value range)
+range_size(mrb_state *mrb, mrb_value range)
 {
-  struct RRange *r = mrb_range_ptr(range);
+  struct RRange *r = mrb_range_ptr(mrb, range);
   mrb_value beg, end;
-  double beg_f, end_f;
+  mrb_float beg_f, end_f;
   mrb_bool num_p = TRUE;
+  mrb_bool excl;
 
-  beg = r->edges->beg;
-  end = r->edges->end;
+  beg = RANGE_BEG(r);
+  end = RANGE_END(r);
+  excl = RANGE_EXCL(r);
   if (mrb_fixnum_p(beg)) {
-    beg_f = (double)mrb_fixnum(beg);
+    beg_f = (mrb_float)mrb_fixnum(beg);
   }
   else if (mrb_float_p(beg)) {
     beg_f = mrb_float(beg);
@@ -153,7 +128,7 @@ mrb_range_size(mrb_state *mrb, mrb_value range)
     num_p = FALSE;
   }
   if (mrb_fixnum_p(end)) {
-    end_f = (double)mrb_fixnum(end);
+    end_f = (mrb_float)mrb_fixnum(end);
   }
   else if (mrb_float_p(end)) {
     end_f = mrb_float(end);
@@ -162,14 +137,24 @@ mrb_range_size(mrb_state *mrb, mrb_value range)
     num_p = FALSE;
   }
   if (num_p) {
-    double f;
+    mrb_float n = end_f - beg_f;
+    mrb_float err = (fabs(beg_f) + fabs(end_f) + fabs(end_f-beg_f)) * MRB_FLOAT_EPSILON;
 
-    if (beg_f > end_f) return mrb_fixnum_value(0);
-    f = end_f - beg_f;
-    if (!r->excl) {
-      return mrb_fixnum_value((mrb_int)ceil(f + 1));
+    if (err>0.5) err=0.5;
+    if (excl) {
+      if (n<=0) return mrb_fixnum_value(0);
+      if (n<1)
+        n = 0;
+      else
+        n = floor(n - err);
     }
-    return mrb_fixnum_value((mrb_int)ceil(f));
+    else {
+      if (n<0) return mrb_fixnum_value(0);
+      n = floor(n + err);
+    }
+    if (isinf(n+1))
+      return mrb_float_value(mrb, INFINITY);
+    return mrb_fixnum_value((mrb_int)n+1);
   }
   return mrb_nil_value();
 }
@@ -179,10 +164,9 @@ mrb_mruby_range_ext_gem_init(mrb_state* mrb)
 {
   struct RClass * s = mrb_class_get(mrb, "Range");
 
-  mrb_define_method(mrb, s, "cover?", mrb_range_cover, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, s, "first",  mrb_range_first, MRB_ARGS_OPT(1));
-  mrb_define_method(mrb, s, "last",   mrb_range_last,  MRB_ARGS_OPT(1));
-  mrb_define_method(mrb, s, "size",   mrb_range_size,  MRB_ARGS_NONE());
+  mrb_define_method(mrb, s, "cover?", range_cover, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, s, "last",   range_last,  MRB_ARGS_OPT(1));
+  mrb_define_method(mrb, s, "size",   range_size,  MRB_ARGS_NONE());
 }
 
 void
